@@ -408,7 +408,7 @@ static bool passThru = false;
 //====== Set of useful function to access acceleration. gyroscope, magnetometer, and temperature data
 //===================================================================================================================
 
-float uint32_reg_to_float (uint8_t *buf)
+static float uint32_reg_to_float (uint8_t *buf)
 {
     union {
         uint32_t ui32;
@@ -422,22 +422,7 @@ float uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-void float_to_bytes (float param_val, uint8_t *buf) {
-    union {
-        float f;
-        uint8_t comp[sizeof(float)];
-    } u;
-    u.f = param_val;
-    for (uint8_t i=0; i < sizeof(float); i++) {
-        buf[i] = u.comp[i];
-    }
-    //Convert to LITTLE ENDIAN
-    for (uint8_t i=0; i < sizeof(float); i++) {
-        buf[i] = buf[(sizeof(float)-1) - i];
-    }
-}
-
-void EM7180_set_gyro_FS (uint16_t gyro_fs) {
+static void EM7180_set_gyro_FS (uint16_t gyro_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
     bytes[1] = (gyro_fs >> 8) & (0xFF);
@@ -457,7 +442,7 @@ void EM7180_set_gyro_FS (uint16_t gyro_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
+static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
     bytes[1] = (mag_fs >> 8) & (0xFF);
@@ -477,7 +462,7 @@ void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
+static void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
     uint8_t bytes[4], STAT;
     bytes[0] = param_val & (0xFF);
     bytes[1] = (param_val >> 8) & (0xFF);
@@ -498,25 +483,7 @@ void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180_set_float_param (uint8_t param, float param_val) {
-    uint8_t bytes[4], STAT;
-    float_to_bytes (param_val, &bytes[0]);
-    param = param | 0x80; //Parameter is the decimal value with the MSB set high to indicate a paramter write processs
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); //Param LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); //Param MSB
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); //Request parameter transfer procedure
-    STAT = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
-    while(!(STAT==param)) {
-        STAT = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    }
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
-}
-
-void readSENtralQuatData(float * destination)
+static void readSENtralQuatData(float * destination)
 {
     uint8_t rawData[16];  // x/y/z quaternion register data stored here
     readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       // Read the sixteen raw data registers into data array
@@ -527,7 +494,7 @@ void readSENtralQuatData(float * destination)
 
 }
 
-void readSENtralAccelData(int16_t * destination)
+static void readSENtralAccelData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
     readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
@@ -536,7 +503,7 @@ void readSENtralAccelData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralGyroData(int16_t * destination)
+static void readSENtralGyroData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -545,7 +512,7 @@ void readSENtralGyroData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralMagData(int16_t * destination)
+static void readSENtralMagData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -554,7 +521,7 @@ void readSENtralMagData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void getMres() {
+static void getMres() {
     switch (Mscale)
     {
         // Possible magnetometer scales (and their register bit settings) are:
@@ -568,7 +535,7 @@ void getMres() {
     }
 }
 
-void getGres() {
+static void getGres() {
     switch (Gscale)
     {
         // Possible gyro scales (and their register bit settings) are:
@@ -589,7 +556,7 @@ void getGres() {
     }
 }
 
-void getAres() {
+static void getAres() {
     switch (Ascale)
     {
         // Possible accelerometer scales (and their register bit settings) are:
@@ -611,7 +578,7 @@ void getAres() {
 }
 
 
-void readAccelData(int16_t * destination)
+static void readAccelData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
     readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
@@ -621,7 +588,7 @@ void readAccelData(int16_t * destination)
 }
 
 
-void readGyroData(int16_t * destination)
+static void readGyroData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -630,7 +597,7 @@ void readGyroData(int16_t * destination)
     destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
 }
 
-void readMagData(int16_t * destination)
+static void readMagData(int16_t * destination)
 {
     uint8_t rawData[7];  // x/y/z gyro register data, ST2 register stored here, must read ST2 at end of data acquisition
     if(readByte(AK8963_ADDRESS, AK8963_ST1) & 0x01) { // wait for magnetometer data ready bit to be set
@@ -651,7 +618,7 @@ int16_t readTempData()
     return ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a 16-bit value
 }
 
-void initAK8963(float * destination)
+static void initAK8963(float * destination)
 {
     // First extract the factory calibration for each magnetometer axis
     uint8_t rawData[3];  // x/y/z gyro calibration data stored here
@@ -673,7 +640,7 @@ void initAK8963(float * destination)
 }
 
 
-void initMPU9250()
+static void initMPU9250()
 {  
     // wake up device
     writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x00); // Clear sleep mode bit (6), enable all sensors 
@@ -735,7 +702,7 @@ void initMPU9250()
 
 // Function which accumulates gyro and accelerometer data after device initialization. It calculates the average
 // of the at-rest readings and then loads the resulting offsets into accelerometer and gyro bias registers.
-void accelgyrocalMPU9250(float * dest1, float * dest2)
+static void accelgyrocalMPU9250(float * dest1, float * dest2)
 {  
     uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
     uint16_t ii, packet_count, fifo_count;
@@ -882,7 +849,7 @@ void accelgyrocalMPU9250(float * dest1, float * dest2)
 }
 
 
-void magcalMPU9250(float * dest1, float * dest2) 
+static void magcalMPU9250(float * dest1, float * dest2) 
 {
     uint16_t ii = 0, sample_count = 0;
     int32_t mag_bias[3] = {0, 0, 0}, mag_scale[3] = {0, 0, 0};
@@ -941,7 +908,7 @@ void magcalMPU9250(float * dest1, float * dest2)
 
 
 // Accelerometer and gyroscope self test; check calibration wrt factory settings
-void MPU9250SelfTest(float * destination) // Should return percent deviation from factory trim values, +/- 14 or less deviation is a pass
+static void MPU9250SelfTest(float * destination) // Should return percent deviation from factory trim values, +/- 14 or less deviation is a pass
 {
     uint8_t rawData[6] = {0, 0, 0, 0, 0, 0};
     uint8_t selfTest[6];
@@ -1026,14 +993,14 @@ void MPU9250SelfTest(float * destination) // Should return percent deviation fro
 
 }
 
-int16_t readSENtralBaroData()
+static int16_t readSENtralBaroData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-int16_t readSENtralTempData()
+static int16_t readSENtralTempData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
@@ -1041,7 +1008,7 @@ int16_t readSENtralTempData()
 }
 
 
-void SENtralPassThroughMode()
+static void SENtralPassThroughMode()
 {
     // First put SENtral in standby mode
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
@@ -1069,48 +1036,7 @@ void SENtralPassThroughMode()
 // I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
 // since the address is defined by two bytes
 
-void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t  data)
-{
-    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
-    Wire.write(data_address1);                // Put slave register address in Tx buffer
-    Wire.write(data_address2);                // Put slave register address in Tx buffer
-    Wire.write(data);                         // Put data in Tx buffer
-    Wire.endTransmission();                   // Send the Tx buffer
-}
-
-
-void M24512DFMwriteBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
-{
-    if(count > 128) {
-        count = 128;
-        Serial.print("Page count cannot be more than 128 bytes!");
-    }
-
-    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
-    Wire.write(data_address1);                // Put slave register address in Tx buffer
-    Wire.write(data_address2);                // Put slave register address in Tx buffer
-    for(uint8_t i=0; i < count; i++) {
-        Wire.write(dest[i]);                      // Put data in Tx buffer
-    }
-    Wire.endTransmission();                   // Send the Tx buffer
-}
-
-
-uint8_t M24512DFMreadByte(uint8_t device_address, uint8_t data_address1, uint8_t data_address2)
-{
-    uint8_t data; // `data` will store the register data	 
-    Wire.beginTransmission(device_address);         // Initialize the Tx buffer
-    Wire.write(data_address1);                // Put slave register address in Tx buffer
-    Wire.write(data_address2);                // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
-    //	Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
-    //	Wire.requestFrom(address, 1);  // Read one byte from slave register address 
-    Wire.requestFrom(device_address, (size_t) 1);   // Read one byte from slave register address 
-    data = Wire.read();                      // Fill Rx buffer with result
-    return data;                             // Return data read from slave register
-}
-
-void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
+static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(device_address);   // Initialize the Tx buffer
     Wire.write(data_address1);                     // Put slave register address in Tx buffer
@@ -1124,25 +1050,21 @@ void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t d
         dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
 }
 
-
-
-
-
-int32_t readBMP280Temperature()
+static int32_t readBMP280Temperature()
 {
     uint8_t rawData[3];  // 20-bit pressure register data stored here
     readBytes(BMP280_ADDRESS, BMP280_TEMP_MSB, 3, &rawData[0]);  
     return (int32_t) (((int32_t) rawData[0] << 16 | (int32_t) rawData[1] << 8 | rawData[2]) >> 4);
 }
 
-int32_t readBMP280Pressure()
+static int32_t readBMP280Pressure()
 {
     uint8_t rawData[3];  // 20-bit pressure register data stored here
     readBytes(BMP280_ADDRESS, BMP280_PRESS_MSB, 3, &rawData[0]);  
     return (int32_t) (((int32_t) rawData[0] << 16 | (int32_t) rawData[1] << 8 | rawData[2]) >> 4);
 }
 
-void BMP280Init()
+static void BMP280Init()
 {
     // Configure the BMP280
     // Set T and P oversampling rates and sensor mode
@@ -1168,7 +1090,7 @@ void BMP280Init()
 
 // Returns temperature in DegC, resolution is 0.01 DegC. Output value of
 // “5123” equals 51.23 DegC.
-int32_t bmp280_compensate_T(int32_t adc_T)
+static int32_t bmp280_compensate_T(int32_t adc_T)
 {
     int32_t var1, var2, T;
     var1 = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
@@ -1181,7 +1103,7 @@ int32_t bmp280_compensate_T(int32_t adc_T)
 // Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8
 //fractional bits).
 //Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
-uint32_t bmp280_compensate_P(int32_t adc_P)
+static uint32_t bmp280_compensate_P(int32_t adc_P)
 {
     long long var1, var2, p;
     var1 = ((long long)t_fine) - 128000;
@@ -1207,7 +1129,7 @@ uint32_t bmp280_compensate_P(int32_t adc_P)
 
 
 // simple function to scan for I2C devices on the bus
-void I2Cscan() 
+static void I2Cscan() 
 {
     // scan for i2c devices
     byte error, address;
@@ -1251,7 +1173,7 @@ void I2Cscan()
 
 // I2C read/write functions for the MPU9250 and AK8963 sensors
 
-void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
+static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
     Wire.beginTransmission(address);  // Initialize the Tx buffer
     Wire.write(subAddress);           // Put slave register address in Tx buffer
@@ -1259,7 +1181,7 @@ void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
     Wire.endTransmission();           // Send the Tx buffer
 }
 
-uint8_t readByte(uint8_t address, uint8_t subAddress)
+static uint8_t readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data; // `data` will store the register data	 
     Wire.beginTransmission(address);         // Initialize the Tx buffer
@@ -1272,7 +1194,7 @@ uint8_t readByte(uint8_t address, uint8_t subAddress)
     return data;                             // Return data read from slave register
 }
 
-void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
