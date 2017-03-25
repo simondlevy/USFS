@@ -270,29 +270,24 @@ void loop()
     readAccelData(accelCount);  // Read the x/y/z adc values
 
     // Now we'll calculate the acceleration value into actual g's
-    ax = (float)accelCount[0]*aRes - accelBias[0];  // get actual g value, this depends on scale being set
-    ay = (float)accelCount[1]*aRes - accelBias[1];   
-    az = (float)accelCount[2]*aRes - accelBias[2]; 
-    // } 
-    //  if (digitalRead(intGYRO2)) {  // On interrupt, read data
+    float ax = (float)accelCount[0]*aRes - accelBias[0];  // get actual g value, this depends on scale being set
+    float ay = (float)accelCount[1]*aRes - accelBias[1];   
+    float az = (float)accelCount[2]*aRes - accelBias[2]; 
+
     readGyroData(gyroCount);  // Read the x/y/z adc values
 
     // Calculate the gyro value into actual degrees per second
-    gx = (float)gyroCount[0]*gRes;  // get actual gyro value, this depends on scale being set
-    gy = (float)gyroCount[1]*gRes;  
-    gz = (float)gyroCount[2]*gRes;   
-    // }
+    float gx = (float)gyroCount[0]*gRes;  // get actual gyro value, this depends on scale being set
+    float gy = (float)gyroCount[1]*gRes;  
+    float gz = (float)gyroCount[2]*gRes;   
+
     //  if (digitalRead(intDRDYM)) {  // On interrupt, read data
     readMagData(magCount);  // Read the x/y/z adc values
 
     // Calculate the magnetometer values in milliGauss
-    mx = (float)magCount[0]*mRes*magCalibration[0] - magBias[0];  // get actual magnetometer value, this depends on scale being set
-    my = (float)magCount[1]*mRes*magCalibration[1] - magBias[1];  
-    mz = (float)magCount[2]*mRes*magCalibration[2] - magBias[2];  
-    //    mx *= magScale[0];
-    //    my *= magScale[1];
-    //    mz *= magScale[2]; 
-    //   }
+    float mx = (float)magCount[0]*mRes*magCalibration[0] - magBias[0];  // get actual magnetometer value, this depends on scale being set
+    float my = (float)magCount[1]*mRes*magCalibration[1] - magBias[1];  
+    float mz = (float)magCount[2]*mRes*magCalibration[2] - magBias[2];  
 
     // keep track of rates
     Now = micros();
