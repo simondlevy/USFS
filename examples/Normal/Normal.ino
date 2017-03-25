@@ -20,8 +20,6 @@
 
 #include <i2c_t3.h>
 
-static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
-
 // Pin definitions
 static const int myLed     = 28;  // LED on the Teensy 3.1
 
@@ -352,6 +350,8 @@ void loop()
     int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
     int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
     int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
+
+    float Quat[4] = {0, 0, 0, 0}; // quaternion data register
 
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
