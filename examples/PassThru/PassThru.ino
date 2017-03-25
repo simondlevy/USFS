@@ -22,8 +22,6 @@
 #include <i2c_t3.h>
 #include <SPI.h>
 
-static const bool SerialDebug = true;
-
 void setup()
 {
     // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
@@ -199,15 +197,13 @@ void setup()
         Serial.println(magScale[2]); 
         delay(2000); // add delay to see results before serial spew of data
 
-        if(SerialDebug) {
-            //  Serial.println("Calibration values: ");
-            Serial.print("X-Axis sensitivity adjustment value ");
-            Serial.println(magCalibration[0], 2);
-            Serial.print("Y-Axis sensitivity adjustment value ");
-            Serial.println(magCalibration[1], 2);
-            Serial.print("Z-Axis sensitivity adjustment value ");
-            Serial.println(magCalibration[2], 2);
-        }
+        //  Serial.println("Calibration values: ");
+        Serial.print("X-Axis sensitivity adjustment value ");
+        Serial.println(magCalibration[0], 2);
+        Serial.print("Y-Axis sensitivity adjustment value ");
+        Serial.println(magCalibration[1], 2);
+        Serial.print("Z-Axis sensitivity adjustment value ");
+        Serial.println(magCalibration[2], 2);
 
         delay(1000);  
 
@@ -317,40 +313,37 @@ void loop()
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
-        if(SerialDebug) {
-            Serial.print("ax = ");
-            Serial.print((int)1000*ax);  
-            Serial.print(" ay = ");
-            Serial.print((int)1000*ay); 
-            Serial.print(" az = ");
-            Serial.print((int)1000*az);
-            Serial.println(" mg");
-            Serial.print("gx = ");
-            Serial.print( gx, 2); 
-            Serial.print(" gy = ");
-            Serial.print( gy, 2); 
-            Serial.print(" gz = ");
-            Serial.print( gz, 2);
-            Serial.println(" deg/s");
-            Serial.print("mx = ");
-            Serial.print( (int)mx); 
-            Serial.print(" my = ");
-            Serial.print( (int)my); 
-            Serial.print(" mz = ");
-            Serial.print( (int)mz);
-            Serial.println(" mG");
+        Serial.print("ax = ");
+        Serial.print((int)1000*ax);  
+        Serial.print(" ay = ");
+        Serial.print((int)1000*ay); 
+        Serial.print(" az = ");
+        Serial.print((int)1000*az);
+        Serial.println(" mg");
+        Serial.print("gx = ");
+        Serial.print( gx, 2); 
+        Serial.print(" gy = ");
+        Serial.print( gy, 2); 
+        Serial.print(" gz = ");
+        Serial.print( gz, 2);
+        Serial.println(" deg/s");
+        Serial.print("mx = ");
+        Serial.print( (int)mx); 
+        Serial.print(" my = ");
+        Serial.print( (int)my); 
+        Serial.print(" mz = ");
+        Serial.print( (int)mz);
+        Serial.println(" mG");
 
-            Serial.println("Software quaternions:"); 
-            Serial.print("q0 = ");
-            Serial.print(q[0]);
-            Serial.print(" qx = ");
-            Serial.print(q[1]); 
-            Serial.print(" qy = ");
-            Serial.print(q[2]); 
-            Serial.print(" qz = ");
-            Serial.println(q[3]); 
-        }               
-
+        Serial.println("Software quaternions:"); 
+        Serial.print("q0 = ");
+        Serial.print(q[0]);
+        Serial.print(" qx = ");
+        Serial.print(q[1]); 
+        Serial.print(" qy = ");
+        Serial.print(q[2]); 
+        Serial.print(" qz = ");
+        Serial.println(q[3]); 
         rawPress =  readBMP280Pressure();
         pressure = (float) bmp280_compensate_P(rawPress)/25600.; // Pressure in mbar
         rawTemp =   readBMP280Temperature();
@@ -395,30 +388,28 @@ which has additional links.
            (cellphone) and the +x-axis points toward the right of the device.
          */ 
 
-        if(SerialDebug) {
-            Serial.print("Software yaw, pitch, roll: ");
-            Serial.print(yaw, 2);
-            Serial.print(", ");
-            Serial.print(pitch, 2);
-            Serial.print(", ");
-            Serial.println(roll, 2);
+        Serial.print("Software yaw, pitch, roll: ");
+        Serial.print(yaw, 2);
+        Serial.print(", ");
+        Serial.print(pitch, 2);
+        Serial.print(", ");
+        Serial.println(roll, 2);
 
-            Serial.println("BMP280:");
-            Serial.print("Altimeter temperature = "); 
-            Serial.print( temperature, 2); 
-            Serial.println(" C"); // temperature in degrees Celsius
-            Serial.print("Altimeter temperature = "); 
-            Serial.print(9.*temperature/5. + 32., 2); 
-            Serial.println(" F"); // temperature in degrees Fahrenheit
-            Serial.print("Altimeter pressure = "); 
-            Serial.print(pressure, 2);  
-            Serial.println(" mbar");// pressure in millibar
-            altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
-            Serial.print("Altitude = "); 
-            Serial.print(altitude, 2); 
-            Serial.println(" feet");
-            Serial.println(" ");
-        }
+        Serial.println("BMP280:");
+        Serial.print("Altimeter temperature = "); 
+        Serial.print( temperature, 2); 
+        Serial.println(" C"); // temperature in degrees Celsius
+        Serial.print("Altimeter temperature = "); 
+        Serial.print(9.*temperature/5. + 32., 2); 
+        Serial.println(" F"); // temperature in degrees Fahrenheit
+        Serial.print("Altimeter pressure = "); 
+        Serial.print(pressure, 2);  
+        Serial.println(" mbar");// pressure in millibar
+        altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
+        Serial.print("Altitude = "); 
+        Serial.print(altitude, 2); 
+        Serial.println(" feet");
+        Serial.println(" ");
 
         //   Serial.print("rate = ");
         Serial.print((float)sumCount/sum, 2);
