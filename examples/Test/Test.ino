@@ -64,8 +64,6 @@ void setup()
     pinMode(myLed, OUTPUT);
     digitalWrite(myLed, LOW);
 
-    I2Cscan(); // should detect SENtral at 0x28
-
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
     uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
@@ -261,12 +259,12 @@ void setup()
         uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
         Serial.print(" EM7180 sensor status = ");
         Serial.println(sensorStatus);
-        if(sensorStatus & 0x01) error("Magnetometer not acknowledging!");
-        if(sensorStatus & 0x02) error("Accelerometer not acknowledging!");
-        if(sensorStatus & 0x04) error("Gyro not acknowledging!");
-        if(sensorStatus & 0x10) error("Magnetometer ID not recognized!");
-        if(sensorStatus & 0x20) error("Accelerometer ID not recognized!");
-        if(sensorStatus & 0x40) error("Gyro ID not recognized!");
+        if(sensorStatus & 0x01) reporterr("Magnetometer not acknowledging!");
+        if(sensorStatus & 0x02) reporterr("Accelerometer not acknowledging!");
+        if(sensorStatus & 0x04) reporterr("Gyro not acknowledging!");
+        if(sensorStatus & 0x10) reporterr("Magnetometer ID not recognized!");
+        if(sensorStatus & 0x20) reporterr("Accelerometer ID not recognized!");
+        if(sensorStatus & 0x40) reporterr("Gyro ID not recognized!");
 
         Serial.print("Actual MagRate = ");
         Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate));
@@ -290,11 +288,10 @@ void setup()
 
     // If pass through mode desired, set it up here
     if(passThru) {
+
         // Put EM7180 SENtral into pass-through mode
         SENtralPassThroughMode();
         delay(1000);
-
-        I2Cscan(); // should see all the devices on the I2C bus including two from the EEPROM (ID page and data pages)
 
         // Read first page of EEPROM
         uint8_t data[128];
@@ -367,7 +364,6 @@ void setup()
             initMPU9250(); 
             Serial.println("MPU9250 initialized for active data mode...."); // Initialize device for active mode read of acclerometer, gyroscope, and temperature
             writeByte(MPU9250_ADDRESS, INT_PIN_CFG, 0x22); 
-            I2Cscan(); // should see all the devices on the I2C bus including two from the EEPROM (ID page and data pages)
 
             // Read the WHO_AM_I register of the magnetometer, this is a good test of communication
             byte d = readByte(AK8963_ADDRESS, WHO_AM_I_AK8963);  // Read WHO_AM_I register for AK8963
@@ -477,14 +473,14 @@ void loop()
 
             uint8_t errorStatus = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
             if(!errorStatus) {
-                if(errorStatus == 0x11) error("Magnetometer failure!");
-                if(errorStatus == 0x12) error("Accelerometer failure!");
-                if(errorStatus == 0x14) error("Gyro failure!");
-                if(errorStatus == 0x21) error("Magnetometer initialization failure!");
-                if(errorStatus == 0x22) error("Accelerometer initialization failure!");
-                if(errorStatus == 0x24) error("Gyro initialization failure!");
-                if(errorStatus == 0x30) error("Math error!");
-                if(errorStatus == 0x80) error("Invalid sample rate!");
+                if(errorStatus == 0x11) reporterr("Magnetometer failure!");
+                if(errorStatus == 0x12) reporterr("Accelerometer failure!");
+                if(errorStatus == 0x14) reporterr("Gyro failure!");
+                if(errorStatus == 0x21) reporterr("Magnetometer initialization failure!");
+                if(errorStatus == 0x22) reporterr("Accelerometer initialization failure!");
+                if(errorStatus == 0x24) reporterr("Gyro initialization failure!");
+                if(errorStatus == 0x30) reporterr("Math error!");
+                if(errorStatus == 0x80) reporterr("Invalid sample rate!");
             }
 
             // Handle errors ToDo

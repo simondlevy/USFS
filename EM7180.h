@@ -403,7 +403,7 @@ static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 
 static bool passThru = false;
 
-static void error(const char * message)
+static void reporterr(const char * message)
 {
     while (true) {
         Serial.println(message);
@@ -1044,7 +1044,7 @@ static void SENtralPassThroughMode()
     if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
     }
     else {
-        error("SENtral not in pass-through mode!");
+        reporterr("SENtral not in pass-through mode!");
     }
 }
 
@@ -1141,50 +1141,6 @@ static uint32_t bmp280_compensate_P(int32_t adc_P)
     return (uint32_t)p;
 }
 
-
-
-
-// simple function to scan for I2C devices on the bus
-static void I2Cscan() 
-{
-    // scan for i2c devices
-    byte error, address;
-    int nDevices;
-
-    Serial.println("Scanning...");
-
-    nDevices = 0;
-    for(address = 1; address < 127; address++ ) 
-    {
-        // The i2c_scanner uses the return value of
-        // the Write.endTransmisstion to see if
-        // a device did acknowledge to the address.
-        Wire.beginTransmission(address);
-        error = Wire.endTransmission();
-
-        if (error == 0)
-        {
-            Serial.print("I2C device found at address 0x");
-            if (address<16) 
-                Serial.print("0");
-            Serial.print(address,HEX);
-            Serial.println("  !");
-
-            nDevices++;
-        }
-        else if (error==4) 
-        {
-            Serial.print("Unknow error at address 0x");
-            if (address<16) 
-                Serial.print("0");
-            Serial.println(address,HEX);
-        }    
-    }
-    if (nDevices == 0)
-        Serial.println("No I2C devices found\n");
-    else
-        Serial.println("done\n");
-}
 
 
 
