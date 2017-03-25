@@ -403,14 +403,6 @@ which has additional links.
             Serial.print(", ");
             Serial.println(roll, 2);
 
-            Serial.print("Hardware Yaw, Pitch, Roll: ");
-            Serial.print(Yaw, 2);
-            Serial.print(", ");
-            Serial.print(Pitch, 2);
-            Serial.print(", ");
-            Serial.println(Roll, 2);
-
-
             Serial.println("BMP280:");
             Serial.print("Altimeter temperature = "); 
             Serial.print( temperature, 2); 
