@@ -404,6 +404,13 @@ static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 
 static bool passThru = false;
 
+static void error(const char * message)
+{
+    while (true) {
+        Serial.println(message);
+    }
+}
+
 //===================================================================================================================
 //====== Set of useful function to access acceleration. gyroscope, magnetometer, and temperature data
 //===================================================================================================================
@@ -870,13 +877,10 @@ static void magcalMPU9250(float * dest1, float * dest2)
         if(Mmode == 0x06) delay(12);  // at 100 Hz ODR, new mag data is available every 10 ms
     }
 
-    //    Serial.println("mag x min/max:");
     Serial.println(mag_max[0]);
     Serial.println(mag_min[0]);
-    //    Serial.println("mag y min/max:");
     Serial.println(mag_max[1]);
     Serial.println(mag_min[1]);
-    //    Serial.println("mag z min/max:");
     Serial.println(mag_max[2]);
     Serial.println(mag_min[2]);
 
@@ -903,9 +907,6 @@ static void magcalMPU9250(float * dest1, float * dest2)
 
     Serial.println("Mag Calibration done!");
 }
-
-
-
 
 // Accelerometer and gyroscope self test; check calibration wrt factory settings
 static void MPU9250SelfTest(float * destination) // Should return percent deviation from factory trim values, +/- 14 or less deviation is a pass
@@ -1013,24 +1014,16 @@ static void SENtralPassThroughMode()
     // First put SENtral in standby mode
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, c | 0x01);
-    //  c = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
-    //  Serial.print("c = ");
-    Serial.println(c);
     // Verify standby status
     // if(readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & 0x01) {
-    Serial.println("SENtral in standby mode"); 
     // Place SENtral in pass-through mode
     writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x01); 
     if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
-        Serial.println("SENtral in pass-through mode");
     }
     else {
-        Serial.println("ERROR! SENtral not in pass-through mode!");
+        error("SENtral not in pass-through mode!");
     }
-
-
 }
-
 
 
 // I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
@@ -1416,12 +1409,12 @@ void setup()
         uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
         Serial.print(" EM7180 sensor status = ");
         Serial.println(sensorStatus);
-        if(sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
-        if(sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
-        if(sensorStatus & 0x04) Serial.print("Gyro not acknowledging!");
-        if(sensorStatus & 0x10) Serial.print("Magnetometer ID not recognized!");
-        if(sensorStatus & 0x20) Serial.print("Accelerometer ID not recognized!");
-        if(sensorStatus & 0x40) Serial.print("Gyro ID not recognized!");
+        if(sensorStatus & 0x01) error("Magnetometer not acknowledging!");
+        if(sensorStatus & 0x02) error("Accelerometer not acknowledging!");
+        if(sensorStatus & 0x04) error("Gyro not acknowledging!");
+        if(sensorStatus & 0x10) error("Magnetometer ID not recognized!");
+        if(sensorStatus & 0x20) error("Accelerometer ID not recognized!");
+        if(sensorStatus & 0x40) error("Gyro ID not recognized!");
 
         Serial.print("Actual MagRate = ");
         Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate));
@@ -1628,16 +1621,14 @@ void loop()
 
             uint8_t errorStatus = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
             if(!errorStatus) {
-                Serial.print(" EM7180 sensor status = ");
-                Serial.println(errorStatus);
-                if(errorStatus == 0x11) Serial.print("Magnetometer failure!");
-                if(errorStatus == 0x12) Serial.print("Accelerometer failure!");
-                if(errorStatus == 0x14) Serial.print("Gyro failure!");
-                if(errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
-                if(errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
-                if(errorStatus == 0x24) Serial.print("Gyro initialization failure!");
-                if(errorStatus == 0x30) Serial.print("Math error!");
-                if(errorStatus == 0x80) Serial.print("Invalid sample rate!");
+                if(errorStatus == 0x11) error("Magnetometer failure!");
+                if(errorStatus == 0x12) error("Accelerometer failure!");
+                if(errorStatus == 0x14) error("Gyro failure!");
+                if(errorStatus == 0x21) error("Magnetometer initialization failure!");
+                if(errorStatus == 0x22) error("Accelerometer initialization failure!");
+                if(errorStatus == 0x24) error("Gyro initialization failure!");
+                if(errorStatus == 0x30) error("Math error!");
+                if(errorStatus == 0x80) error("Invalid sample rate!");
             }
 
             // Handle errors ToDo
