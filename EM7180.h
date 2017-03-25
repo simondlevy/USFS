@@ -293,8 +293,6 @@ Because the sensors are not 5V tolerant, we are using a 3.3 V 8 MHz Pro Mini or 
 #define AK8963_ADDRESS           0x0C   // Address of magnetometer
 #define BMP280_ADDRESS           0x76   // Address of BMP280 altimeter when ADO = 0
 
-#define SerialDebug true  // set to true to get Serial output for debugging
-
 // Set initial input parameters
 enum Ascale {
     AFS_2G = 0,

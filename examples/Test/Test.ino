@@ -53,6 +53,8 @@ Because the sensors are not 5V tolerant, we are using a 3.3 V 8 MHz Pro Mini or 
 #include <i2c_t3.h>
 #include <SPI.h>
 
+static const bool SerialDebug = true;
+
 void setup()
 {
     // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
