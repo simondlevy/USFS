@@ -1,52 +1,21 @@
-/* EM7180_MPU9250_BMP280_t3 Basic Example Code
-by: Kris Winer
-date: September 11, 2015
-license: Beerware - Use this code however you'd like. If you 
-find it useful you can buy me a beer some time.
+/* 
+   PassThru.ino: Example sketch for running EM7180 SENtral sensor hub in pass-through mode.
 
-The EM7180 SENtral sensor hub is not a motion sensor, but rather takes raw
-sensor data from a variety of motion sensors, in this case the MPU9250 (with
-embedded MPU9250 + AK8963C), and does sensor fusion with quaternions as its
-output. The SENtral loads firmware from the on-board M24512DRC 512 kbit EEPROM
-upon startup, configures and manages the sensors on its dedicated master I2C
-bus, and outputs scaled sensor data (accelerations, rotation rates, and
-magnetic fields) as well as quaternions and heading/pitch/roll, if selected.
+   This file is part of EM7180.
 
-This sketch demonstrates basic EM7180 SENtral functionality including
-parameterizing the register addresses, initializing the sensor, getting
-properly scaled accelerometer, gyroscope, and magnetometer data out. Added
-display functions to allow display to on breadboard monitor. Addition of 9 DoF
-sensor fusion using open source Madgwick and Mahony filter algorithms to
-compare with the hardware sensor fusion results.  Sketch runs on the 3.3 V 8
-MHz Pro Mini and the Teensy 3.1.
+   EM7180 is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-This sketch is specifically for the Teensy 3.1 Mini Add-On shield with the
-EM7180 SENtral sensor hub as master, the MPU9250 9-axis motion sensor
-(accel/gyro/mag) as slave, a BMP280 pressure/temperature sensor, and an
-M24512DRC 512kbit (64 kByte) EEPROM as slave all connected via I2C. The SENtral
-can use the pressure data in the sensor fusion yet and there is a driver for
-the BMP280 in the SENtral firmware. 
-
-This sketch uses SDA/SCL on pins 17/16, respectively, and it uses the Teensy
-3.1-specific Wire library i2c_t3.h.  The BMP280 is a simple but high resolution
-pressure sensor, which can be used in its high resolution mode but with power
-consumption of 20 microAmp, or in a lower resolution mode with power
-consumption of only 1 microAmp. The choice will depend on the application.
-
-SDA and SCL should have external pull-up resistors (to 3.3V).
-4k7 resistors are on the EM7180+MPU9250+BMP280+M24512DRC Mini Add-On board for Teensy 3.1.
-
-Hardware setup:
-EM7180 Mini Add-On ------- Teensy 3.1
-VDD ---------------------- 3.3V
-SDA ----------------------- 17
-SCL ----------------------- 16
-GND ---------------------- GND
-INT------------------------ 8
-
-Note: All the sensors n this board are I2C sensor and uses the Teensy 3.1 i2c_t3.h Wire library. 
-Because the sensors are not 5V tolerant, we are using a 3.3 V 8 MHz Pro Mini or a 3.3 V Teensy 3.1.
+   EM7180 is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "quaternionFilters.h"
 #include "EM7180.h"
 
