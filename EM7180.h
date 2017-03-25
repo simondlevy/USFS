@@ -207,3 +207,65 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
     while (Wire.available()) {
         dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
 }
+
+static void EM7180_begin(void)
+{
+    // Read SENtral device information
+    uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
+    uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
+    Serial.print("EM7180 ROM Version: 0x");
+    Serial.print(ROM1, HEX);
+    Serial.println(ROM2, HEX);
+    Serial.println("Should be: 0xE609");
+    uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
+    uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
+    Serial.print("EM7180 RAM Version: 0x");
+    Serial.print(RAM1);
+    Serial.println(RAM2);
+    uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
+    Serial.print("EM7180 ProductID: 0x");
+    Serial.print(PID, HEX);
+    Serial.println(" Should be: 0x80");
+    uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
+    Serial.print("EM7180 RevisionID: 0x");
+    Serial.print(RID, HEX);
+    Serial.println(" Should be: 0x02");
+
+    delay(1000); // give some time to read the screen
+
+    // Check which sensors can be detected by the EM7180
+    uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
+    if(featureflag & 0x01)  Serial.println("A barometer is installed");
+    if(featureflag & 0x02)  Serial.println("A humidity sensor is installed");
+    if(featureflag & 0x04)  Serial.println("A temperature sensor is installed");
+    if(featureflag & 0x08)  Serial.println("A custom sensor is installed");
+    if(featureflag & 0x10)  Serial.println("A second custom sensor is installed");
+    if(featureflag & 0x20)  Serial.println("A third custom sensor is installed");
+
+    delay(1000); // give some time to read the screen
+
+    // Check SENtral status, make sure EEPROM upload of firmware was accomplished
+    byte STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
+    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  Serial.println("EEPROM detected on the sensor bus!");
+    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  Serial.println("EEPROM uploaded config file!");
+    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  Serial.println("EEPROM CRC incorrect!");
+    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  Serial.println("EM7180 in initialized state!");
+    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  Serial.println("No EEPROM detected!");
+    int count = 0;
+    while(!STAT) {
+        writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
+        delay(500);  
+        count++;  
+        STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
+        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  Serial.println("EEPROM detected on the sensor bus!");
+        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  Serial.println("EEPROM uploaded config file!");
+        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  Serial.println("EEPROM CRC incorrect!");
+        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  Serial.println("EM7180 in initialized state!");
+        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  Serial.println("No EEPROM detected!");
+        if(count > 10) break;
+    }
+
+    if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
+    delay(1000); // give some time to read the screen
+
+}
