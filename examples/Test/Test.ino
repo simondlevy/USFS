@@ -383,7 +383,11 @@ void setup()
             initAK8963(magCalibration);
             Serial.println("AK8963 initialized for active data mode...."); // Initialize device for active mode read of magnetometer
 
+            Serial.println("Mag Calibration: Wave device in a figure eight until done!");
+            delay(4000);
             magcalMPU9250(magBias, magScale);
+            Serial.println("Mag Calibration done!");
+
             Serial.println("AK8963 mag biases (mG)");
             Serial.println(magBias[0]);
             Serial.println(magBias[1]);

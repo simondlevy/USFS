@@ -896,9 +896,6 @@ static void magcalMPU9250(float * dest1, float * dest2)
     int32_t mag_bias[3] = {0, 0, 0}, mag_scale[3] = {0, 0, 0};
     int16_t mag_max[3] = {0xFF, 0xFF, 0xFF}, mag_min[3] = {0x7F, 0x7F, 0x7F}, mag_temp[3] = {0, 0, 0};
 
-    Serial.println("Mag Calibration: Wave device in a figure eight until done!");
-    delay(4000);
-
     if(Mmode == 0x02) sample_count = 128;
     if(Mmode == 0x06) sample_count = 1500;
     for(ii = 0; ii < sample_count; ii++) {
@@ -910,13 +907,6 @@ static void magcalMPU9250(float * dest1, float * dest2)
         if(Mmode == 0x02) delay(135);  // at 8 Hz ODR, new mag data is available every 125 ms
         if(Mmode == 0x06) delay(12);  // at 100 Hz ODR, new mag data is available every 10 ms
     }
-
-    Serial.println(mag_max[0]);
-    Serial.println(mag_min[0]);
-    Serial.println(mag_max[1]);
-    Serial.println(mag_min[1]);
-    Serial.println(mag_max[2]);
-    Serial.println(mag_min[2]);
 
     // Get hard iron correction
     mag_bias[0]  = (mag_max[0] + mag_min[0])/2;  // get average x mag bias in counts
@@ -939,7 +929,6 @@ static void magcalMPU9250(float * dest1, float * dest2)
     dest2[1] = avg_rad/((float)mag_scale[1]);
     dest2[2] = avg_rad/((float)mag_scale[2]);
 
-    Serial.println("Mag Calibration done!");
 }
 
 // Accelerometer and gyroscope self test; check calibration wrt factory settings
