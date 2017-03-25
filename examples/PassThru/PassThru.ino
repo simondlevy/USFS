@@ -23,8 +23,7 @@
 #include <SPI.h>
 
 static const bool SerialDebug = true;
-static const bool passThru = false;
-
+static const bool passThru = true;
 
 void setup()
 {
