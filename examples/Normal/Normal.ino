@@ -331,15 +331,6 @@ void loop()
     sum += deltat; // sum for averaging filter update rate
     sumCount++;
 
-    // Sensors x (y)-axis of the accelerometer is aligned with the -y (x)-axis of the magnetometer;
-    // the magnetometer z-axis (+ up) is aligned with z-axis (+ up) of accelerometer and gyro!
-    // We have to make some allowance for this orientation mismatch in feeding the output to the quaternion filter.
-    // For the BMX-055, we have chosen a magnetic rotation that keeps the sensor forward along the x-axis just like
-    // in the MPU9250 sensor. This rotation can be modified to allow any convenient orientation convention.
-    // This is ok by aircraft orientation standards!  
-    // Pass gyro rate as rad/s
-    MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  mx,  my, mz, deltat, q);
-
     // Serial print and/or display at 0.5 s rate independent of data rates
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
