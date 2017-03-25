@@ -4,27 +4,34 @@ date: September 11, 2015
 license: Beerware - Use this code however you'd like. If you 
 find it useful you can buy me a beer some time.
 
-The EM7180 SENtral sensor hub is not a motion sensor, but rather takes raw sensor data from a variety of motion sensors,
-in this case the MPU9250 (with embedded MPU9250 + AK8963C), and does sensor fusion with quaternions as its output. The SENtral loads firmware from the
-on-board M24512DRC 512 kbit EEPROM upon startup, configures and manages the sensors on its dedicated master I2C bus,
-and outputs scaled sensor data (accelerations, rotation rates, and magnetic fields) as well as quaternions and
-heading/pitch/roll, if selected.
+The EM7180 SENtral sensor hub is not a motion sensor, but rather takes raw
+sensor data from a variety of motion sensors, in this case the MPU9250 (with
+embedded MPU9250 + AK8963C), and does sensor fusion with quaternions as its
+output. The SENtral loads firmware from the on-board M24512DRC 512 kbit EEPROM
+upon startup, configures and manages the sensors on its dedicated master I2C
+bus, and outputs scaled sensor data (accelerations, rotation rates, and
+magnetic fields) as well as quaternions and heading/pitch/roll, if selected.
 
-This sketch demonstrates basic EM7180 SENtral functionality including parameterizing the register addresses, initializing the sensor, 
-getting properly scaled accelerometer, gyroscope, and magnetometer data out. Added display functions to 
-allow display to on breadboard monitor. Addition of 9 DoF sensor fusion using open source Madgwick and 
-Mahony filter algorithms to compare with the hardware sensor fusion results.
-Sketch runs on the 3.3 V 8 MHz Pro Mini and the Teensy 3.1.
+This sketch demonstrates basic EM7180 SENtral functionality including
+parameterizing the register addresses, initializing the sensor, getting
+properly scaled accelerometer, gyroscope, and magnetometer data out. Added
+display functions to allow display to on breadboard monitor. Addition of 9 DoF
+sensor fusion using open source Madgwick and Mahony filter algorithms to
+compare with the hardware sensor fusion results.  Sketch runs on the 3.3 V 8
+MHz Pro Mini and the Teensy 3.1.
 
-This sketch is specifically for the Teensy 3.1 Mini Add-On shield with the EM7180 SENtral sensor hub as master,
-the MPU9250 9-axis motion sensor (accel/gyro/mag) as slave, a BMP280 pressure/temperature sensor, and an M24512DRC
-512kbit (64 kByte) EEPROM as slave all connected via I2C. The SENtral can use the pressure data in the sensor fusion
-yet and there is a driver for the BMP280 in the SENtral firmware. 
+This sketch is specifically for the Teensy 3.1 Mini Add-On shield with the
+EM7180 SENtral sensor hub as master, the MPU9250 9-axis motion sensor
+(accel/gyro/mag) as slave, a BMP280 pressure/temperature sensor, and an
+M24512DRC 512kbit (64 kByte) EEPROM as slave all connected via I2C. The SENtral
+can use the pressure data in the sensor fusion yet and there is a driver for
+the BMP280 in the SENtral firmware. 
 
-This sketch uses SDA/SCL on pins 17/16, respectively, and it uses the Teensy 3.1-specific Wire library i2c_t3.h.
-The BMP280 is a simple but high resolution pressure sensor, which can be used in its high resolution
-mode but with power consumption of 20 microAmp, or in a lower resolution mode with power consumption of
-only 1 microAmp. The choice will depend on the application.
+This sketch uses SDA/SCL on pins 17/16, respectively, and it uses the Teensy
+3.1-specific Wire library i2c_t3.h.  The BMP280 is a simple but high resolution
+pressure sensor, which can be used in its high resolution mode but with power
+consumption of 20 microAmp, or in a lower resolution mode with power
+consumption of only 1 microAmp. The choice will depend on the application.
 
 SDA and SCL should have external pull-up resistors (to 3.3V).
 4k7 resistors are on the EM7180+MPU9250+BMP280+M24512DRC Mini Add-On board for Teensy 3.1.
@@ -40,7 +47,8 @@ INT------------------------ 8
 Note: All the sensors n this board are I2C sensor and uses the Teensy 3.1 i2c_t3.h Wire library. 
 Because the sensors are not 5V tolerant, we are using a 3.3 V 8 MHz Pro Mini or a 3.3 V Teensy 3.1.
  */
-//#include "Wire.h"   
+#include "quaternionFilters.h"
+
 #include <i2c_t3.h>
 #include <SPI.h>
 
@@ -385,22 +393,6 @@ int16_t tempCount, rawPressure, rawTemperature;   // pressure, temperature raw c
 float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
 float SelfTest[6];            // holds results of gyro and accelerometer self test
 
-// global constants for 9 DoF fusion and AHRS (Attitude and Heading Reference System)
-float GyroMeasError = PI * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
-float GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
-// There is a tradeoff in the beta parameter between accuracy and response speed.
-// In the original Madgwick study, beta of 0.041 (corresponding to GyroMeasError of 2.7 degrees/s) was found to give optimal accuracy.
-// However, with this value, the LSM9SD0 response time is about 10 seconds to a stable initial quaternion.
-// Subsequent changes also require a longish lag time to a stable output, not fast enough for a quadcopter or robot car!
-// By increasing beta (GyroMeasError) by about a factor of fifteen, the response time constant is reduced to ~2 sec
-// I haven't noticed any reduction in solution accuracy. This is essentially the I coefficient in a PID control sense; 
-// the bigger the feedback coefficient, the faster the solution converges, usually at the expense of accuracy. 
-// In any case, this is the free parameter in the Madgwick filtering and fusion scheme.
-float beta = sqrt(3.0f / 4.0f) * GyroMeasError;   // compute beta
-float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
-#define Kp 2.0f * 5.0f // these are the free parameters in the Mahony filter and fusion scheme, Kp for proportional feedback, Ki for integral
-#define Ki 0.0f
-
 uint32_t delt_t = 0, count = 0, sumCount = 0;  // used to control display output rate
 float pitch, yaw, roll, Yaw, Pitch, Roll;
 float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
@@ -411,7 +403,6 @@ uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full sca
 
 float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
-float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
 
 bool passThru = false;
 
@@ -870,8 +861,8 @@ void loop()
     // in the MPU9250 sensor. This rotation can be modified to allow any convenient orientation convention.
     // This is ok by aircraft orientation standards!  
     // Pass gyro rate as rad/s
-    MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  mx,  my, mz);
-    //  if(passThru)MahonyQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f, -my, mx, mz);
+    MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  mx,  my, mz, deltat, q);
+    //  if(passThru)MahonyQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f, -my, mx, mz, deltat, q);
 
     // Serial print and/or display at 0.5 s rate independent of data rates
     delt_t = millis() - count;
@@ -913,16 +904,25 @@ void loop()
 
         }
 
+        /*
+         Define output variables from updated quaternion---these are Tait-Bryan
+         angles, commonly used in aircraft orientation.  In this coordinate
+         system, the positive z-axis is down toward Earth.  Yaw is the angle
+         between Sensor x-axis and Earth magnetic North (or true North if
+         corrected for local declination, looking down on the sensor positive
+         yaw is counterclockwise.  Pitch is angle between sensor x-axis and
+         Earth ground plane, toward the Earth is positive, up toward the sky is
+         negative.  Roll is angle between sensor y-axis and Earth ground plane,
+         y-axis up is positive roll.  These arise from the definition of the
+         homogeneous rotation matrix constructed from quaternions.  Tait-Bryan
+         angles as well as Euler angles are non-commutative; that is, the get
+         the correct orientation the rotations must be applied in the correct
+         order which for this configuration is yaw, pitch, and then roll.  For
+         more see
+            http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+         which has additional links.
+         */
 
-        // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
-        // In this coordinate system, the positive z-axis is down toward Earth. 
-        // Yaw is the angle between Sensor x-axis and Earth magnetic North (or true North if corrected for local declination, looking down on the sensor positive yaw is counterclockwise.
-        // Pitch is angle between sensor x-axis and Earth ground plane, toward the Earth is positive, up toward the sky is negative.
-        // Roll is angle between sensor y-axis and Earth ground plane, y-axis up is positive roll.
-        // These arise from the definition of the homogeneous rotation matrix constructed from quaternions.
-        // Tait-Bryan angles as well as Euler angles are non-commutative; that is, the get the correct orientation the rotations must be
-        // applied in the correct order which for this configuration is yaw, pitch, and then roll.
-        // For more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles which has additional links.
         //Software AHRS:
         yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
         pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
