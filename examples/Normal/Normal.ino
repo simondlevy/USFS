@@ -54,7 +54,6 @@ void setup()
     writeByte(EM7180_ADDRESS, EM7180_AccelRate, 0x14); // 200/10 Hz
     writeByte(EM7180_ADDRESS, EM7180_GyroRate, 0x14); // 200/10 Hz
     writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
-    // writeByte(EM7180_ADDRESS, EM7180_TempRate, 0x19);  // set enable bit and set rate to 25 Hz
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
@@ -344,7 +343,7 @@ void loop()
            which has additional links.
          */
 
-        //Hardware AHRS:
+        // AHRS:
         float Yaw   = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
         float Pitch = -asin(2.0f * (Quat[0] * Quat[2] - Quat[3] * Quat[1]));
         float Roll  = atan2(2.0f * (Quat[3] * Quat[0] + Quat[1] * Quat[2]), Quat[3] * Quat[3] - Quat[0] * Quat[0] - Quat[1] * Quat[1] + Quat[2] * Quat[2]);

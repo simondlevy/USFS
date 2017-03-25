@@ -298,40 +298,6 @@ static int32_t readBMP280Pressure()
     return (int32_t) (((int32_t) rawData[0] << 16 | (int32_t) rawData[1] << 8 | rawData[2]) >> 4);
 }
 
-// I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
-// since the address is defined by two bytes
-
-static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
-{  
-    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
-    Wire.write(data_address1);                     // Put slave register address in Tx buffer
-    Wire.write(data_address2);                     // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);         // Send the Tx buffer, but send a restart to keep connection alive
-    //	Wire.endTransmission(false);              // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    //        Wire.requestFrom(address, count);       // Read bytes from slave register address 
-    Wire.requestFrom(device_address, (size_t) count);  // Read bytes from slave register address 
-    while (Wire.available()) {
-        dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
-}
-
-
-static void SENtralPassThroughMode()
-{
-    // First put SENtral in standby mode
-    uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, c | 0x01);
-    // Verify standby status
-    // if(readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & 0x01) {
-    // Place SENtral in pass-through mode
-    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x01); 
-    if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
-    }
-    else {
-        reporterr("SENtral not in pass-through mode!");
-    }
-}
-
 
 
 // Accelerometer and gyroscope self test; check calibration wrt factory settings
@@ -756,21 +722,11 @@ void setup()
     delay(1000);
 
     // Read first page of EEPROM
-    uint8_t data[128];
-    M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
-    Serial.println("EEPROM Signature Byte"); 
-    Serial.print(data[0], HEX);
-    Serial.println("  Should be 0x2A");
-    Serial.print(data[1], HEX);
-    Serial.println("  Should be 0x65");
-    for (int i = 0; i < 128; i++) {
-        Serial.print(data[i], HEX);
-        Serial.print(" ");
+    if (!EM7180_readEepromSignature()) {
+        Serial.println("EEPROM read failed\n");
+        while (true) 
+            ;
     }
-
-    // Set up the interrupt pin, its set as active high, push-pull
-    pinMode(myLed, OUTPUT);
-    digitalWrite(myLed, HIGH);
 
     // Read the WHO_AM_I register, this is a good test of communication
     Serial.println("MPU9250 9-axis motion sensor...");
@@ -924,167 +880,12 @@ void loop()
 {  
     int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
     int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
-    int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-    static float sum;
-    static int count;
-
-    static uint32_t lastUpdate = 0; // used to calculate integration interval
-
-    float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 
     // If intPin goes high, all data registers have new data
     //  if (digitalRead(intACC2)) {  // On interrupt, read data
     readAccelData(accelCount);  // Read the x/y/z adc values
 
-    // Now we'll calculate the acceleration value into actual g's
-    float ax = (float)accelCount[0]*aRes - accelBias[0];  // get actual g value, this depends on scale being set
-    float ay = (float)accelCount[1]*aRes - accelBias[1];   
-    float az = (float)accelCount[2]*aRes - accelBias[2]; 
-
     readGyroData(gyroCount);  // Read the x/y/z adc values
-
-    // Calculate the gyro value into actual degrees per second
-    float gx = (float)gyroCount[0]*gRes;  // get actual gyro value, this depends on scale being set
-    float gy = (float)gyroCount[1]*gRes;  
-    float gz = (float)gyroCount[2]*gRes;   
-
-    //  if (digitalRead(intDRDYM)) {  // On interrupt, read data
-    readMagData(magCount);  // Read the x/y/z adc values
-
-    // Calculate the magnetometer values in milliGauss
-    float mx = (float)magCount[0]*mRes*magCalibration[0] - magBias[0];  // get actual magnetometer value, this depends on scale being set
-    float my = (float)magCount[1]*mRes*magCalibration[1] - magBias[1];  
-    float mz = (float)magCount[2]*mRes*magCalibration[2] - magBias[2];  
-
-    // keep track of rates
-    uint32_t Now = micros();
-    float deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
-    lastUpdate = Now;
-
-    sum += deltat; // sum for averaging filter update rate
-
-    // Sensors x (y)-axis of the accelerometer is aligned with the -y (x)-axis of the magnetometer;
-    // the magnetometer z-axis (+ up) is aligned with z-axis (+ up) of accelerometer and gyro!
-    // We have to make some allowance for this orientation mismatch in feeding the output to the quaternion filter.
-    // For the BMX-055, we have chosen a magnetic rotation that keeps the sensor forward along the x-axis just like
-    // in the MPU9250 sensor. This rotation can be modified to allow any convenient orientation convention.
-    // This is ok by aircraft orientation standards!  
-    // Pass gyro rate as rad/s
-    MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  mx,  my, mz, deltat, q);
-
-    // Serial print and/or display at 0.5 s rate independent of data rates
-    uint32_t delt_t = millis() - count;
-    if (delt_t > 500) { // update LCD once per half-second independent of read rate
-
-        Serial.print("ax = ");
-        Serial.print((int)1000*ax);  
-        Serial.print(" ay = ");
-        Serial.print((int)1000*ay); 
-        Serial.print(" az = ");
-        Serial.print((int)1000*az);
-        Serial.println(" mg");
-        Serial.print("gx = ");
-        Serial.print( gx, 2); 
-        Serial.print(" gy = ");
-        Serial.print( gy, 2); 
-        Serial.print(" gz = ");
-        Serial.print( gz, 2);
-        Serial.println(" deg/s");
-        Serial.print("mx = ");
-        Serial.print( (int)mx); 
-        Serial.print(" my = ");
-        Serial.print( (int)my); 
-        Serial.print(" mz = ");
-        Serial.print( (int)mz);
-        Serial.println(" mG");
-
-        Serial.println("Software quaternions:"); 
-        Serial.print("q0 = ");
-        Serial.print(q[0]);
-        Serial.print(" qx = ");
-        Serial.print(q[1]); 
-        Serial.print(" qy = ");
-        Serial.print(q[2]); 
-        Serial.print(" qz = ");
-        Serial.println(q[3]); 
-        rawPress =  readBMP280Pressure();
-        float pressure = (float) bmp280_compensate_P(rawPress)/25600.; // Pressure in mbar
-        rawTemp =   readBMP280Temperature();
-        float temperature = (float) bmp280_compensate_T(rawTemp)/100.;
-
-
-        /*
-           Define output variables from updated quaternion---these are Tait-Bryan
-           angles, commonly used in aircraft orientation.  In this coordinate
-           system, the positive z-axis is down toward Earth.  Yaw is the angle
-           between Sensor x-axis and Earth magnetic North (or true North if
-           corrected for local declination, looking down on the sensor positive
-           yaw is counterclockwise.  Pitch is angle between sensor x-axis and
-           Earth ground plane, toward the Earth is positive, up toward the sky is
-           negative.  Roll is angle between sensor y-axis and Earth ground plane,
-           y-axis up is positive roll.  These arise from the definition of the
-           homogeneous rotation matrix constructed from quaternions.  Tait-Bryan
-           angles as well as Euler angles are non-commutative; that is, the get
-           the correct orientation the rotations must be applied in the correct
-           order which for this configuration is yaw, pitch, and then roll.  For
-           more see
-http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-which has additional links.
-         */
-
-        //Software AHRS:
-        float yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
-        float pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
-        float roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
-        pitch *= 180.0f / PI;
-        yaw   *= 180.0f / PI; 
-        yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-        if(yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
-        roll  *= 180.0f / PI;
-
-        /*
-           Or define output variable according to the Android system, where
-           heading (0 to 360) is defined by the angle between the y-axis and True
-           North, pitch is rotation about the x-axis (-180 to +180), and roll is
-           rotation about the y-axis (-90 to +90) In this systen, the z-axis is
-           pointing away from Earth, the +y-axis is at the "top" of the device
-           (cellphone) and the +x-axis points toward the right of the device.
-         */ 
-
-        Serial.print("Software yaw, pitch, roll: ");
-        Serial.print(yaw, 2);
-        Serial.print(", ");
-        Serial.print(pitch, 2);
-        Serial.print(", ");
-        Serial.println(roll, 2);
-
-        Serial.println("BMP280:");
-        Serial.print("Altimeter temperature = "); 
-        Serial.print( temperature, 2); 
-        Serial.println(" C"); // temperature in degrees Celsius
-        Serial.print("Altimeter temperature = "); 
-        Serial.print(9.*temperature/5. + 32., 2); 
-        Serial.println(" F"); // temperature in degrees Fahrenheit
-        Serial.print("Altimeter pressure = "); 
-        Serial.print(pressure, 2);  
-        Serial.println(" mbar");// pressure in millibar
-        float altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
-        Serial.print("Altitude = "); 
-        Serial.print(altitude, 2); 
-        Serial.println(" feet");
-        Serial.println(" ");
-
-        Serial.print(millis()/1000.0, 1);Serial.print(",");
-        Serial.print(yaw);
-        Serial.print(",");Serial.print(pitch);
-        Serial.println(",");Serial.print(roll);
-
-
-        digitalWrite(myLed, !digitalRead(myLed));
-        count = millis(); 
-        sum = 0;    
-    }
-
 }
 
 

@@ -403,5 +403,43 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
+// I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
+// since the address is defined by two bytes
+
+static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
+{  
+    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
+    Wire.write(data_address1);                     // Put slave register address in Tx buffer
+    Wire.write(data_address2);                     // Put slave register address in Tx buffer
+    Wire.endTransmission(I2C_NOSTOP);         // Send the Tx buffer, but send a restart to keep connection alive
+    //	Wire.endTransmission(false);              // Send the Tx buffer, but send a restart to keep connection alive
+    uint8_t i = 0;
+    //        Wire.requestFrom(address, count);       // Read bytes from slave register address 
+    Wire.requestFrom(device_address, (size_t) count);  // Read bytes from slave register address 
+    while (Wire.available()) {
+        dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
+}
 
 
+static bool EM7180_readEepromSignature(void)
+{
+    uint8_t data[128];
+    M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
+    return data[0] == 0x2A && data[1] == 0x65;
+}
+
+static void SENtralPassThroughMode()
+{
+    // First put SENtral in standby mode
+    uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, c | 0x01);
+    // Verify standby status
+    // if(readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & 0x01) {
+    // Place SENtral in pass-through mode
+    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x01); 
+    if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
+    }
+    else {
+        reporterr("SENtral not in pass-through mode!");
+    }
+}
