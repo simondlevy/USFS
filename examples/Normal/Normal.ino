@@ -397,6 +397,11 @@ void setup()
 void loop()
 {  
     float ax=0, ay=0, az=0, gx=0, gy=0, gz=0, mx=0, my=0, mz=0; // variables to hold latest sensor data values 
+    static float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
+    static int count, sumCount;
+    static uint32_t lastUpdate; // used to calculate integration interval
+    static float sum;
+    static float yaw, pitch, roll;
         
     int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
     int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
@@ -469,15 +474,15 @@ void loop()
     }
 
     // keep track of rates
-    Now = micros();
-    deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
+    uint32_t Now = micros();
+    float deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
     lastUpdate = Now;
 
     sum += deltat; // sum for averaging filter update rate
     sumCount++;
 
     // Serial print and/or display at 0.5 s rate independent of data rates
-    delt_t = millis() - count;
+    uint32_t delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
         Serial.print("ax = ");
@@ -531,9 +536,9 @@ void loop()
          */
 
         //Hardware AHRS:
-        Yaw   = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
-        Pitch = -asin(2.0f * (Quat[0] * Quat[2] - Quat[3] * Quat[1]));
-        Roll  = atan2(2.0f * (Quat[3] * Quat[0] + Quat[1] * Quat[2]), Quat[3] * Quat[3] - Quat[0] * Quat[0] - Quat[1] * Quat[1] + Quat[2] * Quat[2]);
+        float Yaw   = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
+        float Pitch = -asin(2.0f * (Quat[0] * Quat[2] - Quat[3] * Quat[1]));
+        float Roll  = atan2(2.0f * (Quat[3] * Quat[0] + Quat[1] * Quat[2]), Quat[3] * Quat[3] - Quat[0] * Quat[0] - Quat[1] * Quat[1] + Quat[2] * Quat[2]);
         Pitch *= 180.0f / PI;
         Yaw   *= 180.0f / PI; 
         Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04

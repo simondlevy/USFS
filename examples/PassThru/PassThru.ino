@@ -981,6 +981,10 @@ void loop()
     int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
     int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
     int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
+    static float sum;
+    static int count;
+
+    static uint32_t lastUpdate = 0; // used to calculate integration interval
 
     float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 
@@ -1009,12 +1013,11 @@ void loop()
     float mz = (float)magCount[2]*mRes*magCalibration[2] - magBias[2];  
 
     // keep track of rates
-    Now = micros();
-    deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
+    uint32_t Now = micros();
+    float deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
     lastUpdate = Now;
 
     sum += deltat; // sum for averaging filter update rate
-    sumCount++;
 
     // Sensors x (y)-axis of the accelerometer is aligned with the -y (x)-axis of the magnetometer;
     // the magnetometer z-axis (+ up) is aligned with z-axis (+ up) of accelerometer and gyro!
@@ -1026,7 +1029,7 @@ void loop()
     MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  mx,  my, mz, deltat, q);
 
     // Serial print and/or display at 0.5 s rate independent of data rates
-    delt_t = millis() - count;
+    uint32_t delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
         Serial.print("ax = ");
@@ -1061,9 +1064,9 @@ void loop()
         Serial.print(" qz = ");
         Serial.println(q[3]); 
         rawPress =  readBMP280Pressure();
-        pressure = (float) bmp280_compensate_P(rawPress)/25600.; // Pressure in mbar
+        float pressure = (float) bmp280_compensate_P(rawPress)/25600.; // Pressure in mbar
         rawTemp =   readBMP280Temperature();
-        temperature = (float) bmp280_compensate_T(rawTemp)/100.;
+        float temperature = (float) bmp280_compensate_T(rawTemp)/100.;
 
 
         /*
@@ -1086,9 +1089,9 @@ which has additional links.
          */
 
         //Software AHRS:
-        yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
-        pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
-        roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
+        float yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
+        float pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
+        float roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
         pitch *= 180.0f / PI;
         yaw   *= 180.0f / PI; 
         yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
@@ -1121,28 +1124,20 @@ which has additional links.
         Serial.print("Altimeter pressure = "); 
         Serial.print(pressure, 2);  
         Serial.println(" mbar");// pressure in millibar
-        altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
+        float altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
         Serial.print("Altitude = "); 
         Serial.print(altitude, 2); 
         Serial.println(" feet");
         Serial.println(" ");
 
-        //   Serial.print("rate = ");
-        Serial.print((float)sumCount/sum, 2);
-        Serial.println(" Hz");
         Serial.print(millis()/1000.0, 1);Serial.print(",");
         Serial.print(yaw);
         Serial.print(",");Serial.print(pitch);
-        Serial.print(",");Serial.print(roll);
-        Serial.print(",");
-        Serial.print(Yaw);
-        Serial.print(",");Serial.print(Pitch);
-        Serial.print(",");Serial.println(Roll);  
+        Serial.println(",");Serial.print(roll);
 
 
         digitalWrite(myLed, !digitalRead(myLed));
         count = millis(); 
-        sumCount = 0;
         sum = 0;    
     }
 

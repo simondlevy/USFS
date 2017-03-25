@@ -164,16 +164,10 @@ enum SBy {
     t_4000ms,
 };
 
-//
-
-// MPU9250 variables
-static float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
-
-static uint32_t delt_t = 0, count = 0, sumCount = 0;  // used to control display output rate
+/*
 static float pitch, yaw, roll, Yaw, Pitch, Roll;
 static float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
-static uint32_t lastUpdate = 0; // used to calculate integration interval
-static uint32_t Now = 0;                         // used to calculate integration interval
+*/
 
 static void reporterr(const char * message)
 {
