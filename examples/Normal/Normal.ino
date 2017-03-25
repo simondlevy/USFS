@@ -23,7 +23,6 @@
 #include <SPI.h>
 
 static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
-static const bool SerialDebug = true;
 
 void setup()
 {
@@ -345,40 +344,37 @@ void loop()
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
-        if(SerialDebug) {
-            Serial.print("ax = ");
-            Serial.print((int)1000*ax);  
-            Serial.print(" ay = ");
-            Serial.print((int)1000*ay); 
-            Serial.print(" az = ");
-            Serial.print((int)1000*az);
-            Serial.println(" mg");
-            Serial.print("gx = ");
-            Serial.print( gx, 2); 
-            Serial.print(" gy = ");
-            Serial.print( gy, 2); 
-            Serial.print(" gz = ");
-            Serial.print( gz, 2);
-            Serial.println(" deg/s");
-            Serial.print("mx = ");
-            Serial.print( (int)mx); 
-            Serial.print(" my = ");
-            Serial.print( (int)my); 
-            Serial.print(" mz = ");
-            Serial.print( (int)mz);
-            Serial.println(" mG");
+        Serial.print("ax = ");
+        Serial.print((int)1000*ax);  
+        Serial.print(" ay = ");
+        Serial.print((int)1000*ay); 
+        Serial.print(" az = ");
+        Serial.print((int)1000*az);
+        Serial.println(" mg");
+        Serial.print("gx = ");
+        Serial.print( gx, 2); 
+        Serial.print(" gy = ");
+        Serial.print( gy, 2); 
+        Serial.print(" gz = ");
+        Serial.print( gz, 2);
+        Serial.println(" deg/s");
+        Serial.print("mx = ");
+        Serial.print( (int)mx); 
+        Serial.print(" my = ");
+        Serial.print( (int)my); 
+        Serial.print(" mz = ");
+        Serial.print( (int)mz);
+        Serial.println(" mG");
 
-            Serial.println("Hardware quaternions:"); 
-            Serial.print("Q0 = ");
-            Serial.print(Quat[0]);
-            Serial.print(" Qx = ");
-            Serial.print(Quat[1]); 
-            Serial.print(" Qy = ");
-            Serial.print(Quat[2]); 
-            Serial.print(" Qz = ");
-            Serial.println(Quat[3]); 
-        }               
-
+        Serial.println("Hardware quaternions:"); 
+        Serial.print("Q0 = ");
+        Serial.print(Quat[0]);
+        Serial.print(" Qx = ");
+        Serial.print(Quat[1]); 
+        Serial.print(" Qy = ");
+        Serial.print(Quat[2]); 
+        Serial.print(" Qz = ");
+        Serial.println(Quat[3]); 
 
         /*
            Define output variables from updated quaternion---these are Tait-Bryan
@@ -417,34 +413,30 @@ void loop()
            (cellphone) and the +x-axis points toward the right of the device.
          */ 
 
-        if(SerialDebug) {
-
-            Serial.print("Hardware Yaw, Pitch, Roll: ");
-            Serial.print(Yaw, 2);
-            Serial.print(", ");
-            Serial.print(Pitch, 2);
-            Serial.print(", ");
-            Serial.println(Roll, 2);
+        Serial.print("Hardware Yaw, Pitch, Roll: ");
+        Serial.print(Yaw, 2);
+        Serial.print(", ");
+        Serial.print(Pitch, 2);
+        Serial.print(", ");
+        Serial.println(Roll, 2);
 
 
-            Serial.println("BMP280:");
-            Serial.print("Altimeter temperature = "); 
-            Serial.print( temperature, 2); 
-            Serial.println(" C"); // temperature in degrees Celsius
-            Serial.print("Altimeter temperature = "); 
-            Serial.print(9.*temperature/5. + 32., 2); 
-            Serial.println(" F"); // temperature in degrees Fahrenheit
-            Serial.print("Altimeter pressure = "); 
-            Serial.print(pressure, 2);  
-            Serial.println(" mbar");// pressure in millibar
-            altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
-            Serial.print("Altitude = "); 
-            Serial.print(altitude, 2); 
-            Serial.println(" feet");
-            Serial.println(" ");
-        }
+        Serial.println("BMP280:");
+        Serial.print("Altimeter temperature = "); 
+        Serial.print( temperature, 2); 
+        Serial.println(" C"); // temperature in degrees Celsius
+        Serial.print("Altimeter temperature = "); 
+        Serial.print(9.*temperature/5. + 32., 2); 
+        Serial.println(" F"); // temperature in degrees Fahrenheit
+        Serial.print("Altimeter pressure = "); 
+        Serial.print(pressure, 2);  
+        Serial.println(" mbar");// pressure in millibar
+        altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
+        Serial.print("Altitude = "); 
+        Serial.print(altitude, 2); 
+        Serial.println(" feet");
+        Serial.println(" ");
 
-        //   Serial.print("rate = ");
         Serial.print((float)sumCount/sum, 2);
         Serial.println(" Hz");
         Serial.print(millis()/1000.0, 1);Serial.print(",");
