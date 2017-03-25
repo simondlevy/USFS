@@ -263,6 +263,8 @@ void setup()
 
 void loop()
 {  
+    float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
+
     // If intPin goes high, all data registers have new data
     //  if (digitalRead(intACC2)) {  // On interrupt, read data
     readAccelData(accelCount);  // Read the x/y/z adc values
