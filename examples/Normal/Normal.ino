@@ -22,6 +22,7 @@
 #include <i2c_t3.h>
 #include <SPI.h>
 
+static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
 static const bool SerialDebug = true;
 
 void setup()
@@ -311,7 +312,6 @@ void loop()
 
     //   if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x04) { // new quaternion data available
     readSENtralQuatData(Quat); 
-    //  }
 
     // get BMP280 pressure
     if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x40) { // new baro data available
@@ -403,9 +403,8 @@ void loop()
            angles as well as Euler angles are non-commutative; that is, the get
            the correct orientation the rotations must be applied in the correct
            order which for this configuration is yaw, pitch, and then roll.  For
-           more see
-http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-which has additional links.
+           more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles 
+           which has additional links.
          */
 
         //Software AHRS:

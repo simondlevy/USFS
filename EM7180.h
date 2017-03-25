@@ -2,6 +2,19 @@
 
    EM7180.h: Class header for EM7180 SENtral Sensor
 
+   This file is part of EM7180.
+
+   EM7180 is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   EM7180 is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <i2c_t3.h>
@@ -335,7 +348,6 @@ static int32_t rawPress, rawTemp;   // pressure and temperature raw count output
 static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
 static int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
 static int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
 static float magCalibration[3] = {0, 0, 0};  // Factory mag calibration and mag bias
 static float gyroBias[3] = {0, 0, 0}, accelBias[3] = {0, 0, 0}, magBias[3] = {0, 0, 0}, magScale[3]  = {0, 0, 0};  // Bias corrections for gyro, accelerometer, mag
 static int16_t rawPressure, rawTemperature;   // pressure, temperature raw count output

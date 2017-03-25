@@ -312,7 +312,6 @@ void loop()
     // This is ok by aircraft orientation standards!  
     // Pass gyro rate as rad/s
     MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  mx,  my, mz, deltat, q);
-    //  if(passThru)MahonyQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f, -my, mx, mz, deltat, q);
 
     // Serial print and/or display at 0.5 s rate independent of data rates
     delt_t = millis() - count;
@@ -350,17 +349,7 @@ void loop()
             Serial.print(q[2]); 
             Serial.print(" qz = ");
             Serial.println(q[3]); 
-            Serial.println("Hardware quaternions:"); 
-            Serial.print("Q0 = ");
-            Serial.print(Quat[0]);
-            Serial.print(" Qx = ");
-            Serial.print(Quat[1]); 
-            Serial.print(" Qy = ");
-            Serial.print(Quat[2]); 
-            Serial.print(" Qz = ");
-            Serial.println(Quat[3]); 
         }               
-
 
         rawPress =  readBMP280Pressure();
         pressure = (float) bmp280_compensate_P(rawPress)/25600.; // Pressure in mbar
@@ -396,15 +385,6 @@ which has additional links.
         yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
         if(yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
         roll  *= 180.0f / PI;
-        //Hardware AHRS:
-        Yaw   = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
-        Pitch = -asin(2.0f * (Quat[0] * Quat[2] - Quat[3] * Quat[1]));
-        Roll  = atan2(2.0f * (Quat[3] * Quat[0] + Quat[1] * Quat[2]), Quat[3] * Quat[3] - Quat[0] * Quat[0] - Quat[1] * Quat[1] + Quat[2] * Quat[2]);
-        Pitch *= 180.0f / PI;
-        Yaw   *= 180.0f / PI; 
-        Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-        if(Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
-        Roll  *= 180.0f / PI;
 
         /*
            Or define output variable according to the Android system, where
