@@ -54,6 +54,8 @@ Because the sensors are not 5V tolerant, we are using a 3.3 V 8 MHz Pro Mini or 
 #include <SPI.h>
 
 static const bool SerialDebug = true;
+static const bool passThru = false;
+
 
 void setup()
 {

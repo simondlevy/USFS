@@ -1,4 +1,5 @@
 /* EM7180_MPU9250_BMP280_t3 Basic Example Code
+
 by: Kris Winer
 date: September 11, 2015
 license: Beerware - Use this code however you'd like. If you 
@@ -49,8 +50,6 @@ Because the sensors are not 5V tolerant, we are using a 3.3 V 8 MHz Pro Mini or 
  */
 
 #include <i2c_t3.h>
-#include <SPI.h>
-
 
 // BMP280 registers
 #define BMP280_TEMP_XLSB  0xFC
@@ -398,8 +397,6 @@ static uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor f
 
 static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
 static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
-
-static bool passThru = false;
 
 static void reporterr(const char * message)
 {
