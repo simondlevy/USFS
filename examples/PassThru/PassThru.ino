@@ -21,23 +21,11 @@
 // See also MPU-9250 Register Map and Descriptions, Revision 4.0, RM-MPU-9250A-00, Rev. 1.4, 9/9/2013 for registers not listed in 
 // above document; the MPU9250 and MPU9150 are virtually identical but the latter has a different register map
 
-#define XG_OFFSET_H      0x13  // User-defined trim values for gyroscope
-#define XG_OFFSET_L      0x14
-#define YG_OFFSET_H      0x15
-#define YG_OFFSET_L      0x16
-#define ZG_OFFSET_H      0x17
-#define ZG_OFFSET_L      0x18
-#define SMPLRT_DIV       0x19
 #define CONFIG           0x1A
 #define GYRO_CONFIG      0x1B
 #define ACCEL_CONFIG     0x1C
 #define ACCEL_CONFIG2    0x1D
-#define LP_ACCEL_ODR     0x1E   
-#define WOM_THR          0x1F   
-
-#define FIFO_EN          0x23
-
-#define I2C_MST_CTRL     0x24   
+#define SMPLRT_DIV       0x19
 
 #define INT_PIN_CFG      0x37
 #define INT_ENABLE       0x38
@@ -57,51 +45,9 @@
 #define GYRO_YOUT_L      0x46
 #define GYRO_ZOUT_H      0x47
 #define GYRO_ZOUT_L      0x48
-#define EXT_SENS_DATA_00 0x49
 
-#define EXT_SENS_DATA_01 0x4A
-#define EXT_SENS_DATA_02 0x4B
-#define EXT_SENS_DATA_03 0x4C
-#define EXT_SENS_DATA_04 0x4D
-#define EXT_SENS_DATA_05 0x4E
-#define EXT_SENS_DATA_06 0x4F
-#define EXT_SENS_DATA_07 0x50
-#define EXT_SENS_DATA_08 0x51
-#define EXT_SENS_DATA_09 0x52
-#define EXT_SENS_DATA_10 0x53
-#define EXT_SENS_DATA_11 0x54
-#define EXT_SENS_DATA_12 0x55
-#define EXT_SENS_DATA_13 0x56
-#define EXT_SENS_DATA_14 0x57
-#define EXT_SENS_DATA_15 0x58
-#define EXT_SENS_DATA_16 0x59
-#define EXT_SENS_DATA_17 0x5A
-#define EXT_SENS_DATA_18 0x5B
-#define EXT_SENS_DATA_19 0x5C
-#define EXT_SENS_DATA_20 0x5D
-#define EXT_SENS_DATA_21 0x5E
-#define EXT_SENS_DATA_22 0x5F
-#define EXT_SENS_DATA_23 0x60
-
-#define USER_CTRL        0x6A  // Bit 7 enable DMP, bit 3 reset DMP
 #define PWR_MGMT_1       0x6B // Device defaults to the SLEEP mode
-#define PWR_MGMT_2       0x6C
-#define DMP_BANK         0x6D  // Activates a specific bank in the DMP
-#define DMP_RW_PNT       0x6E  // Set read/write pointer to a specific start address in specified DMP bank
-#define DMP_REG          0x6F  // Register in DMP from which to read or to which to write
-#define DMP_REG_1        0x70
-#define DMP_REG_2        0x71 
-#define FIFO_COUNTH      0x72
-#define FIFO_COUNTL      0x73
-#define FIFO_R_W         0x74
 #define WHO_AM_I_MPU9250 0x75 // Should return 0x71
-#define XA_OFFSET_H      0x77
-#define XA_OFFSET_L      0x78
-#define YA_OFFSET_H      0x7A
-#define YA_OFFSET_L      0x7B
-#define ZA_OFFSET_H      0x7D
-#define ZA_OFFSET_L      0x7E
-
 
 #include <i2c_t3.h>
 
