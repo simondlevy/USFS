@@ -16,13 +16,14 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "quaternionFilters.h"
 #include "EM7180.h"
 
 #include <i2c_t3.h>
-#include <SPI.h>
 
 static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
+
+// Pin definitions
+static const int myLed     = 28;  // LED on the Teensy 3.1
 
 void setup()
 {
@@ -254,10 +255,13 @@ void setup()
 }
 
 
-
 void loop()
 {  
     float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
+        
+    int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
+    int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
+    int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
 
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register

@@ -20,10 +20,129 @@
 #include "EM7180.h"
 
 #include <i2c_t3.h>
-#include <SPI.h>
+
+// Pin definitions
+static const int myLed     = 28;  // LED on the Teensy 3.1
+
+static float magCalibration[3] = {0, 0, 0};  // Factory mag calibration and mag bias
+
+// Bias corrections for gyro, accelerometer, mag
+static float gyroBias[3] = {0, 0, 0}, accelBias[3] = {0, 0, 0}, magBias[3] = {0, 0, 0}, magScale[3]  = {0, 0, 0};  
+
+static uint16_t dig_T1, dig_P1;
+static int16_t  dig_T2, dig_T3, dig_P2, dig_P3, dig_P4, dig_P5, dig_P6, dig_P7, dig_P8, dig_P9;
+
+static void magcalMPU9250(float * dest1, float * dest2) 
+{
+    uint16_t ii = 0, sample_count = 0;
+    int32_t mag_bias[3] = {0, 0, 0}, mag_scale[3] = {0, 0, 0};
+    int16_t mag_max[3] = {0xFF, 0xFF, 0xFF}, mag_min[3] = {0x7F, 0x7F, 0x7F}, mag_temp[3] = {0, 0, 0};
+
+    if(Mmode == 0x02) sample_count = 128;
+    if(Mmode == 0x06) sample_count = 1500;
+    for(ii = 0; ii < sample_count; ii++) {
+        readMagData(mag_temp);  // Read the mag data   
+        for (int jj = 0; jj < 3; jj++) {
+            if(mag_temp[jj] > mag_max[jj]) mag_max[jj] = mag_temp[jj];
+            if(mag_temp[jj] < mag_min[jj]) mag_min[jj] = mag_temp[jj];
+        }
+        if(Mmode == 0x02) delay(135);  // at 8 Hz ODR, new mag data is available every 125 ms
+        if(Mmode == 0x06) delay(12);  // at 100 Hz ODR, new mag data is available every 10 ms
+    }
+
+    // Get hard iron correction
+    mag_bias[0]  = (mag_max[0] + mag_min[0])/2;  // get average x mag bias in counts
+    mag_bias[1]  = (mag_max[1] + mag_min[1])/2;  // get average y mag bias in counts
+    mag_bias[2]  = (mag_max[2] + mag_min[2])/2;  // get average z mag bias in counts
+
+    dest1[0] = (float) mag_bias[0]*mRes*magCalibration[0];  // save mag biases in G for main program
+    dest1[1] = (float) mag_bias[1]*mRes*magCalibration[1];   
+    dest1[2] = (float) mag_bias[2]*mRes*magCalibration[2];  
+
+    // Get soft iron correction estimate
+    mag_scale[0]  = (mag_max[0] - mag_min[0])/2;  // get average x axis max chord length in counts
+    mag_scale[1]  = (mag_max[1] - mag_min[1])/2;  // get average y axis max chord length in counts
+    mag_scale[2]  = (mag_max[2] - mag_min[2])/2;  // get average z axis max chord length in counts
+
+    float avg_rad = mag_scale[0] + mag_scale[1] + mag_scale[2];
+    avg_rad /= 3.0;
+
+    dest2[0] = avg_rad/((float)mag_scale[0]);
+    dest2[1] = avg_rad/((float)mag_scale[1]);
+    dest2[2] = avg_rad/((float)mag_scale[2]);
+
+}
+
+static void BMP280Init()
+{
+    // Configure the BMP280
+    // Set T and P oversampling rates and sensor mode
+    writeByte(BMP280_ADDRESS, BMP280_CTRL_MEAS, Tosr << 5 | Posr << 2 | Mode);
+    // Set standby time interval in normal mode and bandwidth
+    writeByte(BMP280_ADDRESS, BMP280_CONFIG, SBy << 5 | IIRFilter << 2);
+    // Read and store calibration data
+    uint8_t calib[24];
+    readBytes(BMP280_ADDRESS, BMP280_CALIB00, 24, &calib[0]);
+    dig_T1 = (uint16_t)(((uint16_t) calib[1] << 8) | calib[0]);
+    dig_T2 = ( int16_t)((( int16_t) calib[3] << 8) | calib[2]);
+    dig_T3 = ( int16_t)((( int16_t) calib[5] << 8) | calib[4]);
+    dig_P1 = (uint16_t)(((uint16_t) calib[7] << 8) | calib[6]);
+    dig_P2 = ( int16_t)((( int16_t) calib[9] << 8) | calib[8]);
+    dig_P3 = ( int16_t)((( int16_t) calib[11] << 8) | calib[10]);
+    dig_P4 = ( int16_t)((( int16_t) calib[13] << 8) | calib[12]);
+    dig_P5 = ( int16_t)((( int16_t) calib[15] << 8) | calib[14]);
+    dig_P6 = ( int16_t)((( int16_t) calib[17] << 8) | calib[16]);
+    dig_P7 = ( int16_t)((( int16_t) calib[19] << 8) | calib[18]);
+    dig_P8 = ( int16_t)((( int16_t) calib[21] << 8) | calib[20]);
+    dig_P9 = ( int16_t)((( int16_t) calib[23] << 8) | calib[22]);
+}
+
+// Returns temperature in DegC, resolution is 0.01 DegC. Output value of
+// “5123” equals 51.23 DegC.
+static int32_t bmp280_compensate_T(int32_t adc_T)
+{
+    int32_t var1, var2, T;
+    var1 = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
+    var2 = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
+    t_fine = var1 + var2;
+    T = (t_fine * 5 + 128) >> 8;
+    return T;
+}
+
+// Returns pressure in Pa as unsigned 32 bit integer in Q24.8 format (24 integer bits and 8
+//fractional bits).
+//Output value of “24674867” represents 24674867/256 = 96386.2 Pa = 963.862 hPa
+static uint32_t bmp280_compensate_P(int32_t adc_P)
+{
+    long long var1, var2, p;
+    var1 = ((long long)t_fine) - 128000;
+    var2 = var1 * var1 * (long long)dig_P6;
+    var2 = var2 + ((var1*(long long)dig_P5)<<17);
+    var2 = var2 + (((long long)dig_P4)<<35);
+    var1 = ((var1 * var1 * (long long)dig_P3)>>8) + ((var1 * (long long)dig_P2)<<12);
+    var1 = (((((long long)1)<<47)+var1))*((long long)dig_P1)>>33;
+    if(var1 == 0)
+    {
+        return 0;
+        // avoid exception caused by division by zero
+    }
+    p = 1048576 - adc_P;
+    p = (((p<<31) - var2)*3125)/var1;
+    var1 = (((long long)dig_P9) * (p>>13) * (p>>13)) >> 25;
+    var2 = (((long long)dig_P8) * p)>> 19;
+    p = ((p + var1 + var2) >> 8) + (((long long)dig_P7)<<4);
+    return (uint32_t)p;
+}
+
+
+
 
 void setup()
 {
+    int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
+    int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
+    int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
+
     // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
     delay(1000);
@@ -263,6 +382,10 @@ void setup()
 
 void loop()
 {  
+    int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
+    int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
+    int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
+
     float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 
     // If intPin goes high, all data registers have new data
