@@ -257,6 +257,8 @@ void setup()
 
 void loop()
 {  
+    static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
+
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
 
