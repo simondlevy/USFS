@@ -86,6 +86,8 @@ class EM7180 : public _EM7180 {
         bool algorithmStatusUnreliableData(void);
 
         static const char * errorToString(uint8_t errorStatus);
+
+        void reportParameters(void);
 };
 
 class EM7180_Passthru : public _EM7180 {
