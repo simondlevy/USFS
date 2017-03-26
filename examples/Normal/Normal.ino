@@ -1,6 +1,10 @@
 /* 
    Normal.ino: Example sketch for running EM7180 SENtral sensor hub in normal (non-pass-through) mode.
 
+   Adapted from
+
+     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/EM7180_MPU9250_BMP280
+
    This file is part of EM7180.
 
    EM7180 is free software: you can redistribute it and/or modify

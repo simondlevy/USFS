@@ -1,6 +1,10 @@
 /* 
    PassThru.ino: Example sketch for running EM7180 SENtral sensor hub in pass-through mode.
 
+   Adapted from
+
+     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/EM7180_MPU9250_BMP280
+
    This file is part of EM7180.
 
    EM7180 is free software: you can redistribute it and/or modify
@@ -205,14 +209,7 @@ void setup()
     }
 
     // Read the WHO_AM_I register, this is a good test of communication
-    Serial.println("MPU9250 9-axis motion sensor...");
     byte c = _readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);  // Read WHO_AM_I register for MPU-9250
-    Serial.print("MPU9250 ");
-    Serial.print("I AM ");
-    Serial.print(c, HEX);
-    Serial.print(" I should be ");
-    Serial.println(0x71, HEX);
-
     if (c != 0x71) { // WHO_AM_I should always be 0x71
         Serial.print("Could not connect to MPU9250: 0x");
         Serial.println(c, HEX);
