@@ -57,9 +57,8 @@ class EM7180 : public _EM7180 {
 
     public:
 
-        uint8_t begin(void);
+        uint8_t begin(uint8_t ares, uint16_t gres, uint16_t mres);
 
-        // Returns 0 or error status
         uint8_t update(void);
 
         void getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az);

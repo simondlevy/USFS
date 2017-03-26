@@ -401,7 +401,7 @@ uint8_t EM7180_Passthru::begin(void)
     return 0;
 }
 
-uint8_t EM7180::begin(void)
+uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres)
 {
     // Do generic intialization
     uint8_t status = _EM7180::begin();
@@ -446,8 +446,8 @@ uint8_t EM7180::begin(void)
     EM7180_set_integer_param (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the EM7180
-    EM7180_set_mag_acc_FS (0x3E8, 0x08); // 1000 uT, 8 g
-    EM7180_set_gyro_FS (0x7D0); // 2000 dps
+    EM7180_set_mag_acc_FS (mres, ares);
+    EM7180_set_gyro_FS (gres); 
 
     reportParameters();
 
