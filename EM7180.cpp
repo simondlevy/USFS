@@ -328,29 +328,6 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
 
 void _EM7180::begin(void)
 {
-    // Read SENtral device information
-    uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
-    uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
-    Serial.print("EM7180 ROM Version: 0x");
-    Serial.print(ROM1, HEX);
-    Serial.println(ROM2, HEX);
-    Serial.println("Should be: 0xE609");
-    uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
-    uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
-    Serial.print("EM7180 RAM Version: 0x");
-    Serial.print(RAM1);
-    Serial.println(RAM2);
-    uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
-    Serial.print("EM7180 ProductID: 0x");
-    Serial.print(PID, HEX);
-    Serial.println(" Should be: 0x80");
-    uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
-    Serial.print("EM7180 RevisionID: 0x");
-    Serial.print(RID, HEX);
-    Serial.println(" Should be: 0x02");
-
-    delay(1000); // give some time to read the screen
-
     // Check which sensors can be detected by the EM7180
     uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
     if(featureflag & 0x01)  Serial.println("A barometer is installed");
@@ -385,6 +362,32 @@ void _EM7180::begin(void)
     if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
     delay(1000); // give some time to read the screen
 
+}
+
+uint8_t _EM7180::getProductId(void) 
+{
+    return readByte(EM7180_ADDRESS, EM7180_ProductID);
+}
+
+uint8_t _EM7180::getRevisionId(void) 
+{
+    return readByte(EM7180_ADDRESS, EM7180_RevisionID);
+}
+
+uint16_t _EM7180::getRamVersion(void)
+{
+    uint16_t ram1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
+    uint16_t ram2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
+
+    return ram1 << 8 | ram2;
+}
+
+uint16_t _EM7180::getRomVersion(void)
+{
+    uint16_t rom1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
+    uint16_t rom2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
+
+    return rom1 << 8 | rom2;
 }
 
 uint8_t EM7180_Passthru::begin(void)

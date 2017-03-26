@@ -26,6 +26,13 @@ class _EM7180 {
     protected:
 
         void begin(void);
+
+    public:
+
+        uint8_t getProductId(void); 
+        uint8_t getRevisionId(void); 
+        uint16_t getRamVersion(void);
+        uint16_t getRomVersion(void);
 };
 
 class EM7180 : public _EM7180 {

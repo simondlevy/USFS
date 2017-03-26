@@ -41,6 +41,25 @@ void setup()
         Serial.println(EM7180::errorToString(status));
     }
 
+    // Report SENtral device information
+
+    Serial.print("EM7180 ROM Version: 0x");
+    Serial.print(em7180.getRomVersion(), HEX);
+    Serial.println(" (should be: 0xE609)");
+
+    Serial.print("EM7180 RAM Version: 0x");
+    Serial.println(em7180.getRamVersion(), HEX);
+
+    Serial.print("EM7180 ProductID: 0x");
+    Serial.print(em7180.getProductId(), HEX);
+    Serial.println(" (should be: 0x80)");
+
+    Serial.print("EM7180 RevisionID: 0x");
+    Serial.print(em7180.getRevisionId(), HEX);
+    Serial.println(" (should be: 0x02");
+
+    delay(1000); // give some time to read the screen
+
     Serial.print("Actual MagRate = ");
     Serial.print(em7180.getActualMagRate());
     Serial.println(" Hz"); 
