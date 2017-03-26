@@ -49,11 +49,27 @@
 #define PWR_MGMT_1       0x6B // Device defaults to the SLEEP mode
 #define WHO_AM_I_MPU9250 0x75 // Should return 0x71
 
+#define MPU9250_ADDRESS          0x68   // Device address of MPU9250 when ADO = 0
+
 #include <i2c_t3.h>
+
+enum Ascale {
+    AFS_2G = 0,
+    AFS_4G,
+    AFS_8G,
+    AFS_16G
+};
+
+enum Gscale {
+    GFS_250DPS = 0,
+    GFS_500DPS,
+    GFS_1000DPS,
+    GFS_2000DPS
+};
+
 
 // Specify sensor full scale
 static uint8_t Gscale = GFS_250DPS;
-static uint8_t Mscale = MFS_16BITS; // Choose either 14-bit or 16-bit magnetometer resolution
 static uint8_t Ascale = AFS_2G;
 
 // I2C read/write functions for the MPU9250 and AK8963 sensors
