@@ -21,8 +21,13 @@
 
 #include <i2c_t3.h>
 
-void EM7180_begin(void);
-void EM7180_begin2(void);
-bool EM7180_readEepromSignature(void);
-void EM7180_usePassThroughMode();
-void EM7180_loop(void);
+class EM7180 {
+
+    public:
+
+        void begin(void);
+        void begin2(void);
+        bool readEepromSignature(void);
+        void usePassThroughMode();
+        void loop(void);
+};

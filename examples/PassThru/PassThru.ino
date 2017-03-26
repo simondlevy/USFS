@@ -3,7 +3,7 @@
 
    Adapted from
 
-     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/EM7180_MPU9250_BMP280
+     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/em7180.MPU9250_BMP280
 
    This file is part of EM7180.
 
@@ -180,6 +180,8 @@ static void readAccelData(int16_t * destination)
     destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
 }
 
+EM7180 em7180;
+
 void setup()
 {
     // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
@@ -188,14 +190,14 @@ void setup()
     Serial.begin(38400);
 
     // Start the EM7180
-    EM7180_begin();
+    em7180.begin();
 
     // Put EM7180 SENtral into pass-through mode
-    EM7180_usePassThroughMode();
+    em7180.usePassThroughMode();
     delay(1000);
 
     // Read first page of EEPROM
-    if (!EM7180_readEepromSignature()) {
+    if (!em7180.readEepromSignature()) {
         Serial.println("EEPROM read failed\n");
         while (true) 
             ;

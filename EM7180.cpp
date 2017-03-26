@@ -338,7 +338,7 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
 
 // ==================================================================================================================
 
-void EM7180_begin(void)
+void EM7180::begin(void)
 {
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
@@ -400,14 +400,14 @@ void EM7180_begin(void)
 
 }
 
-bool EM7180_readEepromSignature(void)
+bool EM7180::readEepromSignature(void)
 {
     uint8_t data[128];
     M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
     return data[0] == 0x2A && data[1] == 0x65;
 }
 
-void EM7180_usePassThroughMode()
+void EM7180::usePassThroughMode()
 {
     // First put SENtral in standby mode
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
@@ -423,7 +423,7 @@ void EM7180_usePassThroughMode()
     }
 }
 
-void EM7180_begin2(void)
+void EM7180::begin2(void)
 {
     // Enter EM7180 initialized state
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); // set SENtral in initialized state to configure registers
@@ -586,7 +586,7 @@ void EM7180_begin2(void)
 
 }
 
-void EM7180_loop(void)
+void EM7180::loop(void)
 {
     float ax=0, ay=0, az=0, gx=0, gy=0, gz=0, mx=0, my=0, mz=0; // variables to hold latest sensor data values 
     static float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius

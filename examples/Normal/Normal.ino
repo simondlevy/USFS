@@ -3,7 +3,7 @@
 
    Adapted from
 
-     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/EM7180_MPU9250_BMP280
+     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/em7180.MPU9250_BMP280
 
    This file is part of EM7180.
 
@@ -24,6 +24,8 @@
 
 #include <i2c_t3.h>
 
+EM7180 em7180;
+
 void setup()
 {
     // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
@@ -34,14 +36,14 @@ void setup()
     Serial.begin(38400);
 
     // Start the EM710
-    EM7180_begin();
-    EM7180_begin2();
+    em7180.begin();
+    em7180.begin2();
 }
 
 
 void loop()
 {  
-    EM7180_loop();
+    em7180.loop();
 }
 
 
