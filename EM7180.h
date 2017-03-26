@@ -21,13 +21,25 @@
 
 #include <i2c_t3.h>
 
-class EM7180 {
+class _EM7180 {
+
+    protected:
+
+        void begin(void);
+};
+
+class EM7180 : public _EM7180 {
 
     public:
 
         void begin(void);
-        void begin2(void);
-        bool readEepromSignature(void);
-        void usePassThroughMode();
+
         void loop(void);
+};
+
+class EM7180_Passthru : public _EM7180 {
+
+    public:
+
+        bool begin(void);
 };

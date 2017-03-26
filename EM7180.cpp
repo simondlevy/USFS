@@ -338,7 +338,7 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
 
 // ==================================================================================================================
 
-void EM7180::begin(void)
+void _EM7180::begin(void)
 {
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
@@ -400,15 +400,10 @@ void EM7180::begin(void)
 
 }
 
-bool EM7180::readEepromSignature(void)
+bool EM7180_Passthru::begin(void)
 {
-    uint8_t data[128];
-    M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
-    return data[0] == 0x2A && data[1] == 0x65;
-}
+    _EM7180::begin();
 
-void EM7180::usePassThroughMode()
-{
     // First put SENtral in standby mode
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, c | 0x01);
@@ -419,12 +414,24 @@ void EM7180::usePassThroughMode()
     if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
     }
     else {
-        reporterr("SENtral not in pass-through mode!");
+        Serial.println("Failed to put SENtral in pass-through mode");
+        return false;
     }
+
+    uint8_t data[128];
+    M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
+    if (data[0] != 0x2A || data[1] != 0x65) {
+        Serial.println("Unable to read from SENtral EEPROM");
+        return false;
+    }
+
+    return true;
 }
 
-void EM7180::begin2(void)
+void EM7180::begin(void)
 {
+    _EM7180::begin();
+
     // Enter EM7180 initialized state
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); // set SENtral in initialized state to configure registers
     writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x00); // make sure pass through mode is off

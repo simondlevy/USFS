@@ -180,25 +180,17 @@ static void readAccelData(int16_t * destination)
     destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
 }
 
-EM7180 em7180;
+EM7180_Passthru em7180p;
 
 void setup()
 {
     // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
-    delay(1000);
-    Serial.begin(38400);
+    delay(100);
 
     // Start the EM7180
-    em7180.begin();
-
-    // Put EM7180 SENtral into pass-through mode
-    em7180.usePassThroughMode();
-    delay(1000);
-
-    // Read first page of EEPROM
-    if (!em7180.readEepromSignature()) {
-        Serial.println("EEPROM read failed\n");
+    if (!em7180p.begin()) {
+        Serial.println("Failed to init EM7180 in passthrough mode\n");
         while (true) 
             ;
     }

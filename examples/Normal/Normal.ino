@@ -37,7 +37,6 @@ void setup()
 
     // Start the EM710
     em7180.begin();
-    em7180.begin2();
 }
 
 
