@@ -71,12 +71,7 @@ enum Gscale {
     GFS_2000DPS
 };
 
-
-// Specify sensor full scale
-static uint8_t Gscale = GFS_250DPS;
-static uint8_t Ascale = AFS_2G;
-
-// I2C read/write functions for the MPU9250 and AK8963 sensors
+// I2C read/write functions for the MPU9250
 
 static void _writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
@@ -109,7 +104,7 @@ static void _readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8
 }
 
 
-static void initMPU9250()
+static void initMPU9250(uint8_t ascale, uint8_t gscale)
 {  
     // wake up device
     _writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x00); // Clear sleep mode bit (6), enable all sensors 
@@ -137,15 +132,13 @@ static void initMPU9250()
     // c = c & ~0xE0; // Clear self-test bits [7:5] 
     c = c & ~0x02; // Clear Fchoice bits [1:0] 
     c = c & ~0x18; // Clear AFS bits [4:3]
-    c = c | Gscale << 3; // Set full scale range for the gyro
-    // c =| 0x00; // Set Fchoice for the gyro to 11 by writing its inverse to bits 1:0 of GYRO_CONFIG
+    c = c | gscale << 3; // Set full scale range for the gyro
     _writeByte(MPU9250_ADDRESS, GYRO_CONFIG, c ); // Write new GYRO_CONFIG value to register
 
     // Set accelerometer full-scale range configuration
     c = _readByte(MPU9250_ADDRESS, ACCEL_CONFIG); // get current ACCEL_CONFIG register value
-    // c = c & ~0xE0; // Clear self-test bits [7:5] 
     c = c & ~0x18;  // Clear AFS bits [4:3]
-    c = c | Ascale << 3; // Set full scale range for the accelerometer 
+    c = c | ascale << 3; // Set full scale range for the accelerometer 
     _writeByte(MPU9250_ADDRESS, ACCEL_CONFIG, c); // Write new ACCEL_CONFIG register value
 
     // Set accelerometer sample rate configuration
@@ -216,7 +209,8 @@ void setup()
         while(1) ; // Loop forever if communication doesn't happen
     }
 
-    initMPU9250();
+    // Specify IMU scale
+    initMPU9250(AFS_2G, GFS_250DPS);
 }
 
 
