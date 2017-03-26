@@ -30,11 +30,30 @@ class _EM7180 {
 
 class EM7180 : public _EM7180 {
 
+    private:
+
+        int16_t accelCount[3];
+        int16_t gyroCount[3];
+        int16_t magCount[3];
+    
+        float quaternions[4];
+
+        float temperature;
+        float pressure;
+
     public:
 
         void begin(void);
 
-        void loop(void);
+        void update(void);
+
+        void getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az);
+        void getGyroRaw(int16_t& gx, int16_t& gy, int16_t& gz);
+        void getMagRaw(int16_t& mx, int16_t& my, int16_t& mz);
+
+        void getQuaternions(float q[4]);
+
+        void getBaro(float & press, float & temp);
 };
 
 class EM7180_Passthru : public _EM7180 {
