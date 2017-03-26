@@ -65,8 +65,6 @@ void setup()
     Serial.print(em7180.getRevisionId(), HEX);
     Serial.println(" (should be: 0x02");
 
-    delay(1000); // give some time to read the screen
-
     Serial.print("Actual MagRate = ");
     Serial.print(em7180.getActualMagRate());
     Serial.println(" Hz"); 
@@ -81,8 +79,9 @@ void setup()
     Serial.println(" Hz"); 
     Serial.print(em7180.getActualTempRate());
     Serial.println(" Hz"); 
-    delay(1000); // give some time to read the screen
 
+    Serial.print("Run status: ");
+    Serial.println(em7180.getRunStatus());
 }
 
 void loop()

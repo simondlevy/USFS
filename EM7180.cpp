@@ -516,10 +516,6 @@ uint8_t EM7180::begin(void)
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
-
-    // Read EM7180 status
-    uint8_t runStatus = readByte(EM7180_ADDRESS, EM7180_RunStatus);
-    if(runStatus & 0x01) Serial.println(" EM7180 run status = normal mode");
     uint8_t algoStatus = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
     if(algoStatus & 0x01) Serial.println(" EM7180 standby status");
     if(algoStatus & 0x02) Serial.println(" EM7180 algorithm slow");
@@ -532,6 +528,11 @@ uint8_t EM7180::begin(void)
 
     // Success
     return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
+}
+
+const char * EM7180::getRunStatus()
+{
+    return (readByte(EM7180_ADDRESS, EM7180_RunStatus) & 0x01) ? "normal" : "idle/standby/stillness";
 }
 
 const char * EM7180::errorToString(uint8_t errorStatus)

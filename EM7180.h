@@ -76,6 +76,8 @@ class EM7180 : public _EM7180 {
         uint8_t getActualBaroRate();
         uint8_t getActualTempRate();
 
+        const char * getRunStatus();
+
         static const char * errorToString(uint8_t errorStatus);
 };
 
