@@ -25,9 +25,7 @@ class _EM7180 {
 
     protected:
 
-        void begin(void);
-
-        void reportSensors(void);
+        uint8_t begin(void);
 
     public:
 

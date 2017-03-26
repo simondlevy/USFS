@@ -287,33 +287,28 @@ static bool EM7180_hasFeature(uint8_t flag)
 
 // ==================================================================================================================
 
-void _EM7180::begin(void)
+uint8_t _EM7180::begin(void)
 {
-    delay(1000); // give some time to read the screen
-
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
     for (int attempts=0; attempts<10; ++attempts) {
-        byte STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-        if (STAT) {
+        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01) {
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  
-                Serial.println("EEPROM detected on the sensor bus!");
+                ;
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  
-                Serial.println("EEPROM uploaded config file!");
+                ;
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  
-                Serial.println("EEPROM CRC incorrect!");
+                return 0xB0;
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  
-                Serial.println("EM7180 in initialized state!");
+                ;
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  
-                Serial.println("No EEPROM detected!");
+                return 0xB0;
             break;
         }
         writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
         delay(500);  
     }
 
-    if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
-    delay(1000); // give some time to read the screen
-
+    return (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04) ? 0xB0 : 0;
 }
 
 bool _EM7180::hasBaro(void)
@@ -375,7 +370,10 @@ uint16_t _EM7180::getRomVersion(void)
 uint8_t EM7180_Passthru::begin(void)
 {
     // Do generic intialization
-    _EM7180::begin();
+    uint8_t status = _EM7180::begin();
+
+    // Fail immediately if unable to upload EEPROM
+    if (status) return status;
 
     // First put SENtral in standby mode
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
@@ -403,7 +401,10 @@ uint8_t EM7180_Passthru::begin(void)
 uint8_t EM7180::begin(void)
 {
     // Do generic intialization
-    _EM7180::begin();
+    uint8_t status = _EM7180::begin();
+
+    // Fail immediately if unable to upload EEPROM
+    if (status) return status;
 
     // Enter EM7180 initialized state
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); // set SENtral in initialized state to configure registers
@@ -555,6 +556,7 @@ const char * EM7180::errorToString(uint8_t errorStatus)
     // Ad-hoc
     if (errorStatus & 0x90) return "Failed to put SENtral in pass-through mode";
     if (errorStatus & 0xA0) return "Unable to read from SENtral EEPROM";
+    if (errorStatus & 0xB0) return "Unable to upload config to SENtral EEPROM";
 
     return "Unknown error";
 }
