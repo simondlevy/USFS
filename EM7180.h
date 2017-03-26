@@ -63,5 +63,5 @@ class EM7180_Passthru : public _EM7180 {
 
     public:
 
-        bool begin(void);
+        uint8_t begin(void);
 };

@@ -387,7 +387,7 @@ void _EM7180::begin(void)
 
 }
 
-bool EM7180_Passthru::begin(void)
+uint8_t EM7180_Passthru::begin(void)
 {
     // Do generic intialization
     _EM7180::begin();
@@ -402,18 +402,17 @@ bool EM7180_Passthru::begin(void)
     if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
     }
     else {
-        Serial.println("Failed to put SENtral in pass-through mode");
-        return false;
+        return 0x90;
     }
 
     uint8_t data[128];
     M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
     if (data[0] != 0x2A || data[1] != 0x65) {
-        Serial.println("Unable to read from SENtral EEPROM");
-        return false;
+        return 0xA0;
     }
 
-    return true;
+    // Success
+    return 0;
 }
 
 uint8_t EM7180::begin(void)
@@ -588,6 +587,10 @@ const char * EM7180::errorToString(uint8_t errorStatus)
     if (errorStatus & 0x30) return "Math error";
     if (errorStatus & 0x40) return "Gyro ID not recognized";
     if (errorStatus & 0x80) return "Invalid sample rate";
+
+    // Ad-hoc
+    if (errorStatus & 0x90) return "Failed to put SENtral in pass-through mode";
+    if (errorStatus & 0xA0) return "Unable to read from SENtral EEPROM";
 
     return "Unknown error";
 }

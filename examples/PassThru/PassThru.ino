@@ -188,11 +188,10 @@ void setup()
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
     delay(100);
 
-    // Start the EM7180
-    if (!em7180p.begin()) {
-        Serial.println("Failed to init EM7180 in passthrough mode\n");
-        while (true) 
-            ;
+    // Start the EM7180 (nonzero return means error)
+    uint8_t status = em7180p.begin();
+    while (status) {
+        Serial.println(EM7180::errorToString(status));
     }
 
     // Read the WHO_AM_I register, this is a good test of communication
