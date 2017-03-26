@@ -449,7 +449,7 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres)
     return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
 }
 
-void EM7180::getFullScaleRanges(uint16_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
+void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
 {
     uint8_t param[4];
 
@@ -464,8 +464,8 @@ void EM7180::getFullScaleRanges(uint16_t& accFs, uint16_t& gyroFs, uint16_t& mag
     param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
-    magFs = ((int16_t)(param[1]<<8) | param[0]);
-    accFs = ((int16_t)(param[3]<<8) | param[2]);
+    magFs = ((uint16_t)(param[1]<<8) | param[0]);
+    accFs = ((uint8_t)(param[3]<<8) | param[2]);
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
     param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
@@ -475,7 +475,7 @@ void EM7180::getFullScaleRanges(uint16_t& accFs, uint16_t& gyroFs, uint16_t& mag
     param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
-    gyroFs = ((int16_t)(param[1]<<8) | param[0]);
+    gyroFs = ((uint16_t)(param[1]<<8) | param[0]);
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 }
