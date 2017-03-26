@@ -43,7 +43,7 @@ class EM7180 : public _EM7180 {
 
     public:
 
-        void begin(void);
+        uint8_t begin(void);
 
         // Returns 0 or error status
         uint8_t update(void);

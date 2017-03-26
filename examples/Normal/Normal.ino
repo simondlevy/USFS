@@ -36,7 +36,10 @@ void setup()
     Serial.begin(38400);
 
     // Start the EM710
-    em7180.begin();
+    uint8_t status = em7180.begin();
+    while (status) {
+        Serial.println(EM7180::errorToString(status));
+    }
 }
 
 

@@ -148,18 +148,6 @@ enum SBy {
     t_4000ms,
 };
 
-/*
-static float pitch, yaw, roll, Yaw, Pitch, Roll;
-static float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
-*/
-
-static void reporterr(const char * message)
-{
-    while (true) {
-        Serial.println(message);
-    }
-}
-
 // I2C read/write functions for the MPU9250 and AK8963 sensors
 
 static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
@@ -428,7 +416,7 @@ bool EM7180_Passthru::begin(void)
     return true;
 }
 
-void EM7180::begin(void)
+uint8_t EM7180::begin(void)
 {
     // Do generic intialization
     _EM7180::begin();
@@ -565,16 +553,9 @@ void EM7180::begin(void)
 
     delay(1000); // give some time to read the screen
 
-    // Check sensor status
+    // Check sensor status: should be zero
     uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
-    Serial.print(" EM7180 sensor status = ");
-    Serial.println(sensorStatus);
-    if(sensorStatus & 0x01) reporterr("Magnetometer not acknowledging!");
-    if(sensorStatus & 0x02) reporterr("Accelerometer not acknowledging!");
-    if(sensorStatus & 0x04) reporterr("Gyro not acknowledging!");
-    if(sensorStatus & 0x10) reporterr("Magnetometer ID not recognized!");
-    if(sensorStatus & 0x20) reporterr("Accelerometer ID not recognized!");
-    if(sensorStatus & 0x40) reporterr("Gyro ID not recognized!");
+    if (sensorStatus) return sensorStatus;
 
     Serial.print("Actual MagRate = ");
     Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate));
@@ -592,18 +573,21 @@ void EM7180::begin(void)
     Serial.println(" Hz"); 
 
     delay(1000); // give some time to read the screen
+
+    // Success
+    return 0;
 }
 
 const char * EM7180::errorToString(uint8_t errorStatus)
 {
-    if (errorStatus == 0x11) return "Magnetometer failure!";
-    if (errorStatus == 0x12) return "Accelerometer failure!";
-    if (errorStatus == 0x14) return "Gyro failure!";
-    if (errorStatus == 0x21) return "Magnetometer initialization failure!";
-    if (errorStatus == 0x22) return "Accelerometer initialization failure!";
-    if (errorStatus == 0x24) return "Gyro initialization failure!";
-    if (errorStatus == 0x30) return "Math error!";
-    if (errorStatus == 0x80) return "Invalid sample rate!";
+    if (errorStatus & 0x01) return "Magnetometer error";
+    if (errorStatus & 0x02) return "Accelerometer error";
+    if (errorStatus & 0x04) return "Gyro error";
+    if (errorStatus & 0x10) return "Magnetometer ID not recognized";
+    if (errorStatus & 0x20) return "Accelerometer ID not recognized";
+    if (errorStatus & 0x30) return "Math error";
+    if (errorStatus & 0x40) return "Gyro ID not recognized";
+    if (errorStatus & 0x80) return "Invalid sample rate";
 
     return "Unknown error";
 }
