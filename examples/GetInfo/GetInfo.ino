@@ -105,7 +105,9 @@ void loop()
     Serial.print(gyroFs);
     Serial.println("dps");
 
-    Serial.println("----------------------------------------------");
+    static uint32_t count;
+    Serial.print(count++);
+    Serial.println(" ----------------------------------------------");
 
     delay(1000);
 }
