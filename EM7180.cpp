@@ -552,29 +552,8 @@ uint8_t EM7180::begin(void)
 
     delay(1000); // give some time to read the screen
 
-    // Check sensor status: should be zero
-    uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
-    if (sensorStatus) return sensorStatus;
-
-    Serial.print("Actual MagRate = ");
-    Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate));
-    Serial.println(" Hz"); 
-    Serial.print("Actual AccelRate = ");
-    Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualAccelRate));
-    Serial.println(" Hz"); 
-    Serial.print("Actual GyroRate = ");
-    Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualGyroRate));
-    Serial.println(" Hz"); 
-    Serial.print("Actual BaroRate = ");
-    Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualBaroRate));
-    Serial.println(" Hz"); 
-    Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualTempRate));
-    Serial.println(" Hz"); 
-
-    delay(1000); // give some time to read the screen
-
     // Success
-    return 0;
+    return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
 }
 
 const char * EM7180::errorToString(uint8_t errorStatus)
@@ -668,3 +647,29 @@ void EM7180::getBaro(float & press, float & temp)
     press = pressure;
     temp = temperature;
 }
+
+uint8_t EM7180::getActualMagRate()
+{
+    return readByte(EM7180_ADDRESS, EM7180_ActualMagRate);
+}
+
+uint16_t EM7180::getActualAccelRate()
+{
+    return 10*readByte(EM7180_ADDRESS, EM7180_ActualAccelRate);
+}
+
+uint16_t EM7180::getActualGyroRate()
+{
+    return 10*readByte(EM7180_ADDRESS, EM7180_ActualGyroRate);
+}
+
+uint8_t EM7180::getActualBaroRate()
+{
+    return readByte(EM7180_ADDRESS, EM7180_ActualBaroRate);
+}
+
+uint8_t EM7180::getActualTempRate()
+{
+    return readByte(EM7180_ADDRESS, EM7180_ActualTempRate);
+}
+

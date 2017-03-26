@@ -56,6 +56,12 @@ class EM7180 : public _EM7180 {
 
         void getBaro(float & press, float & temp);
 
+        uint8_t getActualMagRate();
+        uint16_t getActualAccelRate();
+        uint16_t getActualGyroRate();
+        uint8_t getActualBaroRate();
+        uint8_t getActualTempRate();
+
         static const char * errorToString(uint8_t errorStatus);
 };
 
