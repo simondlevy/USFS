@@ -588,7 +588,6 @@ void EM7180::begin(void)
     Serial.print("Actual BaroRate = ");
     Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualBaroRate));
     Serial.println(" Hz"); 
-    //  Serial.print("Actual TempRate = ");
     Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualTempRate));
     Serial.println(" Hz"); 
 
@@ -597,7 +596,6 @@ void EM7180::begin(void)
 
 void EM7180::loop(void)
 {
-    float ax=0, ay=0, az=0, gx=0, gy=0, gz=0, mx=0, my=0, mz=0; // variables to hold latest sensor data values 
     static float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
     static int count, sumCount;
     static uint32_t lastUpdate; // used to calculate integration interval
@@ -627,47 +625,27 @@ void EM7180::loop(void)
             if(errorStatus == 0x30) reporterr("Math error!");
             if(errorStatus == 0x80) reporterr("Invalid sample rate!");
         }
-
-        // Handle errors ToDo
-
     }
 
     // if no errors, see if new data is ready
     if(eventStatus & 0x10) { // new acceleration data available
         readSENtralAccelData(accelCount);
-
-        // Now we'll calculate the accleration value into actual g's
-        ax = (float)accelCount[0]*0.000488;  // get actual g value
-        ay = (float)accelCount[1]*0.000488;    
-        az = (float)accelCount[2]*0.000488;  
     }
 
     if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x20) { // new gyro data available
 
         readSENtralGyroData(gyroCount);
-
-        // Now we'll calculate the gyro value into actual dps's
-        gx = (float)gyroCount[0]*0.153;  // get actual dps value
-        gy = (float)gyroCount[1]*0.153;    
-        gz = (float)gyroCount[2]*0.153;  
     }
 
     if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x08) { // new mag data available
 
         readSENtralMagData(magCount);
-
-        // Now we'll calculate the mag value into actual G's
-        mx = (float)magCount[0]*0.305176;  // get actual G value
-        my = (float)magCount[1]*0.305176;    
-        mz = (float)magCount[2]*0.305176;  
     }
 
-    //   if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x04) { // new quaternion data available
     readSENtralQuatData(Quat); 
 
     // get BMP280 pressure
     if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x40) { // new baro data available
-        //   Serial.println("new Baro data!");
         int16_t rawPressure = readSENtralBaroData();
         pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
 
@@ -687,28 +665,6 @@ void EM7180::loop(void)
     // Serial print and/or display at 0.5 s rate independent of data rates
     uint32_t delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
-
-        Serial.print("ax = ");
-        Serial.print((int)1000*ax);  
-        Serial.print(" ay = ");
-        Serial.print((int)1000*ay); 
-        Serial.print(" az = ");
-        Serial.print((int)1000*az);
-        Serial.println(" mg");
-        Serial.print("gx = ");
-        Serial.print( gx, 2); 
-        Serial.print(" gy = ");
-        Serial.print( gy, 2); 
-        Serial.print(" gz = ");
-        Serial.print( gz, 2);
-        Serial.println(" deg/s");
-        Serial.print("mx = ");
-        Serial.print( (int)mx); 
-        Serial.print(" my = ");
-        Serial.print( (int)my); 
-        Serial.print(" mz = ");
-        Serial.print( (int)mz);
-        Serial.println(" mG");
 
         Serial.println("Hardware quaternions:"); 
         Serial.print("Q0 = ");
