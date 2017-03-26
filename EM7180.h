@@ -357,5 +357,7 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
 // =================================================================================================
 
 void EM7180_begin(void);
+void EM7180_begin2(void);
 bool EM7180_readEepromSignature(void);
 void EM7180_usePassThroughMode();
+void EM7180_loop(void);

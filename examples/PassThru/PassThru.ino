@@ -51,9 +51,6 @@
 
 #include <i2c_t3.h>
 
-// Pin definitions
-static const int myLed     = 28;  // LED on the Teensy 3.1
-
 // Specify sensor full scale
 static uint8_t Gscale = GFS_250DPS;
 static uint8_t Mscale = MFS_16BITS; // Choose either 14-bit or 16-bit magnetometer resolution
@@ -143,10 +140,6 @@ void setup()
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
     delay(1000);
     Serial.begin(38400);
-
-    // Turn on the LED
-    pinMode(myLed, OUTPUT);
-    digitalWrite(myLed, LOW);
 
     // Start the EM7180
     EM7180_begin();
