@@ -23,9 +23,20 @@
 
 class _EM7180 {
 
+    private:
+
+        static bool hasFeature(uint8_t features);
+
     protected:
 
         uint8_t begin(void);
+
+        static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest);
+
+        static void    readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
+        static uint8_t readByte(uint8_t address, uint8_t subAddress);
+        static void    writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
+
 
     public:
 
@@ -54,6 +65,21 @@ class EM7180 : public _EM7180 {
 
         float temperature;
         float pressure;
+
+        static bool algorithmStatus(uint8_t status);
+
+        static void setGyroFs(uint16_t gyro_fs);
+        static void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
+        static void setIntegerParam (uint8_t param, uint32_t param_val);
+
+        static void    readSENtralMagData(int16_t * destination);
+        static void    readSENtralGyroData(int16_t * destination);
+        static void    readSENtralAccelData(int16_t * destination);
+        static void    readSENtralQuatData(float * destination);
+        static int16_t readSENtralTempData(void);
+        static int16_t readSENtralBaroData();
+
+        static float uint32_reg_to_float (uint8_t *buf);
 
     public:
 

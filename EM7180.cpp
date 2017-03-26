@@ -104,9 +104,7 @@
 #define AK8963_ADDRESS           0x0C   // Address of magnetometer
 #define BMP280_ADDRESS           0x76   // Address of BMP280 altimeter when ADO = 0
 
-// I2C read/write functions for the MPU9250 and AK8963 sensors
-
-static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
+void _EM7180::writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
     Wire.beginTransmission(address);  // Initialize the Tx buffer
     Wire.write(subAddress);           // Put slave register address in Tx buffer
@@ -114,7 +112,7 @@ static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
     Wire.endTransmission();           // Send the Tx buffer
 }
 
-static uint8_t readByte(uint8_t address, uint8_t subAddress)
+uint8_t _EM7180::readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data; // `data` will store the register data	 
     Wire.beginTransmission(address);         // Initialize the Tx buffer
@@ -125,7 +123,7 @@ static uint8_t readByte(uint8_t address, uint8_t subAddress)
     return data;                             // Return data read from slave register
 }
 
-static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+void _EM7180::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
@@ -136,7 +134,7 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
         dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
 }
 
-static float uint32_reg_to_float (uint8_t *buf)
+float EM7180::uint32_reg_to_float (uint8_t *buf)
 {
     union {
         uint32_t ui32;
@@ -149,21 +147,21 @@ static float uint32_reg_to_float (uint8_t *buf)
             (((uint32_t)buf[3]) << 24));
     return u.f;
 }
-static int16_t readSENtralBaroData()
+int16_t EM7180::readSENtralBaroData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-static int16_t readSENtralTempData()
+int16_t EM7180::readSENtralTempData(void)
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-static void readSENtralQuatData(float * destination)
+void EM7180::readSENtralQuatData(float * destination)
 {
     uint8_t rawData[16];  // x/y/z quaternion register data stored here
     readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       // Read the sixteen raw data registers into data array
@@ -174,7 +172,7 @@ static void readSENtralQuatData(float * destination)
 
 }
 
-static void readSENtralAccelData(int16_t * destination)
+void EM7180::readSENtralAccelData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
     readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
@@ -183,7 +181,7 @@ static void readSENtralAccelData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-static void readSENtralGyroData(int16_t * destination)
+void EM7180::readSENtralGyroData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -192,7 +190,7 @@ static void readSENtralGyroData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-static void readSENtralMagData(int16_t * destination)
+void EM7180::readSENtralMagData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -201,7 +199,7 @@ static void readSENtralMagData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-static void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
+void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) {
     uint8_t bytes[4], STAT;
     bytes[0] = param_val & (0xFF);
     bytes[1] = (param_val >> 8) & (0xFF);
@@ -222,7 +220,7 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
+void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
     bytes[1] = (mag_fs >> 8) & (0xFF);
@@ -242,7 +240,7 @@ static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void EM7180_set_gyro_FS (uint16_t gyro_fs) {
+void EM7180::setGyroFs(uint16_t gyro_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
     bytes[1] = (gyro_fs >> 8) & (0xFF);
@@ -265,7 +263,7 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs) {
 // I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
 // since the address is defined by two bytes
 
-static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
+void _EM7180::M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(device_address);   // Initialize the Tx buffer
     Wire.write(data_address1);                     // Put slave register address in Tx buffer
@@ -279,16 +277,17 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
         dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
 }
 
-static bool EM7180_hasFeature(uint8_t flag)
+bool _EM7180::hasFeature(uint8_t features)
 {
-    return flag & readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
+    return features & readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
 }
 
-static bool EM7180_algorithmStatus(uint8_t mask)
+bool EM7180::algorithmStatus(uint8_t status)
 {
-    return readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & mask;
+    return readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & status;
 }
-// ==================================================================================================================
+
+// public methods ========================================================================================================
 
 uint8_t _EM7180::begin(void)
 {
@@ -316,32 +315,32 @@ uint8_t _EM7180::begin(void)
 
 bool _EM7180::hasBaro(void)
 {
-    return EM7180_hasFeature(0x01);
+    return hasFeature(0x01);
 }
 
 bool _EM7180::hasHumidity(void)
 {
-    return EM7180_hasFeature(0x02);
+    return hasFeature(0x02);
 }
 
 bool _EM7180::hasTemperature(void)
 {
-    return EM7180_hasFeature(0x04);
+    return hasFeature(0x04);
 }
 
 bool _EM7180::hasCustom1(void)
 {
-    return EM7180_hasFeature(0x08);
+    return hasFeature(0x08);
 }
 
 bool _EM7180::hasCustom2(void)
 {
-    return EM7180_hasFeature(0x10);
+    return hasFeature(0x10);
 }
 
 bool _EM7180::hasCustom3(void)
 {
-    return EM7180_hasFeature(0x20);
+    return hasFeature(0x20);
 }
 
 uint8_t _EM7180::getProductId(void) 
@@ -439,11 +438,11 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres)
     delay(100);
 
     // Disable stillness mode
-    EM7180_set_integer_param (0x49, 0x00);
+    setIntegerParam (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the EM7180
-    EM7180_set_mag_acc_FS (mres, ares);
-    EM7180_set_gyro_FS (gres); 
+    setMagAccFs(mres, ares);
+    setGyroFs(gres); 
 
     // Success
     return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
@@ -482,32 +481,32 @@ void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magF
 
 bool EM7180::algorithmStatusStandby(void)
 {
-    return EM7180_algorithmStatus(0x01);
+    return algorithmStatus(0x01);
 }
 
 bool EM7180::algorithmStatusSlow(void)
 {
-    return EM7180_algorithmStatus(0x02);
+    return algorithmStatus(0x02);
 }
 
 bool EM7180::algorithmStatusStillness(void)
 {
-    return EM7180_algorithmStatus(0x04);
+    return algorithmStatus(0x04);
 }
 
 bool EM7180::algorithmStatusMagCalibrationCompleted(void)
 {
-    return EM7180_algorithmStatus(0x08);
+    return algorithmStatus(0x08);
 }
 
 bool EM7180::algorithmStatusMagneticAnomalyDetected(void)
 {
-    return EM7180_algorithmStatus(0x10);
+    return algorithmStatus(0x10);
 }
 
 bool EM7180::algorithmStatusUnreliableData(void)
 {
-    return EM7180_algorithmStatus(0x20);
+    return algorithmStatus(0x20);
 }
 
 bool EM7180::runStatusNormal()
