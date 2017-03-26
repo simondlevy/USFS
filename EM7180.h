@@ -45,7 +45,8 @@ class EM7180 : public _EM7180 {
 
         void begin(void);
 
-        void update(void);
+        // Returns 0 or error status
+        uint8_t update(void);
 
         void getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az);
         void getGyroRaw(int16_t& gx, int16_t& gy, int16_t& gz);
@@ -54,6 +55,8 @@ class EM7180 : public _EM7180 {
         void getQuaternions(float q[4]);
 
         void getBaro(float & press, float & temp);
+
+        static const char * errorToString(uint8_t errorStatus);
 };
 
 class EM7180_Passthru : public _EM7180 {

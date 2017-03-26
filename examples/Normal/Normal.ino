@@ -49,7 +49,13 @@ void loop()
 
     static float quaternions[4];
 
-    em7180.update();
+    uint8_t errorStatus = em7180.update();
+
+    if (errorStatus) {
+        Serial.print("ERROR: ");
+        Serial.println(EM7180::errorToString(errorStatus));
+        return;
+    }
 
     em7180.getQuaternions(quaternions);
 

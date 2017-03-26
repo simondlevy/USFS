@@ -594,46 +594,50 @@ void EM7180::begin(void)
     delay(1000); // give some time to read the screen
 }
 
-void EM7180::update(void)
+const char * EM7180::errorToString(uint8_t errorStatus)
+{
+    if (errorStatus == 0x11) return "Magnetometer failure!";
+    if (errorStatus == 0x12) return "Accelerometer failure!";
+    if (errorStatus == 0x14) return "Gyro failure!";
+    if (errorStatus == 0x21) return "Magnetometer initialization failure!";
+    if (errorStatus == 0x22) return "Accelerometer initialization failure!";
+    if (errorStatus == 0x24) return "Gyro initialization failure!";
+    if (errorStatus == 0x30) return "Math error!";
+    if (errorStatus == 0x80) return "Invalid sample rate!";
+
+    return "Unknown error";
+}
+
+uint8_t EM7180::update(void)
 {
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
 
     // Check for errors
-    if(eventStatus & 0x02) { // error detected, what is it?
-
-        uint8_t errorStatus = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
-        if(!errorStatus) {
-            if(errorStatus == 0x11) reporterr("Magnetometer failure!");
-            if(errorStatus == 0x12) reporterr("Accelerometer failure!");
-            if(errorStatus == 0x14) reporterr("Gyro failure!");
-            if(errorStatus == 0x21) reporterr("Magnetometer initialization failure!");
-            if(errorStatus == 0x22) reporterr("Accelerometer initialization failure!");
-            if(errorStatus == 0x24) reporterr("Gyro initialization failure!");
-            if(errorStatus == 0x30) reporterr("Math error!");
-            if(errorStatus == 0x80) reporterr("Invalid sample rate!");
-        }
+    if(eventStatus & 0x02) { 
+        return readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
     }
 
-    // if no errors, see if new data is ready
+    // If no errors, see if new data is ready
     if(eventStatus & 0x10) { // new acceleration data available
         readSENtralAccelData(accelCount);
     }
 
+    // New gyro data available
     if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x20) { // new gyro data available
-
         readSENtralGyroData(gyroCount);
     }
 
-    if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x08) { // new mag data available
-
+    // New mag data available
+    if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x08) {
         readSENtralMagData(magCount);
     }
 
+    // Always grab current quaternions
     readSENtralQuatData(quaternions); 
 
-    // get BMP280 pressure
-    if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x40) { // new baro data available
+    // New baro data available
+    if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x40) {
         int16_t rawPressure = readSENtralBaroData();
         pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
 
@@ -642,6 +646,8 @@ void EM7180::update(void)
         temperature = (float) rawTemperature*0.01;  // temperature in degrees C
     }
 
+    // Success
+    return 0;
 }
 
 void EM7180::getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az)
