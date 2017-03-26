@@ -438,10 +438,6 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres)
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // set SENtral in normal run mode
     delay(100);
 
-    // EM7180 parameter adjustments
-    Serial.println("Beginning Parameter Adjustments");
-    reportParameters();
-
     // Disable stillness mode
     EM7180_set_integer_param (0x49, 0x00);
 
@@ -449,13 +445,11 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres)
     EM7180_set_mag_acc_FS (mres, ares);
     EM7180_set_gyro_FS (gres); 
 
-    reportParameters();
-
     // Success
     return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
 }
 
-void EM7180::reportParameters(void)
+void EM7180::getFullScaleRanges(uint16_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
 {
     uint8_t param[4];
 
@@ -470,14 +464,8 @@ void EM7180::reportParameters(void)
     param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
-    uint16_t EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
-    uint16_t EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
-    Serial.print("Magnetometer New Full Scale Range: +/-");
-    Serial.print(EM7180_mag_fs);
-    Serial.println("uT");
-    Serial.print("Accelerometer New Full Scale Range: +/-");
-    Serial.print(EM7180_acc_fs);
-    Serial.println("g");
+    magFs = ((int16_t)(param[1]<<8) | param[0]);
+    accFs = ((int16_t)(param[3]<<8) | param[2]);
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
     param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
@@ -487,10 +475,7 @@ void EM7180::reportParameters(void)
     param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
-    uint16_t EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope New Full Scale Range: +/-");
-    Serial.print(EM7180_gyro_fs);
-    Serial.println("dps");
+    gyroFs = ((int16_t)(param[1]<<8) | param[0]);
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 }

@@ -92,6 +92,19 @@ void loop()
     if (em7180.algorithmStatusMagneticAnomalyDetected()) Serial.println("EM7180 magnetic anomaly detected");
     if (em7180.algorithmStatusUnreliableData())          Serial.println("EM7180 unreliable sensor data");
 
+    uint16_t accelFs=0, gyroFs=0, magFs=0;
+    em7180.getFullScaleRanges(accelFs, gyroFs, magFs);
+
+    Serial.print("Magnetometer Full Scale Range: +/-");
+    Serial.print(magFs);
+    Serial.println("uT");
+    Serial.print("Accelerometer Full Scale Range: +/-");
+    Serial.print(accelFs);
+    Serial.println("g");
+    Serial.print("Gyroscope Full Scale Range: +/-");
+    Serial.print(gyroFs);
+    Serial.println("dps");
+
     Serial.println("----------------------------------------------");
 
     delay(1000);

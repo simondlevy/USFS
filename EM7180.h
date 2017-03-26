@@ -86,7 +86,7 @@ class EM7180 : public _EM7180 {
 
         static const char * errorToString(uint8_t errorStatus);
 
-        void reportParameters(void);
+        void getFullScaleRanges(uint16_t& accFs, uint16_t& gyroFs, uint16_t& magFs);
 };
 
 class EM7180_Passthru : public _EM7180 {
