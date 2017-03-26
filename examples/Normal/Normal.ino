@@ -78,7 +78,6 @@ void setup()
 
 }
 
-
 void loop()
 {  
     static int count, sumCount;
