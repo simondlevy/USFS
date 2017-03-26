@@ -375,24 +375,23 @@ void _EM7180::begin(void)
     delay(1000); // give some time to read the screen
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    byte STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  Serial.println("EEPROM detected on the sensor bus!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  Serial.println("EEPROM uploaded config file!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  Serial.println("EEPROM CRC incorrect!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  Serial.println("EM7180 in initialized state!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  Serial.println("No EEPROM detected!");
-    int count = 0;
-    while(!STAT) {
+    for (int attempts=0; attempts<10; ++attempts) {
+        byte STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
+        if (STAT) {
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  
+                Serial.println("EEPROM detected on the sensor bus!");
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  
+                Serial.println("EEPROM uploaded config file!");
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  
+                Serial.println("EEPROM CRC incorrect!");
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  
+                Serial.println("EM7180 in initialized state!");
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  
+                Serial.println("No EEPROM detected!");
+            break;
+        }
         writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
         delay(500);  
-        count++;  
-        STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  Serial.println("EEPROM detected on the sensor bus!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  Serial.println("EEPROM uploaded config file!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  Serial.println("EEPROM CRC incorrect!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  Serial.println("EM7180 in initialized state!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  Serial.println("No EEPROM detected!");
-        if(count > 10) break;
     }
 
     if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
@@ -402,6 +401,7 @@ void _EM7180::begin(void)
 
 bool EM7180_Passthru::begin(void)
 {
+    // Do generic intialization
     _EM7180::begin();
 
     // First put SENtral in standby mode
@@ -430,6 +430,7 @@ bool EM7180_Passthru::begin(void)
 
 void EM7180::begin(void)
 {
+    // Do generic intialization
     _EM7180::begin();
 
     // Enter EM7180 initialized state
@@ -441,6 +442,7 @@ void EM7180::begin(void)
     //Setup LPF bandwidth (BEFORE setting ODR's)
     writeByte(EM7180_ADDRESS, EM7180_ACC_LPF_BW, 0x03); // 41Hz
     writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, 0x03); // 41Hz
+
     // Set accel/gyro/mage desired ODR rates
     writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, 0x02); // 100 Hz
     writeByte(EM7180_ADDRESS, EM7180_MagRate, 0x64); // 100 Hz
@@ -450,10 +452,12 @@ void EM7180::begin(void)
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
+
     // Enable interrupt to host upon certain events
     // choose host interrupts when any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
     // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02), or the SENtral needs to be reset(0x01)
     writeByte(EM7180_ADDRESS, EM7180_EnableEvents, 0x07);
+
     // Enable EM7180 run mode
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // set SENtral in normal run mode
     delay(100);
@@ -497,10 +501,10 @@ void EM7180::begin(void)
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
-    //Disable stillness mode
+    // Disable stillness mode
     EM7180_set_integer_param (0x49, 0x00);
 
-    //Write desired sensor full scale ranges to the EM7180
+    // Write desired sensor full scale ranges to the EM7180
     EM7180_set_mag_acc_FS (0x3E8, 0x08); // 1000 uT, 8 g
     EM7180_set_gyro_FS (0x7D0); // 2000 dps
 
@@ -550,8 +554,7 @@ void EM7180::begin(void)
     if(algoStatus & 0x08) Serial.println(" EM7180 mag calibration completed");
     if(algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
     if(algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
-    uint8_t passthruStatus = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
-    if(passthruStatus & 0x01) Serial.print(" EM7180 in passthru mode!");
+
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus);
     if(eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
     if(eventStatus & 0x02) Serial.println(" EM7180 Error");
@@ -590,7 +593,6 @@ void EM7180::begin(void)
     Serial.println(" Hz"); 
 
     delay(1000); // give some time to read the screen
-
 }
 
 void EM7180::loop(void)
