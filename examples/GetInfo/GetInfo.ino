@@ -40,9 +40,10 @@ void setup()
     while (status) {
         Serial.println(EM7180::errorToString(status));
     }
+}
 
-    // Report SENtral device information
-
+void loop()
+{  
     if (em7180.hasBaro())        Serial.println("A barometer is installed.");
     if (em7180.hasHumidity())    Serial.println("A humidity sensor is installed.");
     if (em7180.hasTemperature()) Serial.println("A temperature sensor is installed.");
@@ -77,13 +78,21 @@ void setup()
     Serial.print("Actual BaroRate = ");
     Serial.print(em7180.getActualBaroRate());
     Serial.println(" Hz"); 
+    Serial.print("Actual TempRate = ");
     Serial.print(em7180.getActualTempRate());
     Serial.println(" Hz"); 
 
     Serial.print("Run status: ");
-    Serial.println(em7180.getRunStatus());
-}
+    Serial.println(em7180.runStatusNormal() ? "normal" : "other");
 
-void loop()
-{  
+    if (em7180.algorithmStatusStandby())                 Serial.println("EM7180 standby status");
+    if (em7180.algorithmStatusSlow())                    Serial.println("EM7180 algorithm slow");
+    if (em7180.algorithmStatusStillness())               Serial.println("EM7180 in stillness mode");
+    if (em7180.algorithmStatusMagCalibrationCompleted()) Serial.println("EM7180 mag calibration completed");
+    if (em7180.algorithmStatusMagneticAnomalyDetected()) Serial.println("EM7180 magnetic anomaly detected");
+    if (em7180.algorithmStatusUnreliableData())          Serial.println("EM7180 unreliable sensor data");
+
+    Serial.println("----------------------------------------------");
+
+    delay(1000);
 }

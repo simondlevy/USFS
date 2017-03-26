@@ -284,7 +284,10 @@ static bool EM7180_hasFeature(uint8_t flag)
     return flag & readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
 }
 
-
+static bool EM7180_algorithmStatus(uint8_t mask)
+{
+    return readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & mask;
+}
 // ==================================================================================================================
 
 uint8_t _EM7180::begin(void)
@@ -516,23 +519,43 @@ uint8_t EM7180::begin(void)
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
-    uint8_t algoStatus = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
-    if(algoStatus & 0x01) Serial.println(" EM7180 standby status");
-    if(algoStatus & 0x02) Serial.println(" EM7180 algorithm slow");
-    if(algoStatus & 0x04) Serial.println(" EM7180 in stillness mode");
-    if(algoStatus & 0x08) Serial.println(" EM7180 mag calibration completed");
-    if(algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
-    if(algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
-
-    delay(1000); // give some time to read the screen
-
     // Success
     return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
 }
 
-const char * EM7180::getRunStatus()
+bool EM7180::algorithmStatusStandby(void)
 {
-    return (readByte(EM7180_ADDRESS, EM7180_RunStatus) & 0x01) ? "normal" : "idle/standby/stillness";
+    return EM7180_algorithmStatus(0x01);
+}
+
+bool EM7180::algorithmStatusSlow(void)
+{
+    return EM7180_algorithmStatus(0x02);
+}
+
+bool EM7180::algorithmStatusStillness(void)
+{
+    return EM7180_algorithmStatus(0x04);
+}
+
+bool EM7180::algorithmStatusMagCalibrationCompleted(void)
+{
+    return EM7180_algorithmStatus(0x08);
+}
+
+bool EM7180::algorithmStatusMagneticAnomalyDetected(void)
+{
+    return EM7180_algorithmStatus(0x10);
+}
+
+bool EM7180::algorithmStatusUnreliableData(void)
+{
+    return EM7180_algorithmStatus(0x20);
+}
+
+bool EM7180::runStatusNormal()
+{
+    return (readByte(EM7180_ADDRESS, EM7180_RunStatus) & 0x01);
 }
 
 const char * EM7180::errorToString(uint8_t errorStatus)

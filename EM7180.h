@@ -76,7 +76,14 @@ class EM7180 : public _EM7180 {
         uint8_t getActualBaroRate();
         uint8_t getActualTempRate();
 
-        const char * getRunStatus();
+        bool runStatusNormal(void);
+
+        bool algorithmStatusStandby(void);
+        bool algorithmStatusSlow(void);
+        bool algorithmStatusStillness(void);
+        bool algorithmStatusMagCalibrationCompleted(void);
+        bool algorithmStatusMagneticAnomalyDetected(void);
+        bool algorithmStatusUnreliableData(void);
 
         static const char * errorToString(uint8_t errorStatus);
 };
