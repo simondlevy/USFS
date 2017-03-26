@@ -17,6 +17,8 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#pragma once
+
 #include <i2c_t3.h>
 
 #define TEMP_OUT_H       0x41
@@ -208,68 +210,6 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
         dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
 }
 
-static void EM7180_begin(void)
-{
-    // Read SENtral device information
-    uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
-    uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
-    Serial.print("EM7180 ROM Version: 0x");
-    Serial.print(ROM1, HEX);
-    Serial.println(ROM2, HEX);
-    Serial.println("Should be: 0xE609");
-    uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
-    uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
-    Serial.print("EM7180 RAM Version: 0x");
-    Serial.print(RAM1);
-    Serial.println(RAM2);
-    uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
-    Serial.print("EM7180 ProductID: 0x");
-    Serial.print(PID, HEX);
-    Serial.println(" Should be: 0x80");
-    uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
-    Serial.print("EM7180 RevisionID: 0x");
-    Serial.print(RID, HEX);
-    Serial.println(" Should be: 0x02");
-
-    delay(1000); // give some time to read the screen
-
-    // Check which sensors can be detected by the EM7180
-    uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
-    if(featureflag & 0x01)  Serial.println("A barometer is installed");
-    if(featureflag & 0x02)  Serial.println("A humidity sensor is installed");
-    if(featureflag & 0x04)  Serial.println("A temperature sensor is installed");
-    if(featureflag & 0x08)  Serial.println("A custom sensor is installed");
-    if(featureflag & 0x10)  Serial.println("A second custom sensor is installed");
-    if(featureflag & 0x20)  Serial.println("A third custom sensor is installed");
-
-    delay(1000); // give some time to read the screen
-
-    // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    byte STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  Serial.println("EEPROM detected on the sensor bus!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  Serial.println("EEPROM uploaded config file!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  Serial.println("EEPROM CRC incorrect!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  Serial.println("EM7180 in initialized state!");
-    if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  Serial.println("No EEPROM detected!");
-    int count = 0;
-    while(!STAT) {
-        writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
-        delay(500);  
-        count++;  
-        STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  Serial.println("EEPROM detected on the sensor bus!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  Serial.println("EEPROM uploaded config file!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  Serial.println("EEPROM CRC incorrect!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  Serial.println("EM7180 in initialized state!");
-        if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  Serial.println("No EEPROM detected!");
-        if(count > 10) break;
-    }
-
-    if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
-    delay(1000); // give some time to read the screen
-
-}
-
 static float uint32_reg_to_float (uint8_t *buf)
 {
     union {
@@ -356,13 +296,6 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-int16_t readTempData()
-{
-    uint8_t rawData[2];  // x/y/z gyro register data stored here
-    readBytes(MPU9250_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array 
-    return ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a 16-bit value
-}
-
 static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
@@ -421,25 +354,8 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
 }
 
 
-static bool EM7180_readEepromSignature(void)
-{
-    uint8_t data[128];
-    M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
-    return data[0] == 0x2A && data[1] == 0x65;
-}
+// =================================================================================================
 
-static void SENtralPassThroughMode()
-{
-    // First put SENtral in standby mode
-    uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, c | 0x01);
-    // Verify standby status
-    // if(readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & 0x01) {
-    // Place SENtral in pass-through mode
-    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x01); 
-    if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
-    }
-    else {
-        reporterr("SENtral not in pass-through mode!");
-    }
-}
+void EM7180_begin(void);
+bool EM7180_readEepromSignature(void);
+void EM7180_usePassThroughMode();

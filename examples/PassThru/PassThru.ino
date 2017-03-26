@@ -152,7 +152,7 @@ void setup()
     EM7180_begin();
 
     // Put EM7180 SENtral into pass-through mode
-    SENtralPassThroughMode();
+    EM7180_usePassThroughMode();
     delay(1000);
 
     // Read first page of EEPROM
