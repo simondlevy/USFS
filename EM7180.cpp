@@ -528,14 +528,6 @@ uint8_t EM7180::begin(void)
     if(algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
     if(algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
 
-    uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus);
-    if(eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
-    if(eventStatus & 0x02) Serial.println(" EM7180 Error");
-    if(eventStatus & 0x04) Serial.println(" EM7180 new quaternion result");
-    if(eventStatus & 0x08) Serial.println(" EM7180 new mag result");
-    if(eventStatus & 0x10) Serial.println(" EM7180 new accel result");
-    if(eventStatus & 0x20) Serial.println(" EM7180 new gyro result"); 
-
     delay(1000); // give some time to read the screen
 
     // Success
