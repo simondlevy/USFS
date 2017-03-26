@@ -27,12 +27,21 @@ class _EM7180 {
 
         void begin(void);
 
+        void reportSensors(void);
+
     public:
 
         uint8_t getProductId(void); 
         uint8_t getRevisionId(void); 
         uint16_t getRamVersion(void);
         uint16_t getRomVersion(void);
+
+        bool hasBaro(void);
+        bool hasHumidity(void);
+        bool hasTemperature(void);
+        bool hasCustom1(void);
+        bool hasCustom2(void);
+        bool hasCustom3(void);
 };
 
 class EM7180 : public _EM7180 {

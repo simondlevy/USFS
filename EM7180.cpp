@@ -279,20 +279,16 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
         dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
 }
 
+static bool EM7180_hasFeature(uint8_t flag)
+{
+    return flag & readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
+}
+
 
 // ==================================================================================================================
 
 void _EM7180::begin(void)
 {
-    // Check which sensors can be detected by the EM7180
-    uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
-    if(featureflag & 0x01)  Serial.println("A barometer is installed");
-    if(featureflag & 0x02)  Serial.println("A humidity sensor is installed");
-    if(featureflag & 0x04)  Serial.println("A temperature sensor is installed");
-    if(featureflag & 0x08)  Serial.println("A custom sensor is installed");
-    if(featureflag & 0x10)  Serial.println("A second custom sensor is installed");
-    if(featureflag & 0x20)  Serial.println("A third custom sensor is installed");
-
     delay(1000); // give some time to read the screen
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
@@ -318,6 +314,36 @@ void _EM7180::begin(void)
     if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
     delay(1000); // give some time to read the screen
 
+}
+
+bool _EM7180::hasBaro(void)
+{
+    return EM7180_hasFeature(0x01);
+}
+
+bool _EM7180::hasHumidity(void)
+{
+    return EM7180_hasFeature(0x02);
+}
+
+bool _EM7180::hasTemperature(void)
+{
+    return EM7180_hasFeature(0x04);
+}
+
+bool _EM7180::hasCustom1(void)
+{
+    return EM7180_hasFeature(0x08);
+}
+
+bool _EM7180::hasCustom2(void)
+{
+    return EM7180_hasFeature(0x10);
+}
+
+bool _EM7180::hasCustom3(void)
+{
+    return EM7180_hasFeature(0x20);
 }
 
 uint8_t _EM7180::getProductId(void) 

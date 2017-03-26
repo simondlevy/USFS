@@ -1,5 +1,5 @@
 /* 
-   Normal.ino: Example sketch for running EM7180 SENtral sensor hub in normal (non-pass-through) mode.
+   FullTest.ino: Example sketch for running EM7180 SENtral sensor hub in normal mode.
 
    Adapted from
 
@@ -40,42 +40,6 @@ void setup()
     while (status) {
         Serial.println(EM7180::errorToString(status));
     }
-
-    // Report SENtral device information
-
-    Serial.print("EM7180 ROM Version: 0x");
-    Serial.print(em7180.getRomVersion(), HEX);
-    Serial.println(" (should be: 0xE609)");
-
-    Serial.print("EM7180 RAM Version: 0x");
-    Serial.println(em7180.getRamVersion(), HEX);
-
-    Serial.print("EM7180 ProductID: 0x");
-    Serial.print(em7180.getProductId(), HEX);
-    Serial.println(" (should be: 0x80)");
-
-    Serial.print("EM7180 RevisionID: 0x");
-    Serial.print(em7180.getRevisionId(), HEX);
-    Serial.println(" (should be: 0x02");
-
-    delay(1000); // give some time to read the screen
-
-    Serial.print("Actual MagRate = ");
-    Serial.print(em7180.getActualMagRate());
-    Serial.println(" Hz"); 
-    Serial.print("Actual AccelRate = ");
-    Serial.print(10*em7180.getActualAccelRate());
-    Serial.println(" Hz"); 
-    Serial.print("Actual GyroRate = ");
-    Serial.print(10*em7180.getActualGyroRate());
-    Serial.println(" Hz"); 
-    Serial.print("Actual BaroRate = ");
-    Serial.print(em7180.getActualBaroRate());
-    Serial.println(" Hz"); 
-    Serial.print(em7180.getActualTempRate());
-    Serial.println(" Hz"); 
-    delay(1000); // give some time to read the screen
-
 }
 
 void loop()
