@@ -269,9 +269,7 @@ void _EM7180::M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, 
     Wire.write(data_address1);                     // Put slave register address in Tx buffer
     Wire.write(data_address2);                     // Put slave register address in Tx buffer
     Wire.endTransmission(I2C_NOSTOP);         // Send the Tx buffer, but send a restart to keep connection alive
-    //	Wire.endTransmission(false);              // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
-    //        Wire.requestFrom(address, count);       // Read bytes from slave register address 
     Wire.requestFrom(device_address, (size_t) count);  // Read bytes from slave register address 
     while (Wire.available()) {
         dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
