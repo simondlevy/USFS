@@ -11,6 +11,7 @@ unit in pass-through mode, allowing you to access its sensors (IMU, barometer) i
 I<sup>2</sup>C calls.
 </ul>
 
-The examples directory contains sketches showing how to use these two classes.
+The examples directory contains sketches showing how to use these two classes. As usual, just clone or fork the repo
+into your Arduino libraries folder to get started.
 
 
