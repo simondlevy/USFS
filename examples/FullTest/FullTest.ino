@@ -49,7 +49,7 @@ void loop()
     static float sum;
     static float yaw, pitch, roll;
 
-    static float quaternions[4];
+    static float q[4];
 
     uint8_t errorStatus = em7180.update();
 
@@ -59,7 +59,7 @@ void loop()
         return;
     }
 
-    em7180.getQuaternions(quaternions);
+    em7180.getQuaternions(q);
 
     // keep track of rates
     uint32_t Now = micros();
@@ -73,15 +73,15 @@ void loop()
     uint32_t delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
-        Serial.println("Hardware quaternions:"); 
+        Serial.println("Hardware q:"); 
         Serial.print("Q0 = ");
-        Serial.print(quaternions[0]);
+        Serial.print(q[0]);
         Serial.print(" Qx = ");
-        Serial.print(quaternions[1]); 
+        Serial.print(q[1]); 
         Serial.print(" Qy = ");
-        Serial.print(quaternions[2]); 
+        Serial.print(q[2]); 
         Serial.print(" Qz = ");
-        Serial.println(quaternions[3]); 
+        Serial.println(q[3]); 
 
         /*
            Define output variables from updated quaternion---these are Tait-Bryan
@@ -93,18 +93,18 @@ void loop()
            Earth ground plane, toward the Earth is positive, up toward the sky is
            negative.  Roll is angle between sensor y-axis and Earth ground plane,
            y-axis up is positive roll.  These arise from the definition of the
-           homogeneous rotation matrix constructed from quaternions.  Tait-Bryan
+           homogeneous rotation matrix constructed from q.  Tait-Bryan
            angles as well as Euler angles are non-commutative; that is, the get
            the correct orientation the rotations must be applied in the correct
            order which for this configuration is yaw, pitch, and then roll.  For
-           more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles 
+           more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
            which has additional links.
          */
 
         // AHRS:
-        float Yaw   = atan2(2.0f * (quaternions[0] * quaternions[1] + quaternions[3] * quaternions[2]), quaternions[3] * quaternions[3] + quaternions[0] * quaternions[0] - quaternions[1] * quaternions[1] - quaternions[2] * quaternions[2]);   
-        float Pitch = -asin(2.0f * (quaternions[0] * quaternions[2] - quaternions[3] * quaternions[1]));
-        float Roll  = atan2(2.0f * (quaternions[3] * quaternions[0] + quaternions[1] * quaternions[2]), quaternions[3] * quaternions[3] - quaternions[0] * quaternions[0] - quaternions[1] * quaternions[1] + quaternions[2] * quaternions[2]);
+        float Yaw   = atan2(2.0f * (q[0] * q[1] + q[3] * q[2]), q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]);   
+        float Pitch = -asin(2.0f * (q[0] * q[2] - q[3] * q[1]));
+        float Roll  = atan2(2.0f * (q[3] * q[0] + q[1] * q[2]), q[3] * q[3] - q[0] * q[0] - q[1] * q[1] + q[2] * q[2]);
         Pitch *= 180.0f / PI;
         Yaw   *= 180.0f / PI; 
         Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
