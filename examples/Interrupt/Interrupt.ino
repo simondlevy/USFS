@@ -690,11 +690,6 @@ void loop()
             Serial.print(" my = "); Serial.print( (int)my); 
             Serial.print(" mz = "); Serial.print( (int)mz); Serial.println(" mG");
 
-            Serial.println("Software quaternions:"); 
-            Serial.print("q0 = "); Serial.print(q[0]);
-            Serial.print(" qx = "); Serial.print(q[1]); 
-            Serial.print(" qy = "); Serial.print(q[2]); 
-            Serial.print(" qz = "); Serial.println(q[3]); 
             Serial.println("Hardware quaternions:"); 
             Serial.print("Q0 = "); Serial.print(Quat[0]);
             Serial.print(" Qx = "); Serial.print(Quat[1]); 
@@ -712,15 +707,6 @@ void loop()
         // Tait-Bryan angles as well as Euler angles are non-commutative; that is, the get the correct orientation the rotations must be
         // applied in the correct order which for this configuration is yaw, pitch, and then roll.
         // For more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles which has additional links.
-        //Software AHRS:
-        yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
-        pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
-        roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
-        pitch *= 180.0f / PI;
-        yaw   *= 180.0f / PI; 
-        yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-        if(yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
-        roll  *= 180.0f / PI;
         //Hardware AHRS:
         Yaw   = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
         Pitch = -asin(2.0f * (Quat[0] * Quat[2] - Quat[3] * Quat[1]));
@@ -738,12 +724,6 @@ void loop()
         //
 
         if(SerialDebug) {
-            Serial.print("Software yaw, pitch, roll: ");
-            Serial.print(yaw, 2);
-            Serial.print(", ");
-            Serial.print(pitch, 2);
-            Serial.print(", ");
-            Serial.println(roll, 2);
 
             Serial.print("Hardware Yaw, Pitch, Roll: ");
             Serial.print(Yaw, 2);
