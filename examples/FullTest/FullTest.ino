@@ -1,5 +1,5 @@
 /* 
-   FullTest.ino: Example sketch for running EM7180 SENtral sensor hub in normal mode.
+   FullTest.ino: Example sketch for running EM7180 SENtral sensor hub in master mode.
 
    Adapted from
 
