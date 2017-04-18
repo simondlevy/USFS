@@ -72,6 +72,7 @@ void loop()
     uint32_t delt_t = millis() - count;
     if (delt_t > 100) { // update LCD independent of read rate
 
+        /*
         Serial.println("Hardware q:"); 
         Serial.print("Q0 = ");
         Serial.print(q[0]);
@@ -81,6 +82,7 @@ void loop()
         Serial.print(q[2]); 
         Serial.print(" Qz = ");
         Serial.println(q[3]); 
+        */
 
         /*
            Define output variables from updated quaternion---these are Tait-Bryan
