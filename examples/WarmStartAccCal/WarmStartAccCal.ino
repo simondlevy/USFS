@@ -762,8 +762,6 @@ void setup()
     if (!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
 
     // Take user input to choose Warm Start or not...
-    // "1" from the keboard is ASCII "1" which gives integer value 49
-    // "0" from the keboard is ASCII "0" which gives integer value 48
     Serial.println("Send '1' for Warm Start, '0' for no Warm Start");
     uint8_t serial_input = Serial.read();
     while(!(serial_input == '1') && !(serial_input == '0'))
@@ -911,10 +909,10 @@ void setup()
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
-    //Disable stillness mode
+    // Disable stillness mode
     EM7180_set_integer_param (0x49, 0x00);
 
-    //Write desired sensor full scale ranges to the EM7180
+    // Write desired sensor full scale ranges to the EM7180
     EM7180_set_mag_acc_FS (0x3E8, 0x08); // 1000 uT, 8 g
     EM7180_set_gyro_FS (0x7D0); // 2000 dps
 
