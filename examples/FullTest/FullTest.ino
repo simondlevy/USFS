@@ -47,7 +47,6 @@ void loop()
     static int count, sumCount;
     static uint32_t lastUpdate; // used to calculate integration interval
     static float sum;
-    static float yaw, pitch, roll;
 
     static float q[4];
 
@@ -71,7 +70,7 @@ void loop()
 
     // Serial print and/or display at 0.5 s rate independent of data rates
     uint32_t delt_t = millis() - count;
-    if (delt_t > 500) { // update LCD once per half-second independent of read rate
+    if (delt_t > 100) { // update LCD independent of read rate
 
         Serial.println("Hardware q:"); 
         Serial.print("Q0 = ");
@@ -102,14 +101,14 @@ void loop()
          */
 
         // AHRS:
-        float Yaw   = atan2(2.0f * (q[0] * q[1] + q[3] * q[2]), q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]);   
-        float Pitch = -asin(2.0f * (q[0] * q[2] - q[3] * q[1]));
-        float Roll  = atan2(2.0f * (q[3] * q[0] + q[1] * q[2]), q[3] * q[3] - q[0] * q[0] - q[1] * q[1] + q[2] * q[2]);
-        Pitch *= 180.0f / PI;
-        Yaw   *= 180.0f / PI; 
-        Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-        if(Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
-        Roll  *= 180.0f / PI;
+        float yaw   = atan2(2.0f * (q[0] * q[1] + q[3] * q[2]), q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]);   
+        float pitch = -asin(2.0f * (q[0] * q[2] - q[3] * q[1]));
+        float roll  = atan2(2.0f * (q[3] * q[0] + q[1] * q[2]), q[3] * q[3] - q[0] * q[0] - q[1] * q[1] + q[2] * q[2]);
+        pitch *= 180.0f / PI;
+        yaw   *= 180.0f / PI; 
+        yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
+        if(yaw < 0) yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
+        roll  *= 180.0f / PI;
 
         /*
            Or define output variable according to the Android system, where
@@ -121,11 +120,11 @@ void loop()
          */ 
 
         Serial.print("Hardware Yaw, Pitch, Roll: ");
-        Serial.print(Yaw, 2);
+        Serial.print(yaw, 2);
         Serial.print(", ");
-        Serial.print(Pitch, 2);
+        Serial.print(pitch, 2);
         Serial.print(", ");
-        Serial.println(Roll, 2);
+        Serial.println(roll, 2);
 
         float temperature, pressure;
 
@@ -152,11 +151,7 @@ void loop()
         Serial.print(millis()/1000.0, 1);Serial.print(",");
         Serial.print(yaw);
         Serial.print(",");Serial.print(pitch);
-        Serial.print(",");Serial.print(roll);
-        Serial.print(",");
-        Serial.print(Yaw);
-        Serial.print(",");Serial.print(Pitch);
-        Serial.print(",");Serial.println(Roll);  
+        Serial.print(",");Serial.println(roll);  
 
         count = millis(); 
         sumCount = 0;
