@@ -536,31 +536,35 @@ uint8_t EM7180::update(void)
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
 
-    // Check for errors
-    if(eventStatus & 0x02) { 
+   // Check for errors
+    if (eventStatus & 0x02) { 
         return readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
     }
 
     // If no errors, see if new data is ready
-    if(eventStatus & 0x10) { // new acceleration data available
+    if (eventStatus & 0x10) { // new acceleration data available
         readSENtralAccelData(accelCount);
     }
 
     // New gyro data available
-    if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x20) { // new gyro data available
+    if (eventStatus & 0x20) { // new gyro data available
         readSENtralGyroData(gyroCount);
     }
 
     // New mag data available
-    if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x08) {
+    if (eventStatus & 0x08) {
         readSENtralMagData(magCount);
     }
+
+    return 0;
+
+    // ===============================
 
     // Always grab current quaternions
     readSENtralQuatData(quaternions); 
 
     // New baro data available
-    if(readByte(EM7180_ADDRESS, EM7180_EventStatus) & 0x40) {
+    if(eventStatus & 0x40) {
         int16_t rawPressure = readSENtralBaroData();
         pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
 
