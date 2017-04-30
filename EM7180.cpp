@@ -541,6 +541,16 @@ uint8_t EM7180::update(void)
         return readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
     }
 
+    // New quaternion data available
+    if (eventStatus & 0x04) {
+        readSENtralQuatData(quaternions);
+    }
+
+    // New mag data available
+    if (eventStatus & 0x08) {
+        readSENtralMagData(magCount);
+    }
+
     // If no errors, see if new data is ready
     if (eventStatus & 0x10) { // new acceleration data available
         readSENtralAccelData(accelCount);
@@ -550,18 +560,6 @@ uint8_t EM7180::update(void)
     if (eventStatus & 0x20) { // new gyro data available
         readSENtralGyroData(gyroCount);
     }
-
-    // New mag data available
-    if (eventStatus & 0x08) {
-        readSENtralMagData(magCount);
-    }
-
-    return 0;
-
-    // ===============================
-
-    // Always grab current quaternions
-    readSENtralQuatData(quaternions); 
 
     // New baro data available
     if(eventStatus & 0x40) {
