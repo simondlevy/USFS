@@ -21,7 +21,16 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Arduino.h>
+
+#ifdef __MK20DX256__
 #include <i2c_t3.h>
+#define NOSTOP I2C_NOSTOP
+#else
+#include <Wire.h>
+#define NOSTOP false
+#endif
+
 #include "EM7180.h"
 
 #define TEMP_OUT_H       0x41
@@ -117,7 +126,7 @@ uint8_t _EM7180::readByte(uint8_t address, uint8_t subAddress)
     uint8_t data; // `data` will store the register data	 
     Wire.beginTransmission(address);         // Initialize the Tx buffer
     Wire.write(subAddress);	                 // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);            // Send the Tx buffer, but send a restart to keep connection alive
     Wire.requestFrom(address, (size_t) 1);   // Read one byte from slave register address 
     data = Wire.read();                      // Fill Rx buffer with result
     return data;                             // Return data read from slave register
@@ -127,7 +136,7 @@ void _EM7180::readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint
 {  
     Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);  // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);      // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
     while (Wire.available()) {
@@ -268,7 +277,7 @@ void _EM7180::M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, 
     Wire.beginTransmission(device_address);   // Initialize the Tx buffer
     Wire.write(data_address1);                     // Put slave register address in Tx buffer
     Wire.write(data_address2);                     // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);         // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);             // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     Wire.requestFrom(device_address, (size_t) count);  // Read bytes from slave register address 
     while (Wire.available()) {
@@ -292,14 +301,11 @@ uint8_t _EM7180::begin(void)
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
     for (int attempts=0; attempts<10; ++attempts) {
         if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01) {
-            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  
-                ;
-            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  
-                ;
-            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01) { }
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02) { }
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04) 
                 return 0xB0;
-            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  
-                ;
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08) { }
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  
                 return 0xB0;
             break;

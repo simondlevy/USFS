@@ -22,8 +22,14 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#ifdef __MK20DX256__
 #include <i2c_t3.h>
+#define NOSTOP I2C_NOSTOP
+#else
+#include <Wire.h>
+#define NOSTOP false
+#endif
+
 
 // EM7180 SENtral register map
 // see http://www.emdeveloper.com/downloads/7180/EMSentral_EM7180_Register_Map_v1_3.pdf
@@ -145,7 +151,7 @@ static uint8_t readByte(uint8_t address, uint8_t subAddress)
     uint8_t data; // `data` will store the register data	 
     Wire.beginTransmission(address);         // Initialize the Tx buffer
     Wire.write(subAddress);	                 // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
     //	Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
     //	Wire.requestFrom(address, 1);  // Read one byte from slave register address 
     Wire.requestFrom(address, (size_t) 1);   // Read one byte from slave register address 
@@ -157,7 +163,7 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
 {  
     Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);  // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);  // Send the Tx buffer, but send a restart to keep connection alive
     //	Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     //        Wire.requestFrom(address, count);  // Read bytes from slave register address 
@@ -356,8 +362,12 @@ void myinthandler()
 
 void setup()
 {
-    // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
+#ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#else
+    Wire.begin();
+#endif
+
     delay(5000);
     Serial.begin(38400);
 

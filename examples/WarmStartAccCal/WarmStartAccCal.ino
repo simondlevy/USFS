@@ -116,7 +116,13 @@ static uint16_t           calibratingA;
 static acc_cal            global_conf;
 static Sentral_WS_params  WS_params;
 
+#ifdef __MK20DX256__
 #include <i2c_t3.h>
+#define NOSTOP I2C_NOSTOP
+#else
+#include <Wire.h>
+#define NOSTOP false
+#endif
 
 //===================================================================================================================
 // I2C read/write functions for the MPU9250 and AK8963 sensors
@@ -135,7 +141,7 @@ static uint8_t readByte(uint8_t address, uint8_t subAddress)
     uint8_t data; // `data` will store the register data   
     Wire.beginTransmission(address);         // Initialize the Tx buffer
     Wire.write(subAddress);                  // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
     Wire.requestFrom(address, (size_t) 1);   // Read one byte from slave register address 
     data = Wire.read();                      // Fill Rx buffer with result
     return data;                             // Return data read from slave register
@@ -145,7 +151,7 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
 {  
     Wire.beginTransmission(address);            // Initialize the Tx buffer
     Wire.write(subAddress);                     // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);           // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);           // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
     while (Wire.available())
@@ -651,7 +657,7 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
     Wire.beginTransmission(device_address);            // Initialize the Tx buffer
     Wire.write(data_address1);                         // Put slave register address in Tx buffer
     Wire.write(data_address2);                         // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);                  // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);                  // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     Wire.requestFrom(device_address, (size_t)count);  // Read bytes from slave register address 
     while (Wire.available())
@@ -712,8 +718,12 @@ static void sensorError(const char * errmsg)
 
 void setup()
 {  
-    // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
+#ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#else
+    Wire.begin();
+#endif
+
     delay(100);
     Serial.begin(115200);
     delay(1000);

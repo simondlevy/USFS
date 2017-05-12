@@ -55,7 +55,14 @@
 
 #define MPU9250_ADDRESS          0x68   // Device address of MPU9250 when ADO = 0
 
+#ifdef __MK20DX256__
 #include <i2c_t3.h>
+#define NOSTOP I2C_NOSTOP
+#else
+#include <Wire.h>
+#define NOSTOP false
+#endif
+
 
 enum Ascale {
     AFS_2G = 0,
@@ -86,7 +93,7 @@ static uint8_t _readByte(uint8_t address, uint8_t subAddress)
     uint8_t data; // `data` will store the register data	 
     Wire.beginTransmission(address);         // Initialize the Tx buffer
     Wire.write(subAddress);	                 // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
     Wire.requestFrom(address, (size_t) 1);   // Read one byte from slave register address 
     data = Wire.read();                      // Fill Rx buffer with result
     return data;                             // Return data read from slave register
@@ -96,7 +103,7 @@ static void _readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8
 {  
     Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
-    Wire.endTransmission(I2C_NOSTOP);  // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(NOSTOP);  // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
     while (Wire.available()) {
@@ -184,8 +191,12 @@ EM7180_Passthru em7180p;
 
 void setup()
 {
-    // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
+#ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#else
+    Wire.begin();
+#endif
+
     delay(100);
 
     // Start the EM7180 (nonzero return means error)
@@ -215,9 +226,18 @@ void loop()
     readAccelData(accelCount);  // Read the x/y/z adc values
     readGyroData(gyroCount);  // Read the x/y/z adc values
 
-    Serial.printf("%5d %5d %5d\t%5d %5d %5d\n", 
-            accelCount[0], accelCount[1], accelCount[2],
-            gyroCount[0], gyroCount[1], gyroCount[2]);
+    Serial.print(accelCount[0]);
+    Serial.print(" ");
+    Serial.print(accelCount[1]);
+    Serial.print(" ");
+    Serial.print(accelCount[2]);
+    Serial.print("   ");
+    Serial.print(gyroCount[0]);
+    Serial.print(" ");
+    Serial.print(gyroCount[1]);
+    Serial.print(" ");
+    Serial.print(gyroCount[2]);
+    Serial.println();
 }
 
 

@@ -22,14 +22,24 @@
 
 #include "EM7180.h"
 
+#ifdef __MK20DX256__
 #include <i2c_t3.h>
+#define NOSTOP I2C_NOSTOP
+#else
+#include <Wire.h>
+#define NOSTOP false
+#endif
+
 
 EM7180 em7180;
 
 void setup()
 {
-    // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
+#ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#else
+    Wire.begin();
+#endif
 
     delay(100);
 
