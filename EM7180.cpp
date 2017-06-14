@@ -537,7 +537,7 @@ const char * EM7180::errorToString(uint8_t errorStatus)
     return "Unknown error";
 }
 
-uint8_t EM7180::update(void)
+uint8_t EM7180::poll(void)
 {
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register

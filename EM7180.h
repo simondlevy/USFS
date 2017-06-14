@@ -84,7 +84,7 @@ class EM7180 : public _EM7180 {
 
         uint8_t begin(uint8_t ares, uint16_t gres, uint16_t mres);
 
-        uint8_t update(void);
+        uint8_t poll(void);
 
         void getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az);
         void getGyroRaw(int16_t& gx, int16_t& gy, int16_t& gz);

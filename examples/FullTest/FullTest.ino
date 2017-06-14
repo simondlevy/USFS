@@ -60,7 +60,7 @@ void loop()
 
     static float q[4];
 
-    uint8_t errorStatus = em7180.update();
+    uint8_t errorStatus = em7180.poll();
 
     if (errorStatus) {
         Serial.print("ERROR: ");
