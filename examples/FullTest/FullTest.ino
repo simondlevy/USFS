@@ -3,7 +3,7 @@
 
    Adapted from
 
-     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/em7180.MPU9250_BMP280
+     https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/EM7180_MPU9250_BMP280
 
    This file is part of EM7180.
 
@@ -80,19 +80,7 @@ void loop()
 
     // Serial print and/or display at 0.5 s rate independent of data rates
     uint32_t delt_t = millis() - count;
-    if (delt_t > 100) { // update LCD independent of read rate
-
-        /*
-        Serial.println("Hardware q:"); 
-        Serial.print("Q0 = ");
-        Serial.print(q[0]);
-        Serial.print(" Qx = ");
-        Serial.print(q[1]); 
-        Serial.print(" Qy = ");
-        Serial.print(q[2]); 
-        Serial.print(" Qz = ");
-        Serial.println(q[3]); 
-        */
+    if (delt_t > 100) { // report independent of read rate
 
         /*
            Define output variables from updated quaternion---these are Tait-Bryan
@@ -121,6 +109,24 @@ void loop()
         yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
         if(yaw < 0) yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
         roll  *= 180.0f / PI;
+
+        int16_t ax, ay, az;
+        em7180.getAccelRaw(ax, ay, az);
+        Serial.print("Accel: ");
+        Serial.print(ax);
+        Serial.print(", ");
+        Serial.print(ay);
+        Serial.print(", ");
+        Serial.println(az);
+
+        int16_t gx, gy, gz;
+        em7180.getGyroRaw(gx, gy, gz);
+        Serial.print("Gyro: ");
+        Serial.print(gx);
+        Serial.print(", ");
+        Serial.print(gy);
+        Serial.print(", ");
+        Serial.println(gz);
 
         /*
            Or define output variable according to the Android system, where
