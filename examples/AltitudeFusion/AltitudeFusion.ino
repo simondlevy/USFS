@@ -32,11 +32,9 @@
 
 static EM7180 em7180;
 
-#define UPDATE_HZ 10
-#define CALIBRATE_SEC 5
-#define WINDOW_SIZE 10
+#define UPDATE_HZ     20
+#define BARO_TAB_SIZE 48
 
-static uint32_t millisPrev;
 
 void setup()
 {
@@ -55,65 +53,37 @@ void setup()
     while (status) {
         Serial.println(EM7180::errorToString(status));
     }
-
-    millisPrev = millis();
 }
 
 void loop()
 {  
-    static float altitudeBaseline;
-    static float altitudeWindow[WINDOW_SIZE];
-    static uint32_t altitudeCount;
-    static uint32_t millisStart;
+    static uint32_t baroPressureSum;
+    static uint32_t millisPrev;
+    static int32_t baroHistTab[BARO_TAB_SIZE];
+    static int baroHistIdx;
+    static int32_t baroGroundPressure;
+    static int32_t baroGroundAltitude;
+    uint8_t indexplus1;
 
-    uint8_t errorStatus = em7180.poll();
-
-    if (errorStatus) {
-        Serial.print("ERROR: ");
-        Serial.println(EM7180::errorToString(errorStatus));
-        return;
-    }
-
-    if (!millisStart) {
-        millisStart = millis();
-    }
+    em7180.poll();
 
     if ((millis() - millisPrev) > 1000/UPDATE_HZ) { 
 
-        float temperature, pressure;
+        float pressure, temperature;
         em7180.getBaro(pressure, temperature);
-        float altitude = 4430769.40f * (1.0f - pow((pressure/1013.25f), 0.190284f));
 
-        if (!altitudeBaseline) {
+        indexplus1 = (baroHistIdx + 1) % BARO_TAB_SIZE;
+        baroHistTab[baroHistIdx] = (int32_t)pressure;
+        baroPressureSum += baroHistTab[baroHistIdx];
+        baroPressureSum -= baroHistTab[indexplus1];
+        baroHistIdx = indexplus1;
 
-            Serial.println("Calibrating barometer ...");
+        baroGroundPressure -= baroGroundPressure / 8;
+        baroGroundPressure += baroPressureSum / (BARO_TAB_SIZE - 1);
+        baroGroundAltitude = (1.0f - powf((baroGroundPressure / 8) / 101325.0f, 0.190295f)) * 4433000.0f;
 
-            altitudeWindow[altitudeCount] = altitude;
-            altitudeCount = (altitudeCount + 1) % WINDOW_SIZE;
-
-            if ((millis() - millisStart) > CALIBRATE_SEC*1000) { 
-
-                for (int k=0; k<WINDOW_SIZE; ++k) {
-                    altitudeBaseline += altitudeWindow[k];
-                }
-                altitudeBaseline /= WINDOW_SIZE;
-            }
-        }
-
-        else {
-
-            int16_t ax, ay, az;
-            em7180.getAccelRaw(ax, ay, az);
-            Serial.print("Accel Z: ");
-            Serial.println(az);
-
-            Serial.print("Altitude = "); 
-            Serial.print(altitude, 2); 
-            Serial.print(" cm    Baseline = ");
-            Serial.print(altitudeBaseline, 2); 
-            Serial.println(" cm\n");
-        }
-
+        printf("%d\n", (int)baroGroundAltitude);
+ 
         millisPrev = millis(); 
     }
 }

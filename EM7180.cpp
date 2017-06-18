@@ -570,7 +570,8 @@ uint8_t EM7180::poll(void)
     // New baro data available
     if(eventStatus & 0x40) {
         int16_t rawPressure = readSENtralBaroData();
-        pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
+        //pressure = (float)rawPressure*0.01f +1013.25f; // pressure in Pa
+        pressure = (float)rawPressure + 101325.f; // pressure in Pa
 
         // get BMP280 temperature
         int16_t rawTemperature = readSENtralTempData();  
@@ -579,6 +580,11 @@ uint8_t EM7180::poll(void)
 
     // Success
     return 0;
+}
+
+int16_t EM7180::getBaroPressureRaw(void)
+{
+    return readSENtralBaroData();
 }
 
 void EM7180::getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az)

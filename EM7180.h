@@ -90,6 +90,8 @@ class EM7180 : public _EM7180 {
         void getGyroRaw(int16_t& gx, int16_t& gy, int16_t& gz);
         void getMagRaw(int16_t& mx, int16_t& my, int16_t& mz);
 
+        int16_t getBaroPressureRaw(void);
+
         void getQuaternions(float q[4]);
 
         void getBaro(float & press, float & temp);
