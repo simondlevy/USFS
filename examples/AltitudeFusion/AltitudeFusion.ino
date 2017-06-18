@@ -30,7 +30,9 @@
 #define NOSTOP false
 #endif
 
-EM7180 em7180;
+static EM7180 em7180;
+
+static const uint8_t REPORT_HZ = 10;
 
 void setup()
 {
@@ -65,7 +67,7 @@ void loop()
 
     // Serial print and/or display rate independent of data rates
 
-    if (millis() - millisPrev > 100) { 
+    if ((millis() - millisPrev) > 1000/REPORT_HZ) { 
 
         int16_t ax, ay, az;
         em7180.getAccelRaw(ax, ay, az);
