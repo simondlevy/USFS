@@ -5,6 +5,10 @@
 
      https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/EM7180_MPU9250_BMP280
 
+    https://github.com/multiwii/baseflight/blob/master/src/imu.c
+
+    https://github.com/multiwii/baseflight/blob/master/src/sensors.c
+
    This file is part of EM7180.
 
    EM7180 is free software: you can redistribute it and/or modify
@@ -32,8 +36,10 @@
 
 static EM7180 em7180;
 
-#define UPDATE_HZ     20
-#define BARO_TAB_SIZE 48
+#define UPDATE_HZ       20
+#define BARO_TAB_SIZE   48
+#define CALIBRATION_SEC 8
+#define BARO_NOISE_LPF  0.5f
 
 
 void setup()
@@ -64,26 +70,40 @@ void loop()
     static int32_t baroGroundPressure;
     static int32_t baroGroundAltitude;
     uint8_t indexplus1;
+    static uint32_t calibrationStart;
 
+    // Poll EM7180 every iteration
     em7180.poll();
 
+    // Periodically sample baro
     if ((millis() - millisPrev) > 1000/UPDATE_HZ) { 
 
+        // Start baro calibration if not yet started
+        if (!calibrationStart) 
+            calibrationStart = millis();
+
+        // Grab baro pressure and smooth it using history
         float pressure, temperature;
         em7180.getBaro(pressure, temperature);
-
         indexplus1 = (baroHistIdx + 1) % BARO_TAB_SIZE;
         baroHistTab[baroHistIdx] = (int32_t)pressure;
         baroPressureSum += baroHistTab[baroHistIdx];
         baroPressureSum -= baroHistTab[indexplus1];
         baroHistIdx = indexplus1;
 
-        baroGroundPressure -= baroGroundPressure / 8;
-        baroGroundPressure += baroPressureSum / (BARO_TAB_SIZE - 1);
-        baroGroundAltitude = (1.0f - powf((baroGroundPressure / 8) / 101325.0f, 0.190295f)) * 4433000.0f;
+        // Compute baro ground altitude during calibration
+        if (millis() - calibrationStart < 1000*CALIBRATION_SEC) {
+            baroGroundPressure -= baroGroundPressure / 8;
+            baroGroundPressure += baroPressureSum / (BARO_TAB_SIZE - 1);
+            baroGroundAltitude = (1.0f - powf((baroGroundPressure / 8) / 101325.0f, 0.190295f)) * 4433000.0f;
+        }
 
-        printf("%d\n", (int)baroGroundAltitude);
- 
+        int32_t BaroAlt_tmp = lrintf((1.0f - powf((float)(baroPressureSum / (BARO_TAB_SIZE - 1)) / 101325.0f, 0.190295f)) * 4433000.0f); // in cm
+        BaroAlt_tmp -= baroGroundAltitude;
+        int32_t BaroAlt = lrintf((float)BaroAlt * BARO_NOISE_LPF + (float)BaroAlt_tmp * (1.0f - BARO_NOISE_LPF)); // additional LPF to reduce baro noise
+
+        Serial.println(BaroAlt);
+
         millisPrev = millis(); 
     }
 }
