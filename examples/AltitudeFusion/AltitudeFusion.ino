@@ -32,7 +32,11 @@
 
 static EM7180 em7180;
 
-static const uint8_t REPORT_HZ = 10;
+#define UPDATE_HZ 10
+#define CALIBRATE_SEC 5
+#define WINDOW_SIZE 10
+
+static uint32_t millisPrev;
 
 void setup()
 {
@@ -51,11 +55,16 @@ void setup()
     while (status) {
         Serial.println(EM7180::errorToString(status));
     }
+
+    millisPrev = millis();
 }
 
 void loop()
 {  
-    static uint32_t millisPrev;
+    static float altitudeBaseline;
+    static float altitudeWindow[WINDOW_SIZE];
+    static uint32_t altitudeCount;
+    static uint32_t millisStart;
 
     uint8_t errorStatus = em7180.poll();
 
@@ -65,24 +74,45 @@ void loop()
         return;
     }
 
-    // Serial print and/or display rate independent of data rates
+    if (!millisStart) {
+        millisStart = millis();
+    }
 
-    if ((millis() - millisPrev) > 1000/REPORT_HZ) { 
-
-        int16_t ax, ay, az;
-        em7180.getAccelRaw(ax, ay, az);
-        Serial.print("Accel Z: ");
-        Serial.println(az);
+    if ((millis() - millisPrev) > 1000/UPDATE_HZ) { 
 
         float temperature, pressure;
-
         em7180.getBaro(pressure, temperature);
-
         float altitude = 4430769.40f * (1.0f - pow((pressure/1013.25f), 0.190284f));
-        Serial.print("Altitude = "); 
-        Serial.print(altitude, 2); 
-        Serial.println(" cm");
-        Serial.println(" ");
+
+        if (!altitudeBaseline) {
+
+            Serial.println("Calibrating barometer ...");
+
+            altitudeWindow[altitudeCount] = altitude;
+            altitudeCount = (altitudeCount + 1) % WINDOW_SIZE;
+
+            if ((millis() - millisStart) > CALIBRATE_SEC*1000) { 
+
+                for (int k=0; k<WINDOW_SIZE; ++k) {
+                    altitudeBaseline += altitudeWindow[k];
+                }
+                altitudeBaseline /= WINDOW_SIZE;
+            }
+        }
+
+        else {
+
+            int16_t ax, ay, az;
+            em7180.getAccelRaw(ax, ay, az);
+            Serial.print("Accel Z: ");
+            Serial.println(az);
+
+            Serial.print("Altitude = "); 
+            Serial.print(altitude, 2); 
+            Serial.print(" cm    Baseline = ");
+            Serial.print(altitudeBaseline, 2); 
+            Serial.println(" cm\n");
+        }
 
         millisPrev = millis(); 
     }
