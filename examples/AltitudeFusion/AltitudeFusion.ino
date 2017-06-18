@@ -53,9 +53,7 @@ void setup()
 
 void loop()
 {  
-    static int count, sumCount;
-    static uint32_t lastUpdate; // used to calculate integration interval
-    static float sum;
+    static uint32_t millisPrev;
 
     uint8_t errorStatus = em7180.poll();
 
@@ -64,17 +62,10 @@ void loop()
         Serial.println(EM7180::errorToString(errorStatus));
         return;
     }
-    // keep track of rates
-    uint32_t Now = micros();
-    float deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
-    lastUpdate = Now;
 
-    sum += deltat; // sum for averaging filter update rate
-    sumCount++;
+    // Serial print and/or display rate independent of data rates
 
-    // Serial print and/or display at 0.5 s rate independent of data rates
-    uint32_t delt_t = millis() - count;
-    if (delt_t > 100) { // report independent of read rate
+    if (millis() - millisPrev > 100) { 
 
         int16_t ax, ay, az;
         em7180.getAccelRaw(ax, ay, az);
@@ -85,18 +76,12 @@ void loop()
 
         em7180.getBaro(pressure, temperature);
 
-        float altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f));
+        float altitude = 4430769.40f * (1.0f - pow((pressure/1013.25f), 0.190284f));
         Serial.print("Altitude = "); 
         Serial.print(altitude, 2); 
-        Serial.println(" feet");
+        Serial.println(" cm");
         Serial.println(" ");
 
-        Serial.print((float)sumCount/sum, 2);
-        Serial.println(" Hz");
-        Serial.print(millis()/1000.0, 1);Serial.print(",");
-
-        count = millis(); 
-        sumCount = 0;
-        sum = 0;    
+        millisPrev = millis(); 
     }
 }
