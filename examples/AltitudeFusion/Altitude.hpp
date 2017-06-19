@@ -137,6 +137,8 @@ void Altitude::updateBaro(float pressure)
     float accZ_tmp = (float)accelZSum / (float)accelSumCount;
     float vel_acc = accZ_tmp * accelVelScale * (float)accelTimeSum;
 
+    Serial.println(vel_acc);
+
     /*
     // Integrator - Altitude in cm
     accAlt += (vel_acc * 0.5f) * dt + vel * dt;                                         // integrate velocity to get distance (x= a/2 * t^2)
@@ -156,8 +158,12 @@ void Altitude::updateBaro(float pressure)
     debug[2] = accAlt;                  // height
 #endif
 
-    accSum_reset();
-
+*/
+    // Now that computed acceleration, reset it for next time
+    accelZSum = 0;
+    accelSumCount = 0;
+    accelTimeSum = 0;
+/*
     baroVel = (BaroAlt - lastBaroAlt) * 1000000.0f / dTime;
     lastBaroAlt = BaroAlt;
 
@@ -250,7 +256,7 @@ void Altitude::updateImu(int16_t accelRaw[3], float eulerAngles[3])
 
     // Accumulate time and count for integrating accelerometer values
     accelTimeSum += dT_usec;
-    accelZSum += deadbandFilter((int32_t)lrintf(accelZSmooth),  ACCEL_Z_DEADBAND);
+    accelSumCount++;
 
 } // updateImu
 
