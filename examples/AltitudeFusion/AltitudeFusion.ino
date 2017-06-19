@@ -35,6 +35,9 @@
 #define NOSTOP false
 #endif
 
+#define ESTIMATOR_UPDATE_MILLIS 50
+#define IMU_UPDATE_MICROS       3500
+
 static EM7180 em7180;
 static Altitude alti;
 
@@ -59,19 +62,39 @@ void setup()
 
 void loop()
 {  
-    static uint32_t millisPrev;
-
     // Poll EM7180 every iteration
     em7180.poll();
 
-    // Periodically upate baro
-    if ((millis() - millisPrev) > 1000/UPDATE_HZ) { 
+    // Periodically use baro to get estimate
+    static uint32_t estimatorMillisPrev;
+    if ((millis() - estimatorMillisPrev) > ESTIMATOR_UPDATE_MILLIS) { 
 
         float pressure, temperature;
         em7180.getBaro(pressure, temperature);
 
-        alti.update(pressure);
+        alti.updateBaro(pressure);
 
-        millisPrev = millis(); 
+        estimatorMillisPrev = millis(); 
     }
+
+    // More frequently, update with accelerometer and Euler angles
+    static uint32_t imuMicrosPrev;
+    if ((micros() - imuMicrosPrev) > IMU_UPDATE_MICROS) { 
+
+        int16_t accelRaw[3];
+        em7180.getAccelRaw(accelRaw[0], accelRaw[1], accelRaw[2]);
+
+        float q[4];
+        em7180.getQuaternions(q);
+        float eulerAngles[3];
+        eulerAngles[0] = atan2(2.0f * (q[3] * q[0] + q[1] * q[2]), q[3] * q[3] - q[0] * q[0] - q[1] * q[1] + q[2] * q[2]);  // roll
+        eulerAngles[1] = asin(2.0f * (q[0] * q[2] - q[3] * q[1]));                                                          // pitch
+        eulerAngles[2] = atan2(2.0f * (q[0] * q[1] + q[3] * q[2]), q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]);  // yaw 
+
+        alti.updateImu(accelRaw, eulerAngles);
+
+        imuMicrosPrev = micros(); 
+    }
+
+
 }
