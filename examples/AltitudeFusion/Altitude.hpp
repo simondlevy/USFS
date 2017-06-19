@@ -1,5 +1,5 @@
 /* 
-   Barometer.hpp: Barometer model
+   Altitude.hpp: Altitude estimator using baro + accelerometer fusion
 
    Adapted from
 
@@ -26,13 +26,23 @@
 #define CALIBRATION_SEC 8
 #define BARO_NOISE_LPF  0.5f
 
-class Barometer {
+class Altitude {
 
     public:
+
+        Altitude(void);
 
         void update(float pressure);
 
     private:
+
+        uint32_t baroPressureSum;
+        int32_t  baroHistTab[BARO_TAB_SIZE];
+        int      baroHistIdx;
+        int32_t  baroGroundPressure;
+        int32_t  baroGroundAltitude;
+        int32_t  BaroAlt;
+        uint32_t calibrationStart;
 
         static float paToCm(uint32_t pa);
 };
@@ -40,28 +50,33 @@ class Barometer {
 /********************************************* CPP ********************************************************/
 
 // Pressure in Pascals to altitude in centimeters
-float Barometer::paToCm(uint32_t pa)
+float Altitude::paToCm(uint32_t pa)
 {
     return (1.0f - powf(pa / 101325.0f, 0.190295f)) * 4433000.0f;
 }
 
-void Barometer::update(float pressure)
-{  
-    static uint32_t baroPressureSum;
-    static int32_t  baroHistTab[BARO_TAB_SIZE];
-    static int      baroHistIdx;
-    static int32_t  baroGroundPressure;
-    static int32_t  baroGroundAltitude;
-    static int32_t  BaroAlt;
-    uint8_t         indexplus1;
-    static uint32_t calibrationStart;
+Altitude::Altitude(void)
+{
+    baroPressureSum = 0;
+    baroHistIdx = 0;
+    baroGroundPressure = 0;
+    baroGroundAltitude = 0;
+    BaroAlt = 0;
+    calibrationStart = 0;
 
+    for (int k=0; k<BARO_TAB_SIZE; ++k) {
+        baroHistTab[k] = 0;
+    }
+}
+
+void Altitude::update(float pressure)
+{  
     // Start baro calibration if not yet started
     if (!calibrationStart) 
         calibrationStart = millis();
 
     // Smoothe baro pressure using history
-    indexplus1 = (baroHistIdx + 1) % BARO_TAB_SIZE;
+    uint8_t indexplus1 = (baroHistIdx + 1) % BARO_TAB_SIZE;
     baroHistTab[baroHistIdx] = (int32_t)pressure;
     baroPressureSum += baroHistTab[baroHistIdx];
     baroPressureSum -= baroHistTab[indexplus1];

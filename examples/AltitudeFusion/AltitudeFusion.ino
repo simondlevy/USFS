@@ -25,7 +25,7 @@
  */
 
 #include "EM7180.h"
-#include "Barometer.hpp"
+#include "Altitude.hpp"
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
@@ -36,13 +36,7 @@
 #endif
 
 static EM7180 em7180;
-static Barometer baro;
-
-#define UPDATE_HZ       20
-#define BARO_TAB_SIZE   48
-#define CALIBRATION_SEC 8
-#define BARO_NOISE_LPF  0.5f
-
+static Altitude alti;
 
 void setup()
 {
@@ -76,7 +70,7 @@ void loop()
         float pressure, temperature;
         em7180.getBaro(pressure, temperature);
 
-        baro.update(pressure);
+        alti.update(pressure);
 
         millisPrev = millis(); 
     }
