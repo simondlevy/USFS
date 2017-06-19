@@ -61,15 +61,22 @@ void setup()
     }
 }
 
+// Pressure in Pascals to altitude in centimeters
+static float paToCm(uint32_t pa)
+{
+    return (1.0f - powf(pa / 101325.0f, 0.190295f)) * 4433000.0f;
+}
+
 void loop()
 {  
     static uint32_t baroPressureSum;
     static uint32_t millisPrev;
-    static int32_t baroHistTab[BARO_TAB_SIZE];
-    static int baroHistIdx;
-    static int32_t baroGroundPressure;
-    static int32_t baroGroundAltitude;
-    uint8_t indexplus1;
+    static int32_t  baroHistTab[BARO_TAB_SIZE];
+    static int      baroHistIdx;
+    static int32_t  baroGroundPressure;
+    static int32_t  baroGroundAltitude;
+    static int32_t  BaroAlt;
+    uint8_t         indexplus1;
     static uint32_t calibrationStart;
 
     // Poll EM7180 every iteration
@@ -95,12 +102,12 @@ void loop()
         if (millis() - calibrationStart < 1000*CALIBRATION_SEC) {
             baroGroundPressure -= baroGroundPressure / 8;
             baroGroundPressure += baroPressureSum / (BARO_TAB_SIZE - 1);
-            baroGroundAltitude = (1.0f - powf((baroGroundPressure / 8) / 101325.0f, 0.190295f)) * 4433000.0f;
+            baroGroundAltitude = paToCm(baroGroundPressure/8);
         }
 
-        int32_t BaroAlt_tmp = lrintf((1.0f - powf((float)(baroPressureSum / (BARO_TAB_SIZE - 1)) / 101325.0f, 0.190295f)) * 4433000.0f); // in cm
+        int32_t BaroAlt_tmp = paToCm((float)baroPressureSum/(BARO_TAB_SIZE-1)); 
         BaroAlt_tmp -= baroGroundAltitude;
-        int32_t BaroAlt = lrintf((float)BaroAlt * BARO_NOISE_LPF + (float)BaroAlt_tmp * (1.0f - BARO_NOISE_LPF)); // additional LPF to reduce baro noise
+        BaroAlt = lrintf((float)BaroAlt * BARO_NOISE_LPF + (float)BaroAlt_tmp * (1.0f - BARO_NOISE_LPF)); // additional LPF to reduce baro noise
 
         Serial.println(BaroAlt);
 
