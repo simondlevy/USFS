@@ -25,6 +25,7 @@
  */
 
 #include "EM7180.h"
+#include "Barometer.hpp"
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
@@ -35,6 +36,7 @@
 #endif
 
 static EM7180 em7180;
+static Barometer baro;
 
 #define UPDATE_HZ       20
 #define BARO_TAB_SIZE   48
@@ -61,55 +63,20 @@ void setup()
     }
 }
 
-// Pressure in Pascals to altitude in centimeters
-static float paToCm(uint32_t pa)
-{
-    return (1.0f - powf(pa / 101325.0f, 0.190295f)) * 4433000.0f;
-}
-
 void loop()
 {  
-    static uint32_t baroPressureSum;
     static uint32_t millisPrev;
-    static int32_t  baroHistTab[BARO_TAB_SIZE];
-    static int      baroHistIdx;
-    static int32_t  baroGroundPressure;
-    static int32_t  baroGroundAltitude;
-    static int32_t  BaroAlt;
-    uint8_t         indexplus1;
-    static uint32_t calibrationStart;
 
     // Poll EM7180 every iteration
     em7180.poll();
 
-    // Periodically sample baro
+    // Periodically upate baro
     if ((millis() - millisPrev) > 1000/UPDATE_HZ) { 
 
-        // Start baro calibration if not yet started
-        if (!calibrationStart) 
-            calibrationStart = millis();
-
-        // Grab baro pressure and smooth it using history
         float pressure, temperature;
         em7180.getBaro(pressure, temperature);
-        indexplus1 = (baroHistIdx + 1) % BARO_TAB_SIZE;
-        baroHistTab[baroHistIdx] = (int32_t)pressure;
-        baroPressureSum += baroHistTab[baroHistIdx];
-        baroPressureSum -= baroHistTab[indexplus1];
-        baroHistIdx = indexplus1;
 
-        // Compute baro ground altitude during calibration
-        if (millis() - calibrationStart < 1000*CALIBRATION_SEC) {
-            baroGroundPressure -= baroGroundPressure / 8;
-            baroGroundPressure += baroPressureSum / (BARO_TAB_SIZE - 1);
-            baroGroundAltitude = paToCm(baroGroundPressure/8);
-        }
-
-        int32_t BaroAlt_tmp = paToCm((float)baroPressureSum/(BARO_TAB_SIZE-1)); 
-        BaroAlt_tmp -= baroGroundAltitude;
-        BaroAlt = lrintf((float)BaroAlt * BARO_NOISE_LPF + (float)BaroAlt_tmp * (1.0f - BARO_NOISE_LPF)); // additional LPF to reduce baro noise
-
-        Serial.println(BaroAlt);
+        baro.update(pressure);
 
         millisPrev = millis(); 
     }
