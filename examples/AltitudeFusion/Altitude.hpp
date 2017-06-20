@@ -29,6 +29,7 @@
 #define BARO_TAB_SIZE        48
 #define BARO_CALIBRATION_SEC 8
 #define BARO_NOISE_LPF       0.5f
+#define BARO_CF_ALT          0.965f
 
 class Altitude {
 
@@ -44,6 +45,7 @@ class Altitude {
 
         // IMU
 
+        float     accelAlt;
         float     accelLpf[3];
         int32_t   accelZSum;
         float     accelVelScale;
@@ -66,8 +68,13 @@ class Altitude {
         int32_t  baroGroundAltitude;
         int32_t  BaroAlt;
         uint32_t baroCalibrationStart;
+        int32_t  lastBaroAlt;
 
         static float paToCm(uint32_t pa);
+
+        // Fused
+        float vel;
+
 };
 
 /********************************************* CPP ********************************************************/
@@ -86,6 +93,8 @@ Altitude::Altitude(void)
         accelSmooth[k] = 0;
         accelLpf[k] = 0;
     }
+
+    accelAlt = 0;
     accelZOffset = 0;
     accelTimeSum = 0;
     accelSumCount = 0;
@@ -101,14 +110,21 @@ Altitude::Altitude(void)
     baroGroundAltitude = 0;
     BaroAlt = 0;
     baroCalibrationStart = 0;
+    lastBaroAlt = 0;
 
     for (int k=0; k<BARO_TAB_SIZE; ++k) {
         baroHistTab[k] = 0;
     }
+
+    vel = 0;
 }
 
 void Altitude::updateBaro(float pressure)
 {  
+    static uint32_t previousTimeUsec;
+    uint32_t dT_usec = micros() - previousTimeUsec;
+    previousTimeUsec = micros();
+
     // Start baro calibration if not yet started
     if (!baroCalibrationStart) 
         baroCalibrationStart = millis();
@@ -125,6 +141,8 @@ void Altitude::updateBaro(float pressure)
         baroGroundPressure -= baroGroundPressure / 8;
         baroGroundPressure += baroPressureSum / (BARO_TAB_SIZE - 1);
         baroGroundAltitude = paToCm(baroGroundPressure/8);
+        vel = 0;
+        accelAlt = 0;
     }
 
     int32_t BaroAlt_tmp = paToCm((float)baroPressureSum/(BARO_TAB_SIZE-1)); 
@@ -133,44 +151,41 @@ void Altitude::updateBaro(float pressure)
 
     float dt = accelTimeSum * 1e-6f; // delta acc reading time in seconds
 
-    // Integrator - velocity, cm/sec
+    // Integrate acceleration to get velocity in cm/sec
     float accZ_tmp = (float)accelZSum / (float)accelSumCount;
     float vel_acc = accZ_tmp * accelVelScale * (float)accelTimeSum;
 
-    Serial.println(vel_acc);
+    // Integrate velocity to get altitude in cm: x= a/2 * t^2
+    accelAlt += (vel_acc * 0.5f) * dt + vel * dt;                                         
+
+    // Apply complementary filter to fuse baro and accel
+    accelAlt = accelAlt * BARO_CF_ALT + (float)BaroAlt * (1.0f - BARO_CF_ALT);      
 
     /*
-    // Integrator - Altitude in cm
-    accAlt += (vel_acc * 0.5f) * dt + vel * dt;                                         // integrate velocity to get distance (x= a/2 * t^2)
-    accAlt = accAlt * cfg.baro_cf_alt + (float)BaroAlt * (1.0f - cfg.baro_cf_alt);      // complementary filter for altitude estimation (baro & acc)
-
     // when the sonar is in his best range
     if (sonarAlt > 0 && sonarAlt < 200)
         EstAlt = BaroAlt;
     else
         EstAlt = accAlt;
+    */
 
     vel += vel_acc;
 
-#if 0
-    debug[0] = accSum[2] / accSumCount; // acceleration
-    debug[1] = vel;                     // velocity
-    debug[2] = accAlt;                  // height
-#endif
-
-*/
     // Now that computed acceleration, reset it for next time
     accelZSum = 0;
     accelSumCount = 0;
     accelTimeSum = 0;
-/*
-    baroVel = (BaroAlt - lastBaroAlt) * 1000000.0f / dTime;
+
+    // Compute velocity from barometer
+    int32_t baroVel = (BaroAlt - lastBaroAlt) * 1000000.0f / dT_usec;
     lastBaroAlt = BaroAlt;
-
     baroVel = constrain(baroVel, -1500, 1500);    // constrain baro velocity +/- 1500cm/s
-    baroVel = applyDeadband(baroVel, 10);         // to reduce noise near zero
+    baroVel = deadbandFilter(baroVel, 10);         // to reduce noise near zero
 
-    // apply Complimentary Filter to keep the calculated velocity based on baro velocity (i.e. near real velocity).
+    Serial.println(baroVel);
+
+    /*
+    // Apply complementary filter to keep the calculated velocity based on baro velocity (i.e. near real velocity).
     // By using CF it's possible to correct the drift of integrated accZ (velocity) without loosing the phase, i.e without delay
     vel = vel * cfg.baro_cf_vel + baroVel * (1 - cfg.baro_cf_vel);
     vel_tmp = lrintf(vel);
