@@ -30,6 +30,7 @@
 #define BARO_CALIBRATION_SEC 8
 #define BARO_NOISE_LPF       0.5f
 #define BARO_CF_ALT          0.965f
+#define BARO_CF_VEL          0.985f
 
 class Altitude {
 
@@ -182,17 +183,15 @@ void Altitude::updateBaro(float pressure)
     baroVel = constrain(baroVel, -1500, 1500);    // constrain baro velocity +/- 1500cm/s
     baroVel = deadbandFilter(baroVel, 10);         // to reduce noise near zero
 
-    Serial.println(baroVel);
-
-    /*
     // Apply complementary filter to keep the calculated velocity based on baro velocity (i.e. near real velocity).
     // By using CF it's possible to correct the drift of integrated accZ (velocity) without loosing the phase, i.e without delay
-    vel = vel * cfg.baro_cf_vel + baroVel * (1 - cfg.baro_cf_vel);
-    vel_tmp = lrintf(vel);
+    vel = vel * BARO_CF_VEL + baroVel * (1 - BARO_CF_VEL);
+    int32_t vel_tmp = lrintf(vel);
 
-    // set vario
-    vario = applyDeadband(vel_tmp, 5);
+    if (vel_tmp > 0) Serial.print("+");
+    Serial.println(vel_tmp);
 
+    /*
     if (tiltAngle < 800) { // only calculate pid if the copters thrust is facing downwards(<80deg)
         // Altitude P-Controller
         if (!velocityControl) {
