@@ -734,14 +734,23 @@ void setup()
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
     uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
-    Serial.print("EM7180 ROM Version: 0x"); Serial.print(ROM1, HEX); Serial.println(ROM2, HEX); Serial.println("Should be: 0xE609");
+    Serial.print("EM7180 ROM Version: 0x"); 
+    Serial.print(ROM1, HEX); 
+    Serial.print(ROM2, HEX); 
+    Serial.println(" Should be: 0xE69");
     uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
     uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
-    Serial.print("EM7180 RAM Version: 0x"); Serial.print(RAM1); Serial.println(RAM2);
+    Serial.print("EM7180 RAM Version: 0x"); 
+    Serial.print(RAM1); 
+    Serial.println(RAM2);
     uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
-    Serial.print("EM7180 ProductID: 0x"); Serial.print(PID, HEX); Serial.println(" Should be: 0x80");
+    Serial.print("EM7180 ProductID: 0x"); 
+    Serial.print(PID, HEX); 
+    Serial.println(" Should be: 0x80");
     uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
-    Serial.print("EM7180 RevisionID: 0x"); Serial.print(RID, HEX); Serial.println(" Should be: 0x02");
+    Serial.print("EM7180 RevisionID: 0x"); 
+    Serial.print(RID, HEX); 
+    Serial.println(" Should be: 0x02");
 
     // Give some time to read the screen
     delay(1000);

@@ -72,7 +72,7 @@ void loop()
 
     Serial.print("EM7180 RevisionID: 0x");
     Serial.print(em7180.getRevisionId(), HEX);
-    Serial.println(" (should be: 0x02");
+    Serial.println(" (should be: 0x2");
 
     Serial.print("Actual MagRate = ");
     Serial.print(em7180.getActualMagRate());

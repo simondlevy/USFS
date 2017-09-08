@@ -191,6 +191,9 @@ EM7180_Passthru em7180p;
 
 void setup()
 {
+
+    Serial.begin(115200);
+
 #ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
 #else
