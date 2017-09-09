@@ -12,6 +12,6 @@ I<sup>2</sup>C calls.
 
 
 The examples directory contains sketches showing how to use these two classes. As usual, just clone the repo
-into your Arduino libraries folder to get started. The class libraries and examples were adapted directly from Kris Winer's [repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).
+into your Arduino libraries folder to get started. The class library and examples were adapted directly from Kris Winer's [repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).
 
 
