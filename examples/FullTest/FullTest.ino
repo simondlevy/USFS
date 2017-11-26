@@ -151,10 +151,9 @@ void loop()
         Serial.println("BMP280:");
         Serial.print("Altimeter temperature = "); 
         Serial.print( temperature, 2); 
-        Serial.println(" C"); // temperature in degrees Celsius
-        Serial.print("Altimeter temperature = "); 
+        Serial.print(" C  ("); // temperature in degrees Celsius
         Serial.print(9.*temperature/5. + 32., 2); 
-        Serial.println(" F"); // temperature in degrees Fahrenheit
+        Serial.println(" F)"); // temperature in degrees Fahrenheit
         Serial.print("Altimeter pressure = "); 
         Serial.print(pressure, 2);  
         Serial.println(" mbar");// pressure in millibar

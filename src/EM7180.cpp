@@ -570,8 +570,7 @@ uint8_t EM7180::poll(void)
     // New baro data available
     if(eventStatus & 0x40) {
         int16_t rawPressure = readSENtralBaroData();
-        //pressure = (float)rawPressure*0.01f +1013.25f; // pressure in Pa
-        pressure = (float)rawPressure + 101325.f; // pressure in Pa
+        pressure = (float)rawPressure *.01f + 1013.25f; // pressure in millibars
 
         // get BMP280 temperature
         int16_t rawTemperature = readSENtralTempData();  
