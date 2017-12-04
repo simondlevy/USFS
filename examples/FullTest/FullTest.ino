@@ -3,7 +3,7 @@
 
    Adapted from
 
-     https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/EM7180_MPU9250_BMP280
+     https://github.com/kriswiner/EM7180_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
 
    This file is part of EM7180.
 

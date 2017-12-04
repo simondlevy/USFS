@@ -1,3 +1,25 @@
+/* 
+   WamStartAccAcall.ino: IMU calibration
+
+   Adapted from
+
+     https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/EM7180_MPU9250_BMP280
+
+   This file is part of EM7180.
+
+   EM7180 is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   EM7180 is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 // EM7180 SENtral register map
 // see http://www.emdeveloper.com/downloads/7180/EMSentral_EM7180_Register_Map_v1_3.pdf
 //
@@ -678,6 +700,9 @@ static void I2Cscan()
     nDevices = 0;
     for(address = 1; address < 127; address++ ) 
     {
+        // Force serial output
+        Serial.flush();
+
         // The i2c_scanner uses the return value of
         // the Write.endTransmisstion to see if
         // a device did acknowledge to the address.
