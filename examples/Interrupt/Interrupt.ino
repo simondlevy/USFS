@@ -105,7 +105,8 @@
 #define EM7180_ADDRESS           0x28   // Address of the EM7180 SENtral sensor hub
 
 // Pin definitions
-static int intPin = 30;  // On Teensy Flight Controller
+//static int intPin = 30;  // On Teensy Flight Controller
+static int intPin = 12;  // On Ladybug Flight Controller
 
 // MPU9250 variables
 static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
@@ -369,7 +370,7 @@ void setup()
 #endif
 
     delay(5000);
-    Serial.begin(38400);
+    Serial.begin(115200);
 
     I2Cscan(); // should detect SENtral at 0x28
 
