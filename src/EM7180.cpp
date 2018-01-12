@@ -294,6 +294,15 @@ bool EM7180::algorithmStatus(uint8_t status)
     return readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & status;
 }
 
+static EM7180 * _instance;
+
+volatile bool newData;
+
+void interruptHandler()
+{
+    _instance->newData = true;
+}
+
 // public methods ========================================================================================================
 
 uint8_t _EM7180::begin(void)
@@ -404,7 +413,7 @@ uint8_t EM7180_Passthru::begin(void)
     return 0;
 }
 
-uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres)
+uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interruptPin)
 {
     // Do generic intialization
     uint8_t status = _EM7180::begin();
@@ -447,6 +456,20 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres)
     // Write desired sensor full scale ranges to the EM7180
     setMagAccFs(mres, ares);
     setGyroFs(gres); 
+
+    if (interruptPin >= 0) {
+
+        // Set up the interrupt pin, its set as active high, push-pull
+        pinMode(interruptPin, INPUT);
+        attachInterrupt(interruptPin, interruptHandler, RISING);  // define interrupt for INT pin output of EM7180
+
+        // Check event status register to clear the EM7180 interrupt before the main loop
+        readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register and interrupt
+
+        this->newData = false;
+
+        _instance = this;
+    }
 
     // Success
     return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
@@ -536,6 +559,7 @@ const char * EM7180::errorToString(uint8_t errorStatus)
 
     return "Unknown error";
 }
+
 
 uint8_t EM7180::poll(void)
 {

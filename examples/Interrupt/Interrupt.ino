@@ -149,15 +149,7 @@ static int16_t readSENtralTempData()
 }
 
 
-// I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
-// since the address is defined by two bytes
 
-volatile bool newData;
-
-void myinthandler()
-{
-    newData = true;
-}
 
 // ========================================================================================================
 
@@ -172,17 +164,11 @@ void setup()
     Serial.begin(115200);
 
     // Start the EM710
-    uint8_t status = em7180.begin(8, 2000, 1000);
+    uint8_t status = em7180.begin(8, 2000, 1000, intPin);
+
     while (status) {
         Serial.println(EM7180::errorToString(status));
     }
-
-    // Set up the interrupt pin, its set as active high, push-pull
-    pinMode(intPin, INPUT);
-    attachInterrupt(intPin, myinthandler, RISING);  // define interrupt for INT pin output of EM7180
-
-    // Check event status register to clear the EM7180 interrupt before the main loop
-    readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register and interrupt
 
     Serial.println("Here we go ...");
 }
@@ -190,14 +176,16 @@ void setup()
 
 void loop()
 {  
-    //If intPin goes high, the EM7180 has new data
-    if (newData) {  // On interrupt, read data
 
-        Serial.println("new data");
-        newData = false;  // reset newData flag
+    //If intPin goes high, the EM7180 has new data
+    if (em7180.newData) {  // On interrupt, read data
+
+        em7180.newData = false;  // reset newData flag
 
         // Check event status register, after receipt of interrupt
         uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
+
+        Serial.println(eventStatus);
 
         // Check for errors
         if (eventStatus & 0x02) { // error detected, what is it?

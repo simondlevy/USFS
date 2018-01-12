@@ -82,7 +82,9 @@ class EM7180 : public _EM7180 {
 
     public:
 
-        uint8_t begin(uint8_t ares, uint16_t gres, uint16_t mres);
+        bool newData;
+
+        uint8_t begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t pin=-1);
 
         uint8_t poll(void);
 
