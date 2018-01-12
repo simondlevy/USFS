@@ -295,9 +295,7 @@ bool EM7180::algorithmStatus(uint8_t status)
     return readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & status;
 }
 
-static EM7180 * _instance;
-
-volatile bool _newData;
+static volatile bool _newData;
 
 void interruptHandler()
 {
@@ -468,8 +466,6 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interru
         readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register and interrupt
 
         _newData = false;
-
-        _instance = this;
     }
 
     // Success
