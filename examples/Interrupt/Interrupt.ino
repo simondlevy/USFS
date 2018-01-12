@@ -65,4 +65,15 @@ void setup()
 void loop()
 {  
     em7180.checkForNewData();
+
+    int16_t ax=0, ay=0, az=0;
+
+    em7180.getAccelRaw(ax, ay, az);
+
+    Serial.print(ax);
+    Serial.print("\t");
+    Serial.print(ay);
+    Serial.print("\t");
+    Serial.print(az);
+    Serial.println();
 }

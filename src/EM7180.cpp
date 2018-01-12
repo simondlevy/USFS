@@ -559,106 +559,17 @@ const char * EM7180::errorToString(uint8_t errorStatus)
 
 void EM7180::checkForNewData(void)
 {
-    //If intPin goes high, the EM7180 has new data
     if (_newData) {  // On interrupt, read data
 
-        _newData = false;  // reset _newData flag
+        _newData = false;  
 
-        // Check event status register, after receipt of interrupt
-        uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
-
-        Serial.println(eventStatus);
-
-        // Check for errors
-        if (eventStatus & 0x02) { // error detected, what is it?
-
-            uint8_t errorStatus = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
-            if (errorStatus != 0x00) { // non-zero value indicates error, what is it?
-                Serial.print(" EM7180 sensor status = "); Serial.println(errorStatus);
-                if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
-                if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
-                if (errorStatus == 0x14) Serial.print("Gyro failure!");
-                if (errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
-                if (errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
-                if (errorStatus == 0x24) Serial.print("Gyro initialization failure!");
-                if (errorStatus == 0x30) Serial.print("Math error!");
-                if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
-            }
-
-            // Handle errors ToDo
-
-        }
-
-        // if no errors, see if new data is ready
-        if (eventStatus & 0x10) { // new acceleration data available
-
-            int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
-            readSENtralAccelData(accelCount);
-
-            Serial.println("accel");
-
-            // Now we'll calculate the acceleration value into actual g's
-            float ax = (float)accelCount[0]*0.000488;  // get actual g value
-            float ay = (float)accelCount[1]*0.000488;    
-            float az = (float)accelCount[2]*0.000488;  
-
-            Serial.print(ax); Serial.print("\t");
-            Serial.print(ay); Serial.print("\t");
-            Serial.print(az); Serial.println();
-        }
-
-        if (eventStatus & 0x20) { // new gyro data available
-
-            int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
-            readSENtralGyroData(gyroCount);
-
-            Serial.println("gyro");
-
-            // Now we'll calculate the gyro value into actual dps's
-            float gx = (float)gyroCount[0]*0.153;  // get actual dps value
-            float gy = (float)gyroCount[1]*0.153;    
-            float gz = (float)gyroCount[2]*0.153;  
-        }
-
-        if (eventStatus & 0x08) { // new mag data available
-
-            int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-            readSENtralMagData(magCount);
-
-            Serial.println("mag");
-
-            // Now we'll calculate the mag value into actual G's
-            float mx = (float)magCount[0]*0.305176;  // get actual G value
-            float my = (float)magCount[1]*0.305176;    
-            float mz = (float)magCount[2]*0.305176;  
-        }
-
-        if (eventStatus & 0x04) { // new quaternion data available
-
-            Serial.println("quat");
-
-            float Q[4];
-            readSENtralQuatData(Q); 
-        }
-
-        // get MS5637 pressure
-        if (eventStatus & 0x40) { // new baro data available
-
-            Serial.println("baro");
-
-            int16_t rawPressure = readSENtralBaroData();
-            float pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
-
-            // get MS5637 temperature
-            int16_t rawTemperature = readSENtralTempData();  
-            float temperature = (float) rawTemperature*0.01;  // temperature in degrees C
-        }
+        poll();
     }
 }
 
 uint8_t EM7180::poll(void)
 {
-    // Check event status register, way to chech data ready by polling rather than interrupt
+    // Check event status register, way to check data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
 
    // Check for errors
