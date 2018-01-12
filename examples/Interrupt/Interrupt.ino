@@ -50,18 +50,6 @@ EM7180 em7180;
 //static int intPin = 30;  // On Teensy Flight Controller
 static int intPin = 12;  // On Ladybug Flight Controller
 
-// MPU9250 variables
-static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
-static int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
-static int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-static int16_t rawPressure, rawTemperature;   // pressure, temperature raw count output
-static float   temperature, pressure; // Stores the MPU9250 internal chip temperature in degrees Celsius
-
-static uint8_t param[4];                         // used for param transfer
-static uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
-
-static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
-
 // I2C read/write functions for the MPU9250 and AK8963 sensors
 
 static uint8_t readByte(uint8_t address, uint8_t subAddress)
@@ -233,14 +221,16 @@ void loop()
 
         // if no errors, see if new data is ready
         if (eventStatus & 0x10) { // new acceleration data available
+
+            int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
             readSENtralAccelData(accelCount);
 
             Serial.println("accel");
 
             // Now we'll calculate the acceleration value into actual g's
-            ax = (float)accelCount[0]*0.000488;  // get actual g value
-            ay = (float)accelCount[1]*0.000488;    
-            az = (float)accelCount[2]*0.000488;  
+            float ax = (float)accelCount[0]*0.000488;  // get actual g value
+            float ay = (float)accelCount[1]*0.000488;    
+            float az = (float)accelCount[2]*0.000488;  
 
             Serial.print(ax); Serial.print("\t");
             Serial.print(ay); Serial.print("\t");
@@ -248,25 +238,29 @@ void loop()
         }
 
         if (eventStatus & 0x20) { // new gyro data available
+
+            int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
             readSENtralGyroData(gyroCount);
 
             Serial.println("gyro");
 
             // Now we'll calculate the gyro value into actual dps's
-            gx = (float)gyroCount[0]*0.153;  // get actual dps value
-            gy = (float)gyroCount[1]*0.153;    
-            gz = (float)gyroCount[2]*0.153;  
+            float gx = (float)gyroCount[0]*0.153;  // get actual dps value
+            float gy = (float)gyroCount[1]*0.153;    
+            float gz = (float)gyroCount[2]*0.153;  
         }
 
         if (eventStatus & 0x08) { // new mag data available
+
+            int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
             readSENtralMagData(magCount);
 
             Serial.println("mag");
 
             // Now we'll calculate the mag value into actual G's
-            mx = (float)magCount[0]*0.305176;  // get actual G value
-            my = (float)magCount[1]*0.305176;    
-            mz = (float)magCount[2]*0.305176;  
+            float mx = (float)magCount[0]*0.305176;  // get actual G value
+            float my = (float)magCount[1]*0.305176;    
+            float mz = (float)magCount[2]*0.305176;  
         }
 
         if (eventStatus & 0x04) { // new quaternion data available
@@ -282,12 +276,12 @@ void loop()
 
             Serial.println("baro");
 
-            rawPressure = readSENtralBaroData();
-            pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
+            int16_t rawPressure = readSENtralBaroData();
+            float pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
 
             // get MS5637 temperature
-            rawTemperature = readSENtralTempData();  
-            temperature = (float) rawTemperature*0.01;  // temperature in degrees C
+            int16_t rawTemperature = readSENtralTempData();  
+            float temperature = (float) rawTemperature*0.01;  // temperature in degrees C
         }
     }
 }
