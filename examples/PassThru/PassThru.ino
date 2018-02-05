@@ -202,11 +202,13 @@ void setup()
 
     delay(100);
 
-    // Start the EM7180 (nonzero return means error)
-    uint8_t status = em7180p.begin();
-    while (status) {
-        Serial.println(EM7180::errorToString(status));
-    }
+    // Start the EM7180 in master mode
+    if (!em7180p.begin()) {
+
+        while (true) {
+            Serial.println(em7180p.getErrorString());
+        }
+    }    
 
     // Read the WHO_AM_I register, this is a good test of communication
     byte c = _readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);  // Read WHO_AM_I register for MPU-9250

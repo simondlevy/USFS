@@ -299,31 +299,64 @@ static volatile bool _newData;
 
 void interruptHandler()
 {
+    Serial.println("interrupt");
     _newData = true;
 }
 
 // public methods ========================================================================================================
 
-uint8_t _EM7180::begin(void)
+bool _EM7180::begin(void)
 {
+    errorStatus = 0;
+
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
     for (int attempts=0; attempts<10; ++attempts) {
         if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01) {
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01) { }
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02) { }
-            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04) 
-                return 0xB0;
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04) {
+                errorStatus = 0xB0;
+                return false;
+            }
             if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08) { }
-            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  
-                return 0xB0;
+            if(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10) {
+                errorStatus = 0xB0;
+                return false;
+            }
             break;
         }
         writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
         delay(500);  
     }
 
-    return (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04) ? 0xB0 : 0;
+
+    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04) {
+        errorStatus = 0xB0;
+        return false;
+    }
+
+    return true;
 }
+
+const char * _EM7180::getErrorString(void)
+{
+    if (errorStatus & 0x01) return "Magnetometer error";
+    if (errorStatus & 0x02) return "Accelerometer error";
+    if (errorStatus & 0x04) return "Gyro error";
+    if (errorStatus & 0x10) return "Magnetometer ID not recognized";
+    if (errorStatus & 0x20) return "Accelerometer ID not recognized";
+    if (errorStatus & 0x30) return "Math error";
+    if (errorStatus & 0x40) return "Gyro ID not recognized";
+    if (errorStatus & 0x80) return "Invalid sample rate";
+
+    // Ad-hoc
+    if (errorStatus & 0x90) return "Failed to put SENtral in pass-through mode";
+    if (errorStatus & 0xA0) return "Unable to read from SENtral EEPROM";
+    if (errorStatus & 0xB0) return "Unable to upload config to SENtral EEPROM";
+
+    return "Unknown error";
+}
+
 
 bool _EM7180::hasBaro(void)
 {
@@ -381,13 +414,10 @@ uint16_t _EM7180::getRomVersion(void)
     return rom1 << 8 | rom2;
 }
 
-uint8_t EM7180_Passthru::begin(void)
+bool EM7180_Passthru::begin(void)
 {
     // Do generic intialization
-    uint8_t status = _EM7180::begin();
-
-    // Fail immediately if unable to upload EEPROM
-    if (status) return status;
+    if (!_EM7180::begin()) return false;
 
     // First put SENtral in standby mode
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
@@ -399,26 +429,25 @@ uint8_t EM7180_Passthru::begin(void)
     if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
     }
     else {
-        return 0x90;
+        errorStatus = 0x90;
+        return false;
     }
 
     uint8_t data[128];
     M24512DFMreadBytes(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
     if (data[0] != 0x2A || data[1] != 0x65) {
-        return 0xA0;
+        errorStatus = 0xA0;
+        return false;
     }
 
     // Success
-    return 0;
+    return true;
 }
 
-uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interruptPin)
+bool EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interruptPin)
 {
-    // Do generic intialization
-    uint8_t status = _EM7180::begin();
-
     // Fail immediately if unable to upload EEPROM
-    if (status) return status;
+    if (!_EM7180::begin()) return false;
 
     // Enter EM7180 initialized state
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); // set SENtral in initialized state to configure registers
@@ -458,7 +487,7 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interru
 
     if (interruptPin >= 0) {
 
-        // Set up the interrupt pin, its set as active high, push-pull
+        // Set up the interrupt pin: active high, push-pull
         pinMode(interruptPin, INPUT);
         attachInterrupt(interruptPin, interruptHandler, RISING);  // define interrupt for INT pin output of EM7180
 
@@ -469,7 +498,7 @@ uint8_t EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interru
     }
 
     // Success
-    return readByte(EM7180_ADDRESS, EM7180_SensorStatus);
+    return readByte(EM7180_ADDRESS, EM7180_SensorStatus) ? false : true;
 }
 
 void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
@@ -538,114 +567,88 @@ bool EM7180::runStatusNormal()
     return (readByte(EM7180_ADDRESS, EM7180_RunStatus) & 0x01);
 }
 
-const char * EM7180::errorToString(uint8_t errorStatus)
+bool EM7180::gotInterrupt(void)
 {
-    if (errorStatus & 0x01) return "Magnetometer error";
-    if (errorStatus & 0x02) return "Accelerometer error";
-    if (errorStatus & 0x04) return "Gyro error";
-    if (errorStatus & 0x10) return "Magnetometer ID not recognized";
-    if (errorStatus & 0x20) return "Accelerometer ID not recognized";
-    if (errorStatus & 0x30) return "Math error";
-    if (errorStatus & 0x40) return "Gyro ID not recognized";
-    if (errorStatus & 0x80) return "Invalid sample rate";
-
-    // Ad-hoc
-    if (errorStatus & 0x90) return "Failed to put SENtral in pass-through mode";
-    if (errorStatus & 0xA0) return "Unable to read from SENtral EEPROM";
-    if (errorStatus & 0xB0) return "Unable to upload config to SENtral EEPROM";
-
-    return "Unknown error";
-}
-
-void EM7180::checkForNewData(void)
-{
-    if (_newData) {  // On interrupt, read data
+    if (_newData) {  
 
         _newData = false;  
 
-        poll();
-    }
-}
-
-uint8_t EM7180::poll(void)
-{
-    // Check event status register, way to check data ready by polling rather than interrupt
-    uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
-
-   // Check for errors
-    if (eventStatus & 0x02) { 
-        return readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
+        return true;
     }
 
-    // New quaternion data available
-    if (eventStatus & 0x04) {
-        readSENtralQuatData(quaternions);
+    return false;
+}
+
+void EM7180::checkEventStatus(void)
+{
+    // Check event status register, way to check data ready by checkEventStatusing rather than interrupt
+    eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
+
+}
+
+bool EM7180::gotError(void)
+{
+    if (eventStatus & 0x02) {
+
+        return true;
     }
 
-    // New mag data available
-    if (eventStatus & 0x08) {
-        readSENtralMagData(magCount);
-    }
-
-    // If no errors, see if new data is ready
-    if (eventStatus & 0x10) { // new acceleration data available
-        readSENtralAccelData(accelCount);
-    }
-
-    // New gyro data available
-    if (eventStatus & 0x20) { // new gyro data available
-        readSENtralGyroData(gyroCount);
-    }
-
-    // New baro data available
-    if(eventStatus & 0x40) {
-        int16_t rawPressure = readSENtralBaroData();
-        pressure = (float)rawPressure *.01f + 1013.25f; // pressure in millibars
-
-        // get BMP280 temperature
-        int16_t rawTemperature = readSENtralTempData();  
-        temperature = (float) rawTemperature*0.01;  // temperature in degrees C
-    }
-
-    // Success
-    return 0;
+    return false;
 }
 
-int16_t EM7180::getBaroPressureRaw(void)
+bool EM7180::gotQuaternions(void)
 {
-    return readSENtralBaroData();
+    return eventStatus & 0x04;
 }
 
-void EM7180::getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az)
+bool EM7180::gotMagnetometer(void)
 {
-    ax = accelCount[0];
-    ay = accelCount[1];
-    az = accelCount[2];
+    return eventStatus & 0x08;
 }
 
-void EM7180::getGyroRaw(int16_t& gx, int16_t& gy, int16_t& gz)
+bool EM7180::gotAccelerometer(void)
 {
-    gx = gyroCount[0];
-    gy = gyroCount[1];
-    gz = gyroCount[2];
+    return eventStatus & 0x10;
 }
 
-void EM7180::getMagRaw(int16_t& mx, int16_t& my, int16_t& mz)
+bool EM7180::gotGyrometer(void)
 {
-    mx = magCount[0];
-    my = magCount[1];
-    mz = magCount[2];
+    return eventStatus & 0x20;
 }
 
-void EM7180::getQuaternions(float q[4])
+bool EM7180::gotBarometer(void)
 {
-    memcpy(q, quaternions, 4*sizeof(float));
+    return eventStatus & 0x40;
 }
 
-void EM7180::getBaro(float & press, float & temp)
+void EM7180::readQuaternions(float q[4])
 {
-    press = pressure;
-    temp = temperature;
+    readSENtralQuatData(q);
+}
+
+void EM7180::readMagnetometer(int16_t mag[3])
+{
+    readSENtralMagData(magCount);
+}
+
+void EM7180::readAccelerometer(int16_t accel[3])
+{
+    readSENtralAccelData(accel);
+}
+
+void EM7180::readGyrometer(int16_t gyro[3])
+{
+    readSENtralGyroData(gyro);
+}
+
+void EM7180::readBarometer(float & pressure, float & temperature)
+{
+    int16_t rawPressure = readSENtralBaroData();
+    pressure = (float)rawPressure *.01f + 1013.25f; // pressure in millibars
+
+    // get BMP280 temperature
+    int16_t rawTemperature = readSENtralTempData();  
+    temperature = (float) rawTemperature*0.01;  // temperature in degrees C
 }
 
 uint8_t EM7180::getActualMagRate()

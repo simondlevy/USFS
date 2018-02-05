@@ -57,23 +57,21 @@ void setup()
     uint8_t status = em7180.begin(8, 2000, 1000, intPin);
 
     while (status) {
-        Serial.println(EM7180::errorToString(status));
+        Serial.println(em7180.getErrorString());
     }
 }
 
 
 void loop()
 {  
-    em7180.checkForNewData();
+    /*
+    if (em7180.gotInterrupt()) {
 
-    int16_t ax=0, ay=0, az=0;
+        Serial.println("yes");
 
-    em7180.getAccelRaw(ax, ay, az);
+    }
 
-    Serial.print(ax);
-    Serial.print("\t");
-    Serial.print(ay);
-    Serial.print("\t");
-    Serial.print(az);
-    Serial.println();
+    else {
+        Serial.println("no");
+    }*/
 }

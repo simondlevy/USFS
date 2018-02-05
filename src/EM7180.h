@@ -27,7 +27,9 @@ class _EM7180 {
 
     protected:
 
-        uint8_t begin(void);
+        bool begin(void);
+
+        uint8_t errorStatus;
 
         static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, 
                 uint8_t count, uint8_t * dest);
@@ -38,6 +40,8 @@ class _EM7180 {
 
 
     public:
+
+        const char * getErrorString(void);
 
         uint8_t getProductId(void); 
         uint8_t getRevisionId(void); 
@@ -56,6 +60,7 @@ class EM7180 : public _EM7180 {
 
     private:
 
+        uint8_t eventStatus;
         int16_t accelCount[3];
         int16_t gyroCount[3];
         int16_t magCount[3];
@@ -82,38 +87,59 @@ class EM7180 : public _EM7180 {
 
     public:
 
-        uint8_t begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t pin=-1);
+        bool begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t pin=-1);
 
-        void checkForNewData(void);
+        void checkEventStatus(void);
 
-        uint8_t poll(void);
+        bool gotError(void);
 
-        void getAccelRaw(int16_t& ax, int16_t& ay, int16_t& az);
-        void getGyroRaw(int16_t& gx, int16_t& gy, int16_t& gz);
-        void getMagRaw(int16_t& mx, int16_t& my, int16_t& mz);
+        bool gotInterrupt(void);
 
-        int16_t getBaroPressureRaw(void);
+        bool gotQuaternions(void);
 
-        void getQuaternions(float q[4]);
+        bool gotMagnetometer(void);
 
-        void getBaro(float & press, float & temp);
+        bool gotAccelerometer(void);
+
+        bool gotGyrometer(void);
+
+        bool gotBarometer(void);
+
+        void readMagnetometer(int16_t mag[3]);
+
+        void readAccelerometer(int16_t accel[3]);
+
+        void readGyrometer(int16_t gyro[3]);
+
+        void readBarometer(float & pressure, float & temperature);
+
+        void readQuaternions(float q[4]);
+
+        void getBarometer(float & press, float & temp);
 
         uint8_t getActualMagRate();
+
         uint16_t getActualAccelRate();
+
         uint16_t getActualGyroRate();
+
         uint8_t getActualBaroRate();
+
         uint8_t getActualTempRate();
 
         bool runStatusNormal(void);
 
         bool algorithmStatusStandby(void);
-        bool algorithmStatusSlow(void);
-        bool algorithmStatusStillness(void);
-        bool algorithmStatusMagCalibrationCompleted(void);
-        bool algorithmStatusMagneticAnomalyDetected(void);
-        bool algorithmStatusUnreliableData(void);
 
-        static const char * errorToString(uint8_t errorStatus);
+        bool algorithmStatusSlow(void);
+
+        bool algorithmStatusStillness(void);
+
+        bool algorithmStatusMagCalibrationCompleted(void);
+
+        bool algorithmStatusMagneticAnomalyDetected(void);
+
+        bool algorithmStatusUnreliableData(void);
 
         void getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs);
 };
@@ -122,5 +148,5 @@ class EM7180_Passthru : public _EM7180 {
 
     public:
 
-        uint8_t begin(void);
+        bool begin(void);
 };

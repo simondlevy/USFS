@@ -43,11 +43,13 @@ void setup()
 
     Serial.begin(38400);
 
-    // Start the EM710
-    uint8_t status = em7180.begin(8, 2000, 1000);
-    while (status) {
-        Serial.println(EM7180::errorToString(status));
-    }
+    // Start the EM7180 in master mode
+    if (!em7180.begin(8, 2000, 1000)) {
+
+        while (true) {
+            Serial.println(em7180.getErrorString());
+        }
+    }    
 }
 
 void loop()
