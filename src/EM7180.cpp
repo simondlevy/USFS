@@ -156,57 +156,6 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
             (((uint32_t)buf[3]) << 24));
     return u.f;
 }
-int16_t EM7180::readSENtralBaroData()
-{
-    uint8_t rawData[2];  // x/y/z gyro register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
-    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
-}
-
-int16_t EM7180::readSENtralTempData(void)
-{
-    uint8_t rawData[2];  // x/y/z gyro register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
-    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
-}
-
-void EM7180::readSENtralQuatData(float * destination)
-{
-    uint8_t rawData[16];  // x/y/z quaternion register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       // Read the sixteen raw data registers into data array
-    destination[0] = uint32_reg_to_float (&rawData[0]);
-    destination[1] = uint32_reg_to_float (&rawData[4]);
-    destination[2] = uint32_reg_to_float (&rawData[8]);
-    destination[3] = uint32_reg_to_float (&rawData[12]);  // SENtral stores quats as qx, qy, qz, q0!
-
-}
-
-void EM7180::readSENtralAccelData(int16_t * destination)
-{
-    uint8_t rawData[6];  // x/y/z accel register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  // Turn the MSB and LSB into a signed 16-bit value
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
-}
-
-void EM7180::readSENtralGyroData(int16_t * destination)
-{
-    uint8_t rawData[6];  // x/y/z gyro register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
-}
-
-void EM7180::readSENtralMagData(int16_t * destination)
-{
-    uint8_t rawData[6];  // x/y/z gyro register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
-}
 
 void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) {
     uint8_t bytes[4], STAT;
@@ -609,31 +558,54 @@ bool EM7180::gotBarometer(void)
 
 void EM7180::readQuaternions(float q[4])
 {
-    readSENtralQuatData(q);
+    uint8_t rawData[16];  // x/y/z quaternion register data stored here
+    readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       // Read the sixteen raw data registers into data array
+    q[0] = uint32_reg_to_float (&rawData[0]);
+    q[1] = uint32_reg_to_float (&rawData[4]);
+    q[2] = uint32_reg_to_float (&rawData[8]);
+    q[3] = uint32_reg_to_float (&rawData[12]);  // SENtral stores quats as qx, qy, qz, q0!
+
 }
 
 void EM7180::readMagnetometer(int16_t mag[3])
 {
-    readSENtralMagData(mag);
+    uint8_t rawData[6];  // x/y/z gyro register data stored here
+    readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
+    mag[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
+    mag[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+    mag[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
 void EM7180::readAccelerometer(int16_t accel[3])
 {
-    readSENtralAccelData(accel);
+    uint8_t rawData[6];  // x/y/z accel register data stored here
+    readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
+    accel[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  // Turn the MSB and LSB into a signed 16-bit value
+    accel[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+    accel[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
 void EM7180::readGyrometer(int16_t gyro[3])
 {
-    readSENtralGyroData(gyro);
+    uint8_t rawData[6];  // x/y/z gyro register data stored here
+    readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
+    gyro[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
+    gyro[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+    gyro[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
 void EM7180::readBarometer(float & pressure, float & temperature)
 {
-    int16_t rawPressure = readSENtralBaroData();
+    uint8_t rawData[2];  // x/y/z gyro register data stored here
+
+    readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
+    int16_t rawPressure =  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
     pressure = (float)rawPressure *.01f + 1013.25f; // pressure in millibars
 
     // get BMP280 temperature
-    int16_t rawTemperature = readSENtralTempData();  
+    readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
+    int16_t rawTemperature =  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
+
     temperature = (float) rawTemperature*0.01;  // temperature in degrees C
 }
 

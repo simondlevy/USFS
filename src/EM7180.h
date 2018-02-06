@@ -68,13 +68,6 @@ class EM7180 : public _EM7180 {
         static void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
         static void setIntegerParam (uint8_t param, uint32_t param_val);
 
-        static void    readSENtralMagData(int16_t * destination);
-        static void    readSENtralGyroData(int16_t * destination);
-        static void    readSENtralAccelData(int16_t * destination);
-        static void    readSENtralQuatData(float * destination);
-        static int16_t readSENtralTempData(void);
-        static int16_t readSENtralBaroData();
-
         static float uint32_reg_to_float (uint8_t *buf);
 
     public:
