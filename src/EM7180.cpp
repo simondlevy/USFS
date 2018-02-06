@@ -113,7 +113,6 @@
 #define AK8963_ADDRESS           0x0C   // Address of magnetometer
 #define BMP280_ADDRESS           0x76   // Address of BMP280 altimeter when ADO = 0
 
-
 void _EM7180::writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
     Wire.beginTransmission(address);  // Initialize the Tx buffer
@@ -295,12 +294,11 @@ bool EM7180::algorithmStatus(uint8_t status)
     return readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & status;
 }
 
-static volatile bool _newData;
+static volatile bool newData;
 
 void interruptHandler()
 {
-    Serial.println("interrupt");
-    _newData = true;
+    newData = true;
 }
 
 // public methods ========================================================================================================
@@ -494,7 +492,7 @@ bool EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interruptP
         // Check event status register to clear the EM7180 interrupt before the main loop
         readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register and interrupt
 
-        _newData = false;
+        newData = false;
     }
 
     // Success
@@ -567,18 +565,6 @@ bool EM7180::runStatusNormal()
     return (readByte(EM7180_ADDRESS, EM7180_RunStatus) & 0x01);
 }
 
-bool EM7180::gotInterrupt(void)
-{
-    if (_newData) {  
-
-        _newData = false;  
-
-        return true;
-    }
-
-    return false;
-}
-
 void EM7180::checkEventStatus(void)
 {
     // Check event status register, way to check data ready by checkEventStatusing rather than interrupt
@@ -628,7 +614,7 @@ void EM7180::readQuaternions(float q[4])
 
 void EM7180::readMagnetometer(int16_t mag[3])
 {
-    readSENtralMagData(magCount);
+    readSENtralMagData(mag);
 }
 
 void EM7180::readAccelerometer(int16_t accel[3])
@@ -674,5 +660,10 @@ uint8_t EM7180::getActualBaroRate()
 uint8_t EM7180::getActualTempRate()
 {
     return readByte(EM7180_ADDRESS, EM7180_ActualTempRate);
+}
+
+bool EM7180::gotInterrupt(void)
+{
+    return newData;
 }
 

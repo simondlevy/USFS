@@ -1,11 +1,9 @@
 /* 
-   Interrupt.ino: Example sketch for running EM7180 SENtral sensor hub with interrupts.
+   Interrup.ino: Example sketch for running EM7180 SENtral sensor hub in master mode with interrupts
 
    Adapted from
 
-     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/em7180.MPU9250_BMP280
-
-     https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki/E.-Polling-versus-Interrupts:-Reading-Data-from-the-EM7180
+     https://github.com/kriswiner/EM7180_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
 
    This file is part of EM7180.
 
@@ -20,58 +18,60 @@
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+
+#include "EM7180.h"
 
 #ifdef __MK20DX256__
-// Teensy
 #include <i2c_t3.h>
 #define NOSTOP I2C_NOSTOP
 #else
-// Other Arduino
 #include <Wire.h>
 #define NOSTOP false
 #endif
 
-#include <EM7180.h>
+// This works for LadybugFC; you should change it for your controller.
+static const uint8_t INTERRUPT_PIN = 12;
+
+extern volatile bool newData;
 
 EM7180 em7180;
 
-// D12 is EM7180 interrupt pin on Ladybug Flight Controller.
-// Set it to something else for other boards as needed.
-static const uint8_t intPin = 12;
-
 void setup()
 {
-
 #ifdef __MK20DX256__
-    // Teensy
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
 #else
-    // Other Arduino
     Wire.begin();
 #endif
 
-    Serial.begin(115200);
+    delay(100);
 
-    // Start the EM710 in interrupt mode
-    uint8_t status = em7180.begin(8, 2000, 1000, intPin);
+    Serial.begin(38400);
 
-    while (status) {
-        Serial.println(em7180.getErrorString());
+    // Start the EM7180 in master mode with interrupt
+    if (!em7180.begin(8, 2000, 1000, INTERRUPT_PIN)) {
+
+        while (true) {
+            Serial.println(em7180.getErrorString());
+        }
     }
 }
 
-
 void loop()
 {  
-    /*
     if (em7180.gotInterrupt()) {
-
-        Serial.println("yes");
-
+        Serial.println(millis());
     }
 
-    else {
-        Serial.println("no");
+    /*
+    em7180.checkEventStatus();
+
+    if (em7180.gotError()) {
+        Serial.print("ERROR: ");
+        Serial.println(em7180.getErrorString());
+        return;
     }*/
+
+    delay(10);
 }

@@ -61,14 +61,6 @@ class EM7180 : public _EM7180 {
     private:
 
         uint8_t eventStatus;
-        int16_t accelCount[3];
-        int16_t gyroCount[3];
-        int16_t magCount[3];
-    
-        float quaternions[4];
-
-        float temperature;
-        float pressure;
 
         static bool algorithmStatus(uint8_t status);
 
