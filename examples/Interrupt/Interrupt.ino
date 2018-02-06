@@ -1,6 +1,8 @@
 /* 
    Interrup.ino: Example sketch for running EM7180 SENtral sensor hub in master mode with interrupts
 
+   When an interrupt is detected, we check for accelerometer data and report it.
+
    Adapted from
 
      https://github.com/kriswiner/EM7180_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
@@ -61,17 +63,24 @@ void setup()
 void loop()
 {  
     if (em7180.gotInterrupt()) {
-        Serial.println(millis());
+
+        em7180.checkEventStatus();
+
+        if (em7180.gotError()) {
+            Serial.print("ERROR: ");
+            Serial.println(em7180.getErrorString());
+            return;
+        }
+
+        else if (em7180.gotAccelerometer()) {
+            int16_t a[3];
+            em7180.readAccelerometer(a);
+            Serial.print("Accel: ");
+            Serial.print(a[0]);
+            Serial.print(", ");
+            Serial.print(a[1]);
+            Serial.print(", ");
+            Serial.println(a[2]);
+        }
     }
-
-    /*
-    em7180.checkEventStatus();
-
-    if (em7180.gotError()) {
-        Serial.print("ERROR: ");
-        Serial.println(em7180.getErrorString());
-        return;
-    }*/
-
-    delay(10);
 }
