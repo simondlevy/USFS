@@ -202,7 +202,7 @@ void setup()
 
     delay(100);
 
-    // Start the EM7180 in master mode
+    // Start the EM7180 in pass-through mode
     if (!em7180p.begin()) {
 
         while (true) {
