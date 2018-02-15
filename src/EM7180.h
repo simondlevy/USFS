@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 class _EM7180 {
 
     private:
