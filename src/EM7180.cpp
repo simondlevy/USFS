@@ -157,7 +157,8 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) {
+void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) 
+{
     uint8_t bytes[4], STAT;
     bytes[0] = param_val & (0xFF);
     bytes[1] = (param_val >> 8) & (0xFF);
@@ -178,7 +179,8 @@ void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) {
+void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
+{
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
     bytes[1] = (mag_fs >> 8) & (0xFF);
@@ -198,7 +200,8 @@ void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180::setGyroFs(uint16_t gyro_fs) {
+void EM7180::setGyroFs(uint16_t gyro_fs) 
+{
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
     bytes[1] = (gyro_fs >> 8) & (0xFF);
