@@ -52,7 +52,7 @@ void setup()
     Serial.begin(38400);
 
     // Start the EM7180 in master mode with interrupt
-    if (!em7180.begin(8, 2000, 1000, INTERRUPT_PIN)) {
+    if (!em7180.begin(INTERRUPT_PIN)) {
 
         while (true) {
             Serial.println(em7180.getErrorString());

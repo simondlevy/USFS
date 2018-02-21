@@ -46,7 +46,7 @@ void setup()
     Serial.begin(38400);
 
     // Start the EM7180 in master mode, polling instead of interrupt
-    if (!em7180.begin(8, 2000, 1000)) {
+    if (!em7180.begin()) {
 
         while (true) {
             Serial.println(em7180.getErrorString());

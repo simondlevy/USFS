@@ -62,7 +62,7 @@ class EM7180 : public _EM7180 {
 
     private:
 
-        uint8_t eventStatus;
+        uint8_t _eventStatus;
 
         static bool algorithmStatus(uint8_t status);
 
@@ -74,7 +74,14 @@ class EM7180 : public _EM7180 {
 
     public:
 
-        bool begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t pin=-1);
+        // Sensible defaults
+        uint8_t  aRes = 8;
+        uint16_t gRes = 2000;
+        uint16_t mRes = 1000;
+
+        EM7180(void);
+
+        bool begin(int8_t pin=-1);
 
         void checkEventStatus(void);
 

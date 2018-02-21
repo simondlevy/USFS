@@ -394,7 +394,11 @@ bool EM7180_Passthru::begin(void)
     return true;
 }
 
-bool EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interruptPin)
+EM7180::EM7180(void)
+{
+}
+
+bool EM7180::begin(int8_t interruptPin)
 {
     // Fail immediately if unable to upload EEPROM
     if (!_EM7180::begin()) return false;
@@ -432,8 +436,8 @@ bool EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interruptP
     setIntegerParam (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the EM7180
-    setMagAccFs(mres, ares);
-    setGyroFs(gres); 
+    setMagAccFs(mRes, aRes);
+    setGyroFs(gRes); 
 
     if (interruptPin >= 0) {
 
@@ -520,13 +524,13 @@ bool EM7180::runStatusNormal()
 void EM7180::checkEventStatus(void)
 {
     // Check event status register, way to check data ready by checkEventStatusing rather than interrupt
-    eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
+    _eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
 
 }
 
 bool EM7180::gotError(void)
 {
-    if (eventStatus & 0x02) {
+    if (_eventStatus & 0x02) {
 
         return true;
     }
@@ -536,27 +540,27 @@ bool EM7180::gotError(void)
 
 bool EM7180::gotQuaternions(void)
 {
-    return eventStatus & 0x04;
+    return _eventStatus & 0x04;
 }
 
 bool EM7180::gotMagnetometer(void)
 {
-    return eventStatus & 0x08;
+    return _eventStatus & 0x08;
 }
 
 bool EM7180::gotAccelerometer(void)
 {
-    return eventStatus & 0x10;
+    return _eventStatus & 0x10;
 }
 
 bool EM7180::gotGyrometer(void)
 {
-    return eventStatus & 0x20;
+    return _eventStatus & 0x20;
 }
 
 bool EM7180::gotBarometer(void)
 {
-    return eventStatus & 0x40;
+    return _eventStatus & 0x40;
 }
 
 void EM7180::readQuaternions(float q[4])
