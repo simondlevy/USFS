@@ -407,11 +407,11 @@ bool EM7180::begin(uint8_t ares, uint16_t gres, uint16_t mres, int8_t interruptP
     writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, 0x03); // 41Hz
 
     // Set accel/gyro/mage desired ODR rates
-    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, 0x02);    // One half of gyro rate
+    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, 0x02);    // One third of gyro rate (0x00 = 1:1; 0x01 = 1:2; 0x02 = 1:3, etc.)
     writeByte(EM7180_ADDRESS, EM7180_MagRate, 0x64);         // 100 Hz
     writeByte(EM7180_ADDRESS, EM7180_AccelRate, 0x14);       // 200 Hz (because units are 10Hz)
-    writeByte(EM7180_ADDRESS, EM7180_GyroRate, 0x14);        // 200 Hz (because units are 10 Hz)
-    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32); // 0x80 = enable bit; 0x32 = 50 Hz, yielding 25 Hz response
+    writeByte(EM7180_ADDRESS, EM7180_GyroRate, 0x14);        // 200 Hz (because units are 10Hz)
+    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32); // 0x80 = enable bit; 0x32 = 50Hz, yielding 25Hz response (25Hz pressure, 25Hz temperature)
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
