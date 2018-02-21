@@ -74,10 +74,17 @@ class EM7180 : public _EM7180 {
 
     public:
 
-        // Sensible defaults
-        uint8_t  aRes = 8;
-        uint16_t gRes = 2000;
-        uint16_t mRes = 1000;
+        // Sensible defaults for sensor ranges
+        uint8_t  aRes = 8;    // Gs
+        uint16_t gRes = 2000; // radians per second
+        uint16_t mRes = 1000; // microTeslas
+
+        // Sensible defaults for sensor Output Data Rates (ODRs)
+        uint8_t  magRate      = 100; // Hz
+        uint16_t accelRate    = 200; // Hz
+        uint16_t gyroRate     = 200; // Hz
+        uint8_t  baroRate     = 50;  // Hz
+        uint8_t  qRateDivisor = 3;   // 1/3 gyro rate
 
         EM7180(void);
 

@@ -30,6 +30,7 @@ EM7180 em7180;
 
 void setup()
 {
+    // Start I^2C
 #ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
 #else
@@ -39,6 +40,12 @@ void setup()
     delay(100);
 
     Serial.begin(38400);
+
+    // Juice up the EM7180 ODRs
+    em7180.accelRate = 500;
+    em7180.gyroRate = 500;
+    em7180.baroRate = 50;
+    em7180.qRateDivisor = 5;
 
     // Start the EM7180 in master mode, polling instead of interrupt
     if (!em7180.begin()) {
@@ -95,6 +102,7 @@ void loop()
     static uint32_t start;
 
     if (micros() - start > 1e6) {
+        b /= 2; // need two cycles for complete baro reading (temperature, pressure)
         report("Q", q, "    ");
         report("A", a, "    ");
         report("G", g, "    ");
