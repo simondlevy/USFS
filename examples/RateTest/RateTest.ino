@@ -41,13 +41,13 @@ void setup()
 
     Serial.begin(38400);
 
-    // Juice up the EM7180 ODRs
-    em7180.accelRate = 500;
-    em7180.gyroRate = 500;
-    em7180.baroRate = 50;
+    // Initialize the EM7180 ODRs
+    em7180.accelRate = 200;
+    em7180.gyroRate = 200;
+    em7180.baroRate = 40;
     em7180.qRateDivisor = 5;
 
-    // Start the EM7180 in master mode, polling instead of interrupt
+    // Start the EM7180 in master mode
     if (!em7180.begin()) {
 
         while (true) {
@@ -69,6 +69,8 @@ static void report(const char * label, uint32_t & count, const char * delim)
 
 void loop()
 {  
+    static uint32_t q, a, g, m, b;
+
     em7180.checkEventStatus();
 
     if (em7180.gotError()) {
@@ -77,25 +79,28 @@ void loop()
         return;
     }
 
-    static uint32_t q, a, g, m, b;
-
     if (em7180.gotQuaternions()) {
+        float quat[4]; em7180.readQuaternions(quat);
         q++;
     }
 
     if (em7180.gotAccelerometer()) {
+        int16_t accel[3]; em7180.readAccelerometer(accel);
         a++;
     }
 
     if (em7180.gotGyrometer()) {
+        int16_t gyro[3]; em7180.readGyrometer(gyro);
         g++;
     }
 
     if (em7180.gotMagnetometer()) {
+        int16_t mag[3]; em7180.readMagnetometer(mag);
         m++;
     }
 
     if (em7180.gotBarometer()) {
+        float pressure, temperature; em7180.readBarometer(pressure, temperature);
         b++;
     }
 
@@ -103,9 +108,9 @@ void loop()
 
     if (micros() - start > 1e6) {
         b /= 2; // need two cycles for complete baro reading (temperature, pressure)
-        report("Q", q, "    ");
-        report("A", a, "    ");
         report("G", g, "    ");
+        report("A", a, "    ");
+        report("Q", q, "    ");
         report("M", m, "    ");
         report("B", b, "\n");
         start = micros();
