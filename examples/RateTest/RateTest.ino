@@ -42,8 +42,8 @@ void setup()
     Serial.begin(38400);
 
     // Initialize the EM7180 ODRs
-    em7180.accelRate = 200;
-    em7180.gyroRate = 200;
+    em7180.accelRate = 300;
+    em7180.gyroRate = 300;
     em7180.baroRate = 40;
     em7180.qRateDivisor = 5;
 
@@ -87,22 +87,26 @@ void loop()
     }
 
     if (em7180.gotQuaternions()) {
-        float quat[4]; em7180.readQuaternions(quat);
+        float quat[4]; 
+        em7180.readQuaternions(quat);
         q++;
     }
 
     if (em7180.gotAccelerometer()) {
-        int16_t accel[3]; em7180.readAccelerometer(accel);
+        int16_t accel[3]; 
+        em7180.readAccelerometer(accel);
         a++;
     }
 
     if (em7180.gotGyrometer()) {
-        int16_t gyro[3]; em7180.readGyrometer(gyro);
+        int16_t gyro[3]; 
+        em7180.readGyrometer(gyro);
         g++;
     }
 
     if (em7180.gotMagnetometer()) {
-        int16_t mag[3]; em7180.readMagnetometer(mag);
+        int16_t mag[3]; 
+        em7180.readMagnetometer(mag);
         m++;
     }
 
