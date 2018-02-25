@@ -56,12 +56,19 @@ void setup()
     }
 }
 
-static void report(const char * label, uint32_t & count, const char * delim)
+static void report(const char * label, uint32_t & count, const char * delim, uint16_t actual=0)
 {
     Serial.print(label);
     Serial.print(": ");
     Serial.print(count);
     Serial.print("Hz");
+
+    if (actual > 0) {
+        Serial.print(" [");
+        Serial.print(actual);
+        Serial.print("]");
+    }
+
     Serial.print(delim);
 
     count = 0;
@@ -108,11 +115,11 @@ void loop()
 
     if (micros() - start > 1e6) {
         b /= 2; // need two cycles for complete baro reading (temperature, pressure)
-        report("G", g, "    ");
-        report("A", a, "    ");
-        report("Q", q, "    ");
-        report("M", m, "    ");
-        report("B", b, "\n");
+        report("G", g, "\t", em7180.getActualGyroRate());
+        report("A", a, "\t", em7180.getActualAccelRate());
+        report("M", m, "\t", em7180.getActualMagRate());
+        report("B", b, "\t", em7180.getActualBaroRate());
+        report("Q", q, "\n");
         start = micros();
     }
 }
