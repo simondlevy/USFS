@@ -105,14 +105,6 @@ void loop()
         Serial.println(g[2]);
     }
 
-    /*
-       Or define output variable according to the Android system, where
-       heading (0 to 360) is defined by the angle between the y-axis and True
-       North, pitch is rotation about the x-axis (-180 to +180), and roll is
-       rotation about the y-axis (-90 to +90) In this systen, the z-axis is
-       pointing away from Earth, the +y-axis is at the "top" of the device
-       (cellphone) and the +x-axis points toward the right of the device.
-     */ 
 
     if (em7180.gotBarometer()) 
     {
@@ -120,15 +112,8 @@ void loop()
 
         em7180.readBarometer(pressure, temperature);
 
-        Serial.println("Baro:");
-        Serial.print("  Altimeter temperature = "); 
-        Serial.print( temperature, 2); 
-        Serial.println(" C"); 
-        Serial.print("  Altimeter pressure = "); 
-        Serial.print(pressure, 2);  
-        Serial.println(" mbar");
         float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f;
-        Serial.print("  Altitude = "); 
+        Serial.print("Baro Altitude = "); 
         Serial.print(altitude, 2); 
         Serial.println(" m\n");
     }
