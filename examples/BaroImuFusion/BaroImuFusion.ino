@@ -41,6 +41,12 @@ void setup()
 
     Serial.begin(38400);
 
+    // Goose up the EM7180 ODRs
+    em7180.accelRate = 330;
+    em7180.gyroRate = 330;
+    em7180.baroRate = 50;
+    em7180.qRateDivisor = 5;
+
     // Start the EM7180 in master mode, polling instead of interrupt
     if (!em7180.begin()) {
 
