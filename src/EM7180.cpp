@@ -570,7 +570,6 @@ void EM7180::readQuaternions(float q[4])
     q[1] = uint32_reg_to_float (&rawData[4]);
     q[2] = uint32_reg_to_float (&rawData[8]);
     q[3] = uint32_reg_to_float (&rawData[12]);  // SENtral stores quats as qx, qy, qz, q0!
-
 }
 
 void EM7180::readMagnetometer(int16_t mag[3])
