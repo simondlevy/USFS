@@ -364,6 +364,15 @@ uint16_t _EM7180::getRomVersion(void)
     return rom1 << 8 | rom2;
 }
 
+void _EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
+{
+    uint8_t rawData[6];  // x/y/z register data stored here
+    readBytes(EM7180_ADDRESS, xreg, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
+    x = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
+    y = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+    z = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+}
+
 bool EM7180_Passthru::begin(void)
 {
     // Do generic intialization
@@ -574,32 +583,21 @@ void EM7180::readQuaternions(float & qw, float & qx, float & qy, float &qz)
     qw = uint32_reg_to_float (&rawData[12]); 
 }
 
-void EM7180::readMagnetometer(int16_t & magX, int16_t & magY, int16_t & magZ)
+void EM7180::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
 {
-    uint8_t rawData[6];  // x/y/z gyro register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
-    magX = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
-    magY = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    magZ = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+    readThreeAxis(EM7180_AX, ax, ay, az);
 }
 
-void EM7180::readAccelerometer(int16_t & accelX, int16_t & accelY, int16_t & accelZ)
+void EM7180::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
 {
-    uint8_t rawData[6];  // x/y/z accel register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
-    accelX = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  // Turn the MSB and LSB into a signed 16-bit value
-    accelY = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    accelZ = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+    readThreeAxis(EM7180_GX, gx, gy, gz);
 }
 
-void EM7180::readGyrometer(int16_t & gyroX, int16_t & gyroY, int16_t & gyroZ)
+void EM7180::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
 {
-    uint8_t rawData[6];  // x/y/z gyro register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
-    gyroX = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
-    gyroY = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    gyroZ = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+    readThreeAxis(EM7180_MX, mx, my, mz);
 }
+
 
 void EM7180::readBarometer(float & pressure, float & temperature)
 {

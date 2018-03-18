@@ -40,6 +40,8 @@ class _EM7180 {
         static uint8_t readByte(uint8_t address, uint8_t subAddress);
         static void    writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
 
+        static void    readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z);
+
 
     public:
 
@@ -106,11 +108,11 @@ class EM7180 : public _EM7180 {
 
         bool gotBarometer(void);
 
-        void readMagnetometer(int16_t & magX, int16_t & magY, int16_t & magZ);
+        void readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz);
 
-        void readAccelerometer(int16_t & accelX, int16_t & accelY, int16_t & accelZ);
+        void readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
 
-        void readGyrometer(int16_t & gyroX, int16_t & gyroY, int16_t & gyroZ);
+        void readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz);
 
         void readQuaternions(float & qw, float & qx, float & qy, float & qz);
 
