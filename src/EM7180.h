@@ -106,15 +106,15 @@ class EM7180 : public _EM7180 {
 
         bool gotBarometer(void);
 
-        void readMagnetometer(int16_t mag[3]);
+        void readMagnetometer(int16_t & magX, int16_t & magY, int16_t & magZ);
 
-        void readAccelerometer(int16_t accel[3]);
+        void readAccelerometer(int16_t & accelX, int16_t & accelY, int16_t & accelZ);
 
-        void readGyrometer(int16_t gyro[3]);
+        void readGyrometer(int16_t & gyroX, int16_t & gyroY, int16_t & gyroZ);
+
+        void readQuaternions(float & qw, float & qx, float & qy, float & qz);
 
         void readBarometer(float & pressure, float & temperature);
-
-        void readQuaternions(float q[4]);
 
         void getBarometer(float & press, float & temp);
 

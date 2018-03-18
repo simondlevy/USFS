@@ -73,14 +73,14 @@ void loop()
         }
 
         else if (em7180.gotAccelerometer()) {
-            int16_t a[3];
-            em7180.readAccelerometer(a);
+            int16_t ax, ay, az;
+            em7180.readAccelerometer(ax, ay, az);
             Serial.print("Accel: ");
-            Serial.print(a[0]);
+            Serial.print(ax);
             Serial.print(", ");
-            Serial.print(a[1]);
+            Serial.print(ay);
             Serial.print(", ");
-            Serial.println(a[2]);
+            Serial.println(az);
         }
     }
 }

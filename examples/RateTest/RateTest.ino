@@ -87,26 +87,26 @@ void loop()
     }
 
     if (em7180.gotQuaternions()) {
-        float quat[4]; 
-        em7180.readQuaternions(quat);
+        float qw, qx, qy, qz;
+        em7180.readQuaternions(qw, qx, qy, qz);
         q++;
     }
 
     if (em7180.gotAccelerometer()) {
-        int16_t accel[3]; 
-        em7180.readAccelerometer(accel);
+        int16_t ax, ay, az;
+        em7180.readAccelerometer(ax, ay, az);
         a++;
     }
 
     if (em7180.gotGyrometer()) {
-        int16_t gyro[3]; 
-        em7180.readGyrometer(gyro);
+        int16_t gx, gy, gz;
+        em7180.readGyrometer(gx, gy, gz);
         g++;
     }
 
     if (em7180.gotMagnetometer()) {
-        int16_t mag[3]; 
-        em7180.readMagnetometer(mag);
+        int16_t mx, my, mz;
+        em7180.readMagnetometer(mx, my, mz);
         m++;
     }
 

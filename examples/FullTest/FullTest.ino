@@ -84,13 +84,14 @@ void loop()
 
     if (em7180.gotQuaternions()) {
 
-        float q[4];
+        float qw, qx, qy, qz;
 
-        em7180.readQuaternions(q);
+        em7180.readQuaternions(qw, qx, qy, qz);
 
-        float yaw   = atan2(2.0f * (q[0] * q[1] + q[3] * q[2]), q[3] * q[3] + q[0] * q[0] - q[1] * q[1] - q[2] * q[2]);   
-        float pitch = -asin(2.0f * (q[0] * q[2] - q[3] * q[1]));
-        float roll  = atan2(2.0f * (q[3] * q[0] + q[1] * q[2]), q[3] * q[3] - q[0] * q[0] - q[1] * q[1] + q[2] * q[2]);
+        float roll  = atan2(2.0f * (qw * qx + qy * qz), qw * qw - qx * qx - qy * qy + qz * qz);
+        float pitch = -asin(2.0f * (qx * qz - qw * qy));
+        float yaw   = atan2(2.0f * (qx * qy + qw * qz), qw * qw + qx * qx - qy * qy - qz * qz);   
+
         pitch *= 180.0f / PI;
         yaw   *= 180.0f / PI; 
         yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
@@ -106,25 +107,25 @@ void loop()
     }
 
     if (em7180.gotAccelerometer()) {
-        int16_t a[3];
-        em7180.readAccelerometer(a);
+        int16_t ax, ay, az;
+        em7180.readAccelerometer(ax, ay, az);
         Serial.print("Accel: ");
-        Serial.print(a[0]);
+        Serial.print(ax);
         Serial.print(", ");
-        Serial.print(a[1]);
+        Serial.print(ay);
         Serial.print(", ");
-        Serial.println(a[2]);
+        Serial.println(az);
     }
 
     if (em7180.gotGyrometer()) {
-        int16_t g[3];
-        em7180.readGyrometer(g);
+        int16_t gx, gy, gz;
+        em7180.readGyrometer(gx, gy, gz);
         Serial.print("Gyro: ");
-        Serial.print(g[0]);
+        Serial.print(gx);
         Serial.print(", ");
-        Serial.print(g[1]);
+        Serial.print(gy);
         Serial.print(", ");
-        Serial.println(g[2]);
+        Serial.println(gz);
     }
 
     /*
