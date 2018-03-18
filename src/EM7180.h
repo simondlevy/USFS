@@ -118,8 +118,6 @@ class EM7180 : public _EM7180 {
 
         void readBarometer(float & pressure, float & temperature);
 
-        void getBarometer(float & press, float & temp);
-
         uint8_t getActualMagRate();
 
         uint16_t getActualAccelRate();
