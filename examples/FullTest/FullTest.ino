@@ -82,11 +82,11 @@ void loop()
        which has additional links.
      */
 
-    if (em7180.gotQuaternions()) {
+    if (em7180.gotQuaternion()) {
 
         float qw, qx, qy, qz;
 
-        em7180.readQuaternions(qw, qx, qy, qz);
+        em7180.readQuaternion(qw, qx, qy, qz);
 
         float roll  = atan2(2.0f * (qw * qx + qy * qz), qw * qw - qx * qx - qy * qy + qz * qz);
         float pitch = -asin(2.0f * (qx * qz - qw * qy));

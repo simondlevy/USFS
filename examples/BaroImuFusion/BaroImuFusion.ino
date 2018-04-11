@@ -115,8 +115,8 @@ void loop()
         return;
     }
 
-    if (em7180.gotQuaternions()) {
-        em7180.readQuaternions(qw, qx, qy, qz);
+    if (em7180.gotQuaternion()) {
+        em7180.readQuaternion(qw, qx, qy, qz);
     }
 
     if (em7180.gotAccelerometer()) {

@@ -86,9 +86,9 @@ void loop()
         return;
     }
 
-    if (em7180.gotQuaternions()) {
+    if (em7180.gotQuaternion()) {
         float qw, qx, qy, qz;
-        em7180.readQuaternions(qw, qx, qy, qz);
+        em7180.readQuaternion(qw, qx, qy, qz);
         q++;
     }
 

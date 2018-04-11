@@ -98,7 +98,7 @@ class EM7180 : public _EM7180 {
 
         bool gotInterrupt(void);
 
-        bool gotQuaternions(void);
+        bool gotQuaternion(void);
 
         bool gotMagnetometer(void);
 
@@ -114,7 +114,7 @@ class EM7180 : public _EM7180 {
 
         void readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz);
 
-        void readQuaternions(float & qw, float & qx, float & qy, float & qz);
+        void readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
         void readBarometer(float & pressure, float & temperature);
 

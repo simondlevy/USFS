@@ -546,7 +546,7 @@ bool EM7180::gotError(void)
     return false;
 }
 
-bool EM7180::gotQuaternions(void)
+bool EM7180::gotQuaternion(void)
 {
     return _eventStatus & 0x04;
 }
@@ -571,7 +571,7 @@ bool EM7180::gotBarometer(void)
     return _eventStatus & 0x40;
 }
 
-void EM7180::readQuaternions(float & qw, float & qx, float & qy, float &qz)
+void EM7180::readQuaternion(float & qw, float & qx, float & qy, float &qz)
 {
     uint8_t rawData[16];  // x/y/z/w quaternion register data stored here (note unusual order!)
 
