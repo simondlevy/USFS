@@ -28,7 +28,17 @@
 #define NOSTOP false
 #endif
 
-EM7180 em7180;
+static const uint8_t  ARES           = 8;    // Gs
+static const uint16_t GRES           = 2000; // radians per second
+static const uint16_t MRES           = 1000; // microTeslas
+static const uint8_t  MAG_RATE       = 100;  // Hz
+static const uint16_t ACCEL_RATE     = 330;  // Hz
+static const uint16_t GYRO_RATE      = 330;  // Hz
+static const uint8_t  BARO_RATE      = 50;   // Hz
+static const uint8_t  Q_RATE_DIVISOR = 5;    // 1/5 gyro rate
+ 
+EM7180 em7180 = EM7180(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+
 
 // 1G = 2048 accelerometer reading
 static float G_PER_COUNT = 1/2048.f;
@@ -88,13 +98,7 @@ void setup()
 
     delay(100);
 
-    Serial.begin(38400);
-
-    // Goose up the EM7180 ODRs
-    em7180.accelRate = 330;
-    em7180.gyroRate = 330;
-    em7180.baroRate = 50;
-    em7180.qRateDivisor = 5;
+    Serial.begin(115200);
 
     // Start the EM7180 in master mode, polling instead of interrupt
     if (!em7180.begin()) {

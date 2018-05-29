@@ -403,9 +403,18 @@ bool EM7180_Passthru::begin(void)
     return true;
 }
 
-EM7180::EM7180(void)
+EM7180::EM7180(uint8_t aRes, uint16_t gRes, uint16_t mRes, uint8_t magRate, uint16_t accelRate, uint16_t gyroRate, uint8_t baroRate, uint8_t qRateDivisor) 
 {
+    _aRes = aRes;
+    _gRes = gRes;
+    _mRes = mRes;
+    _magRate = magRate;
+    _accelRate = accelRate;
+    _gyroRate = gyroRate; 
+    _baroRate = baroRate;
+    _qRateDivisor = qRateDivisor;
 }
+
 
 bool EM7180::begin(int8_t interruptPin)
 {
@@ -423,11 +432,11 @@ bool EM7180::begin(int8_t interruptPin)
     writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, 0x03); // 41Hz
 
     // Set accel/gyro/mage desired ODR rates
-    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, qRateDivisor-1);    
-    writeByte(EM7180_ADDRESS, EM7180_MagRate, magRate);
-    writeByte(EM7180_ADDRESS, EM7180_AccelRate, accelRate/10); 
-    writeByte(EM7180_ADDRESS, EM7180_GyroRate, gyroRate/10);   
-    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | baroRate); // 0x80 = enable bit
+    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, _qRateDivisor-1);    
+    writeByte(EM7180_ADDRESS, EM7180_MagRate, _magRate);
+    writeByte(EM7180_ADDRESS, EM7180_AccelRate, _accelRate/10); 
+    writeByte(EM7180_ADDRESS, EM7180_GyroRate, _gyroRate/10);   
+    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | _baroRate); // 0x80 = enable bit
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
@@ -444,8 +453,8 @@ bool EM7180::begin(int8_t interruptPin)
     setIntegerParam (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the EM7180
-    setMagAccFs(mRes, aRes);
-    setGyroFs(gRes); 
+    setMagAccFs(_mRes, _aRes);
+    setGyroFs(_gRes); 
 
     if (interruptPin >= 0) {
 

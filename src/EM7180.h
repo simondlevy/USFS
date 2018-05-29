@@ -33,8 +33,7 @@ class _EM7180 {
 
         uint8_t errorStatus;
 
-        static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, 
-                uint8_t count, uint8_t * dest);
+        static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest);
 
         static void    readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
         static uint8_t readByte(uint8_t address, uint8_t subAddress);
@@ -74,21 +73,26 @@ class EM7180 : public _EM7180 {
 
         static float uint32_reg_to_float (uint8_t *buf);
 
+        uint8_t  _aRes;         // Gs
+        uint16_t _gRes;         // radians per second
+        uint16_t _mRes;         // microTeslas
+        uint8_t  _magRate;      // Hz
+        uint16_t _accelRate;    // Hz
+        uint16_t _gyroRate;     // Hz
+        uint8_t  _baroRate;     // Hz
+        uint8_t  _qRateDivisor; // 1/3 gyro rate
+
     public:
 
-        // Sensible defaults for sensor ranges
-        uint8_t  aRes = 8;    // Gs
-        uint16_t gRes = 2000; // radians per second
-        uint16_t mRes = 1000; // microTeslas
+        EM7180(uint8_t  aRes,          // Gs
+               uint16_t gRes,          // radians per second
+               uint16_t mRes,          // microTeslas
+               uint8_t  magRate,       // Hz
+               uint16_t accelRate,     // Hz
+               uint16_t gyroRate,      // Hz
+               uint8_t  baroRate,      // Hz
+               uint8_t  qRateDivisor); // 1/3 gyro rate
 
-        // Sensible defaults for sensor Output Data Rates (ODRs)
-        uint8_t  magRate      = 100; // Hz
-        uint16_t accelRate    = 200; // Hz
-        uint16_t gyroRate     = 200; // Hz
-        uint8_t  baroRate     = 50;  // Hz
-        uint8_t  qRateDivisor = 3;   // 1/3 gyro rate
-
-        EM7180(void);
 
         bool begin(int8_t pin=-1);
 
