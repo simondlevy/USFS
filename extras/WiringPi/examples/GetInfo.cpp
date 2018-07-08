@@ -62,36 +62,26 @@ static void loop()
     printf("Actual BaroRate  = %d Hz\n", em7180.getActualBaroRate());
     printf("Actual TempRate  = %d Hz\n", em7180.getActualTempRate());
 
-    /*
-    printf("Run status: ");
-    printf(em7180.runStatusNormal() ? "normal" : "other");
+    printf("Run status: %s\n", em7180.runStatusNormal() ? "normal" : "other");
 
-    if (em7180.algorithmStatusStandby())                 printf("EM7180 standby status");
-    if (em7180.algorithmStatusSlow())                    printf("EM7180 algorithm slow");
-    if (em7180.algorithmStatusStillness())               printf("EM7180 in stillness mode");
-    if (em7180.algorithmStatusMagCalibrationCompleted()) printf("EM7180 mag calibration completed");
-    if (em7180.algorithmStatusMagneticAnomalyDetected()) printf("EM7180 magnetic anomaly detected");
-    if (em7180.algorithmStatusUnreliableData())          printf("EM7180 unreliable sensor data");
+    if (em7180.algorithmStatusStandby())                 printf("EM7180 standby status\n");
+    if (em7180.algorithmStatusSlow())                    printf("EM7180 algorithm slow\n");
+    if (em7180.algorithmStatusStillness())               printf("EM7180 in stillness mode\n");
+    if (em7180.algorithmStatusMagCalibrationCompleted()) printf("EM7180 mag calibration completed\n");
+    if (em7180.algorithmStatusMagneticAnomalyDetected()) printf("EM7180 magnetic anomaly detected\n");
+    if (em7180.algorithmStatusUnreliableData())          printf("EM7180 unreliable sensor data\n");
 
     uint8_t  accelFs=0;
     uint16_t gyroFs=0;
     uint16_t magFs=0;
     em7180.getFullScaleRanges(accelFs, gyroFs, magFs);
 
-    printf("Magnetometer Full Scale Range: +/-");
-    printf(magFs);
-    printf("uT");
-    printf("Accelerometer Full Scale Range: +/-");
-    printf(accelFs);
-    printf("g");
-    printf("Gyroscope Full Scale Range: +/-");
-    printf(gyroFs);
-    printf("dps");
+    printf("Magnetometer Full Scale Range: +/-%d uT\n", magFs);
+    printf("Accelerometer Full Scale Range: +/-%d g\n", accelFs);
+    printf("Gyroscope Full Scale Range: +/- %d dps\n", gyroFs);
 
     static uint32_t count;
-    printf(count++);
-    */
-    printf(" ----------------------------------------------\n");
+    printf("%d ----------------------------------------------\n", count++);
 
     delay(1000);
 }
