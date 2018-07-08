@@ -21,6 +21,7 @@
 #include "EM7180.h"
 #include <wiringPi.h>
 #include <stdio.h>
+#include <math.h>
 
 static const uint8_t  ARES           = 8;    // Gs
 static const uint16_t GRES           = 2000; // degrees per second
@@ -49,12 +50,9 @@ void setup()
 void loop()
 {  
     em7180.checkEventStatus();
-#ifdef FOO
 
-    /*
     if (em7180.gotError()) {
-        Serial.print("ERROR: ");
-        Serial.println(em7180.getErrorString());
+        fprintf(stderr, "ERROR: %s\n", em7180.getErrorString());
         return;
     }
 
@@ -86,40 +84,35 @@ void loop()
         float pitch = -asin(2.0f * (qx * qz - qw * qy));
         float yaw   = atan2(2.0f * (qx * qy + qw * qz), qw * qw + qx * qx - qy * qy - qz * qz);   
 
-        pitch *= 180.0f / PI;
-        yaw   *= 180.0f / PI; 
+        pitch *= 180.0f / M_PI;
+        yaw   *= 180.0f / M_PI; 
         yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
         if(yaw < 0) yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
-        roll  *= 180.0f / PI;
+        roll  *= 180.0f / M_PI;
 
-        Serial.print("Quaternion Yaw, Pitch, Roll: ");
-        Serial.print(yaw, 2);
-        Serial.print(", ");
-        Serial.print(pitch, 2);
-        Serial.print(", ");
-        Serial.println(roll, 2);
+        printf("Quaternion Yaw, Pitch, Roll: %+2.2f, %+2.2f, %+2.2f\n", yaw, pitch, roll);
     }
 
     if (em7180.gotAccelerometer()) {
         int16_t ax, ay, az;
         em7180.readAccelerometer(ax, ay, az);
-        Serial.print("Accel: ");
-        Serial.print(ax);
-        Serial.print(", ");
-        Serial.print(ay);
-        Serial.print(", ");
-        Serial.println(az);
+        //printf("Accel: ");
+        //printf(ax);
+        //printf(", ");
+        //printf(ay);
+        //printf(", ");
+        //printf(az);
     }
 
     if (em7180.gotGyrometer()) {
         int16_t gx, gy, gz;
         em7180.readGyrometer(gx, gy, gz);
-        Serial.print("Gyro: ");
-        Serial.print(gx);
-        Serial.print(", ");
-        Serial.print(gy);
-        Serial.print(", ");
-        Serial.println(gz);
+        //printf("Gyro: ");
+        //printf(gx);
+        //printf(", ");
+        //printf(gy);
+        //printf(", ");
+        //printf(gz);
     }
 
     /*
@@ -137,17 +130,16 @@ void loop()
 
         em7180.readBarometer(pressure, temperature);
 
-        Serial.println("Baro:");
-        Serial.print("  Altimeter temperature = "); 
-        Serial.print( temperature, 2); 
-        Serial.println(" C"); 
-        Serial.print("  Altimeter pressure = "); 
-        Serial.print(pressure, 2);  
-        Serial.println(" mbar");
+        //printf("Baro:");
+        //printf("  Altimeter temperature = "); 
+        //printf( temperature, 2); 
+        //printf(" C"); 
+        //printf("  Altimeter pressure = "); 
+        //printf(pressure, 2);  
+        //printf(" mbar");
         float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f;
-        Serial.print("  Altitude = "); 
-        Serial.print(altitude, 2); 
-        Serial.println(" m\n");
+        //printf("  Altitude = "); 
+        //printf(altitude, 2); 
+        //printf(" m\n");
     }
-#endif
 }
