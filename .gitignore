@@ -3,3 +3,4 @@
 *.o
 *.so
 extras/WiringPi/examples/GetInfo
+extras/WiringPi/examples/FullTest
