@@ -114,11 +114,11 @@ class _EM7180 {
 
         uint8_t errorStatus;
 
-        static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest);
+        static void M24512DFMreadRegisters(uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest);
 
-        static void    readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
-        static uint8_t readByte(uint8_t address, uint8_t subAddress);
-        static void    writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
+        static void    readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest);
+        static uint8_t readRegister(uint8_t subAddress);
+        static void    writeRegister(uint8_t subAddress, uint8_t data);
 
         static void    readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z);
 
