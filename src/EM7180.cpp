@@ -21,14 +21,15 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#if defined(ARDUINO)
 #include <Arduino.h>
-
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
 #define NOSTOP I2C_NOSTOP
 #else
 #include <Wire.h>
 #define NOSTOP false
+#endif
 #endif
 
 #include "EM7180.h"
@@ -113,18 +114,6 @@ void EM7180::setGyroFs(uint16_t gyro_fs)
 
 // I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
 // since the address is defined by two bytes
-
-void _EM7180::M24512DFMreadRegisters(uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
-{  
-    Wire.beginTransmission(M24512DFM_DATA_ADDRESS);   // Initialize the Tx buffer
-    Wire.write(data_address1);                     // Put slave register address in Tx buffer
-    Wire.write(data_address2);                     // Put slave register address in Tx buffer
-    Wire.endTransmission(NOSTOP);             // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    Wire.requestFrom(M24512DFM_DATA_ADDRESS, (size_t) count);  // Read bytes from slave register address 
-    while (Wire.available()) {
-        dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
-}
 
 bool _EM7180::hasFeature(uint8_t features)
 {
@@ -283,7 +272,7 @@ bool EM7180_Passthru::begin(void)
     }
 
     uint8_t data[128];
-    M24512DFMreadRegisters(0x00, 0x00, 128, data);
+    _readRegisters(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
     if (data[0] != 0x2A || data[1] != 0x65) {
         errorStatus = 0xA0;
         return false;
@@ -550,24 +539,48 @@ uint8_t _EM7180::readRegister(uint8_t subAddress)
     return data;                       
 }
 
-// I^C utilities =====================================================================================================================
-
 void _EM7180::writeRegister(uint8_t subAddress, uint8_t data)
 {
-    Wire.beginTransmission(EM7180_ADDRESS);  // Initialize the Tx buffer
+    _writeRegister(EM7180_ADDRESS, subAddress, data);
+}
+
+void _EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
+{  
+    _readRegisters(EM7180_ADDRESS, subAddress, count, dest);
+}
+
+// Platform-specific code ------------------------------------------------------------------------
+
+#if defined(ARDUINO)
+void _EM7180::_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
+{
+    Wire.beginTransmission(address);  // Initialize the Tx buffer
     Wire.write(subAddress);           // Put slave register address in Tx buffer
     Wire.write(data);                 // Put data in Tx buffer
     Wire.endTransmission();           // Send the Tx buffer
 }
 
-void _EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
+void _EM7180::_readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    Wire.beginTransmission(EM7180_ADDRESS);   // Initialize the Tx buffer
+    Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
     Wire.endTransmission(NOSTOP);      // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
-    Wire.requestFrom(EM7180_ADDRESS, (size_t) count);  // Read bytes from slave register address 
+    Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
     while (Wire.available()) {
         dest[i++] = Wire.read(); 
     }         
 }
+
+void _EM7180::_readRegisters(uint8_t address, uint8_t subAddress1, uint8_t subAddress2, uint8_t count, uint8_t * dest)
+{  
+    Wire.beginTransmission(address);   // Initialize the Tx buffer
+    Wire.write(subAddress1);                     // Put slave register address in Tx buffer
+    Wire.write(subAddress2);                     // Put slave register address in Tx buffer
+    Wire.endTransmission(NOSTOP);             // Send the Tx buffer, but send a restart to keep connection alive
+    uint8_t i = 0;
+    Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
+    while (Wire.available()) {
+        dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
+}
+#endif
