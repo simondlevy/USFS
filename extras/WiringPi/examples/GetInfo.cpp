@@ -56,23 +56,13 @@ static void loop()
     printf("EM7180 ProductID:   0x%02X; should be 0x80\n", em7180.getProductId());
     printf("EM7180 RevisionID:  0x%02X; should 0x02\n", em7180.getRevisionId());
 
-    /*
-    printf("Actual MagRate = ");
-    printf(em7180.getActualMagRate());
-    printf(" Hz"); 
-    printf("Actual AccelRate = ");
-    printf(10*em7180.getActualAccelRate());
-    printf(" Hz"); 
-    printf("Actual GyroRate = ");
-    printf(10*em7180.getActualGyroRate());
-    printf(" Hz"); 
-    printf("Actual BaroRate = ");
-    printf(em7180.getActualBaroRate());
-    printf(" Hz"); 
-    printf("Actual TempRate = ");
-    printf(em7180.getActualTempRate());
-    printf(" Hz"); 
+    printf("Actual MagRate   = %d Hz\n", em7180.getActualMagRate());
+    printf("Actual AccelRate = %d Hz\n", 10*em7180.getActualAccelRate());
+    printf("Actual GyroRate  = %d Hz\n", 10*em7180.getActualGyroRate());
+    printf("Actual BaroRate  = %d Hz\n", em7180.getActualBaroRate());
+    printf("Actual TempRate  = %d Hz\n", em7180.getActualTempRate());
 
+    /*
     printf("Run status: ");
     printf(em7180.runStatusNormal() ? "normal" : "other");
 
