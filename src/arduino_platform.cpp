@@ -43,7 +43,12 @@ void _attachRisingInterrupt(uint8_t pin, void (*isr)(void))
     attachInterrupt(pin, isr, RISING);
 }
 
-void _writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
+uint8_t _i2c_setup(uint8_t address)
+{
+    return address;
+}
+
+void _i2c_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
 {
     Wire.beginTransmission(address);  // Initialize the Tx buffer
     Wire.write(subAddress);           // Put slave register address in Tx buffer
@@ -51,7 +56,7 @@ void _writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
     Wire.endTransmission();           // Send the Tx buffer
 }
 
-void _readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+void _i2c_readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress);            // Put slave register address in Tx buffer
@@ -63,7 +68,7 @@ void _readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t 
     }         
 }
 
-void _readRegisters(uint8_t address, uint8_t subAddress1, uint8_t subAddress2, uint8_t count, uint8_t * dest)
+void _i2c_readRegisters(uint8_t address, uint8_t subAddress1, uint8_t subAddress2, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(address);   // Initialize the Tx buffer
     Wire.write(subAddress1);                     // Put slave register address in Tx buffer

@@ -31,7 +31,7 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
         float f;
     } u;
 
-    u.ui32 =     (((uint32_t)buf[0]) +
+    u.ui32 = (((uint32_t)buf[0]) +
             (((uint32_t)buf[1]) <<  8) +
             (((uint32_t)buf[2]) << 16) +
             (((uint32_t)buf[3]) << 24));
@@ -126,6 +126,9 @@ void interruptHandler()
 
 bool _EM7180::begin(void)
 {
+    _sentral_address = _i2c_setup(EM7180_ADDRESS);
+    _eeprom_address  = _i2c_setup(M24512DFM_DATA_ADDRESS);
+
     errorStatus = 0;
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
@@ -262,7 +265,7 @@ bool EM7180_Passthru::begin(void)
     }
 
     uint8_t data[128];
-    _readRegisters(M24512DFM_DATA_ADDRESS, 0x00, 0x00, 128, data);
+    _i2c_readRegisters(_eeprom_address, 0x00, 0x00, 128, data);
     if (data[0] != 0x2A || data[1] != 0x65) {
         errorStatus = 0xA0;
         return false;
@@ -531,10 +534,10 @@ uint8_t _EM7180::readRegister(uint8_t subAddress)
 
 void _EM7180::writeRegister(uint8_t subAddress, uint8_t data)
 {
-    _writeRegister(EM7180_ADDRESS, subAddress, data);
+    _i2c_writeRegister(_sentral_address, subAddress, data);
 }
 
 void _EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    _readRegisters(EM7180_ADDRESS, subAddress, count, dest);
+    _i2c_readRegisters(_sentral_address, subAddress, count, dest);
 }

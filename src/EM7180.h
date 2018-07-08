@@ -25,7 +25,7 @@ class _EM7180 {
 
     private:
 
-        static bool hasFeature(uint8_t features);
+        bool hasFeature(uint8_t features);
 
     protected:
 
@@ -109,17 +109,20 @@ class _EM7180 {
         static const uint8_t AK8963_ADDRESS           = 0x0C;   // Address of magnetometer
         static const uint8_t BMP280_ADDRESS           = 0x76;   // Address of BMP280 altimeter when ADO = 0
 
+        // Cross-platform support
+        uint8_t  _sentral_address;
+        uint8_t  _eeprom_address;
 
         bool begin(void);
 
         uint8_t errorStatus;
 
-        static uint8_t readRegister(uint8_t subAddress);
         
-        static void readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z);
+        void readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z);
 
-        static void readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest);
-        static void writeRegister(uint8_t subAddress, uint8_t data);
+        uint8_t readRegister(uint8_t subAddress);
+        void    readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest);
+        void    writeRegister(uint8_t subAddress, uint8_t data);
 
     public:
 
@@ -144,11 +147,11 @@ class EM7180 : public _EM7180 {
 
         uint8_t _eventStatus;
 
-        static bool algorithmStatus(uint8_t status);
+        bool algorithmStatus(uint8_t status);
 
-        static void setGyroFs(uint16_t gyro_fs);
-        static void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
-        static void setIntegerParam (uint8_t param, uint32_t param_val);
+        void setGyroFs(uint16_t gyro_fs);
+        void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
+        void setIntegerParam (uint8_t param, uint32_t param_val);
 
         static float uint32_reg_to_float (uint8_t *buf);
 
@@ -171,7 +174,6 @@ class EM7180 : public _EM7180 {
                 uint16_t gyroRate,      // Hz
                 uint8_t  baroRate,      // Hz
                 uint8_t  qRateDivisor); // 1/3 gyro rate
-
 
         bool begin(int8_t pin=-1);
 

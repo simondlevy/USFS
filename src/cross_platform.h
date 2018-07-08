@@ -21,9 +21,17 @@
 
 #include <stdint.h>
 
-void _delay(uint32_t msec);
-void _pinModeInput(uint8_t pin);
-void _attachRisingInterrupt(uint8_t pin, void (*isr)(void));
-void _readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
-void _writeRegister(uint8_t address, uint8_t subAddress, uint8_t data);
-void _readRegisters(uint8_t address, uint8_t subAddress1, uint8_t subAddress2, uint8_t count, uint8_t * dest);
+void    _delay(uint32_t msec);
+
+void    _pinModeInput(uint8_t pin);
+
+void    _attachRisingInterrupt(uint8_t pin, void (*isr)(void));
+
+uint8_t _i2c_setup(uint8_t address);
+
+void    _i2c_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data);
+
+void    _i2c_readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
+
+void    _i2c_readRegisters(uint8_t address, uint8_t subAddress1, uint8_t subAddress2, uint8_t count, uint8_t * dest);
+ 
