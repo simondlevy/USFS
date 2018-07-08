@@ -33,12 +33,12 @@ void _pinModeInput(uint8_t pin)
 
 void _attachRisingInterrupt(uint8_t pin, void (*isr)(void))
 {
-    wiringPiISR(pin, isr, EDGE_RISING);
+    wiringPiISR(pin, INT_EDGE_RISING, isr) ;
 }
 
 uint8_t _i2c_setup(uint8_t address)
 {
-    return (uint8_t)wiringPiI2CSetup (int devId);
+    return (uint8_t)wiringPiI2CSetup (address);
 }
 
 void _i2c_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
