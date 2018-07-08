@@ -31,7 +31,7 @@ static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
 EM7180 em7180 = EM7180(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
-static void setup()
+void setup()
 {
     // Start the EM7180 in master mode
     if (!em7180.begin()) {
@@ -42,7 +42,7 @@ static void setup()
     }    
 }
 
-static void loop()
+void loop()
 {  
     if (em7180.hasBaro())        printf("A barometer is installed.\n");
     if (em7180.hasHumidity())    printf("A humidity sensor is installed.\n");
@@ -84,13 +84,4 @@ static void loop()
     printf("%d ----------------------------------------------\n", count++);
 
     delay(1000);
-}
-
-int main(int argc, char ** argv)
-{
-    setup();
-
-    while (true) {
-        loop();
-    }
 }

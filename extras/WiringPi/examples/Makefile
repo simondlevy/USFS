@@ -25,14 +25,14 @@ RPISRC = ../src
 
 all: $(ALL)
 
-GetInfo: GetInfo.o EM7180.o wiringpi_platform.o
-	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o wiringpi_platform.o -lwiringPi
+GetInfo: GetInfo.o EM7180.o wiringpi_platform.o main.o
+	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o wiringpi_platform.o main.o -lwiringPi
 
 GetInfo.o: GetInfo.cpp 
 	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c GetInfo.cpp
 
-FullTest: FullTest.o EM7180.o wiringpi_platform.o
-	g++ -std=c++11 -o FullTest FullTest.o EM7180.o wiringpi_platform.o -lwiringPi
+FullTest: FullTest.o EM7180.o wiringpi_platform.o main.o
+	g++ -std=c++11 -o FullTest FullTest.o EM7180.o wiringpi_platform.o main.o -lwiringPi
 
 FullTest.o: FullTest.cpp 
 	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c FullTest.cpp
@@ -42,6 +42,9 @@ EM7180.o: $(EMSRC)/EM7180.cpp
 
 wiringpi_platform.o: $(RPISRC)/wiringpi_platform.cpp 
 	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c $(RPISRC)/wiringpi_platform.cpp
+
+main.o: main.cpp 
+	g++ -std=c++11 -Wall -c main.cpp
 
 run: GetInfo
 	./GetInfo
