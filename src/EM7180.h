@@ -104,14 +104,11 @@ class _EM7180 {
         static const uint8_t EM7180_BARO_LPF_BW        = 0x5D;  //Register GP38
 
         static const uint8_t EM7180_ADDRESS           = 0x28;   // Address of the EM7180 SENtral sensor hub
-        static const uint8_t M24512DFM_DATA_ADDRESS   = 0x50;   // Address of the 500 page M24512DRC EEPROM data buffer, 1024 bits (128 8-bit bytes) per page
-        static const uint8_t M24512DFM_IDPAGE_ADDRESS = 0x58;   // Address of the single M24512DRC lockable EEPROM ID page
         static const uint8_t AK8963_ADDRESS           = 0x0C;   // Address of magnetometer
         static const uint8_t BMP280_ADDRESS           = 0x76;   // Address of BMP280 altimeter when ADO = 0
 
         // Cross-platform support
-        uint8_t  _sentral_address;
-        uint8_t  _eeprom_address;
+        uint8_t  _i2c;
 
         bool begin(void);
 

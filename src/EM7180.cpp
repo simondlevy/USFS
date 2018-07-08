@@ -102,9 +102,6 @@ void EM7180::setGyroFs(uint16_t gyro_fs)
     writeRegister(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-// I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
-// since the address is defined by two bytes
-
 bool _EM7180::hasFeature(uint8_t features)
 {
     return features & readRegister(EM7180_FeatureFlags);
@@ -126,8 +123,7 @@ void interruptHandler()
 
 bool _EM7180::begin(void)
 {
-    _sentral_address = _i2c_setup(EM7180_ADDRESS);
-    _eeprom_address  = _i2c_setup(M24512DFM_DATA_ADDRESS);
+    _i2c = _i2c_setup(EM7180_ADDRESS);
 
     errorStatus = 0;
 
@@ -261,13 +257,6 @@ bool EM7180_Passthru::begin(void)
     }
     else {
         errorStatus = 0x90;
-        return false;
-    }
-
-    uint8_t data[128];
-    _i2c_readRegisters(_eeprom_address, 0x00, 0x00, 128, data);
-    if (data[0] != 0x2A || data[1] != 0x65) {
-        errorStatus = 0xA0;
         return false;
     }
 
@@ -534,10 +523,10 @@ uint8_t _EM7180::readRegister(uint8_t subAddress)
 
 void _EM7180::writeRegister(uint8_t subAddress, uint8_t data)
 {
-    _i2c_writeRegister(_sentral_address, subAddress, data);
+    _i2c_writeRegister(_i2c, subAddress, data);
 }
 
 void _EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    _i2c_readRegisters(_sentral_address, subAddress, count, dest);
+    _i2c_readRegisters(_i2c, subAddress, count, dest);
 }
