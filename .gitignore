@@ -2,3 +2,4 @@
 *.bak
 *.o
 *.so
+extras/WiringPi/examples/GetInfo

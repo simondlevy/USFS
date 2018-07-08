@@ -51,22 +51,12 @@ static void loop()
     if (em7180.hasCustom2())     printf("A second custom sensor is installed.\n");
     if (em7180.hasCustom3())     printf("A third custom sensor is installed.\n");
 
+    printf("EM7180 ROM Version: 0x%02X; should be: 0xE609\n", em7180.getRomVersion());
+    printf("EM7180 RAM Version: 0x%02X\n", em7180.getRamVersion());
+    printf("EM7180 ProductID:   0x%02X; should be 0x80\n", em7180.getProductId());
+    printf("EM7180 RevisionID:  0x%02X; should 0x02\n", em7180.getRevisionId());
+
     /*
-    printf("EM7180 ROM Version: 0x");
-    printf(em7180.getRomVersion(), HEX);
-    printf(" (should be: 0xE609)");
-
-    printf("EM7180 RAM Version: 0x");
-    printf(em7180.getRamVersion(), HEX);
-
-    printf("EM7180 ProductID: 0x");
-    printf(em7180.getProductId(), HEX);
-    printf(" (should be: 0x80)");
-
-    printf("EM7180 RevisionID: 0x");
-    printf(em7180.getRevisionId(), HEX);
-    printf(" (should be: 0x2");
-
     printf("Actual MagRate = ");
     printf(em7180.getActualMagRate());
     printf(" Hz"); 
