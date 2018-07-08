@@ -22,6 +22,7 @@
 */
 
 #include "EM7180.h"
+#include "cross_platform.h"
 
 float EM7180::uint32_reg_to_float (uint8_t *buf)
 {
@@ -537,63 +538,3 @@ void _EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     _readRegisters(EM7180_ADDRESS, subAddress, count, dest);
 }
-
-// Platform-specific code ------------------------------------------------------------------------
-
-#if defined(ARDUINO)
-#include <Arduino.h>
-#ifdef __MK20DX256__
-#include <i2c_t3.h>
-#define NOSTOP I2C_NOSTOP
-#else
-#include <Wire.h>
-#define NOSTOP false
-#endif
-
-void _EM7180::_delay(uint32_t msec)
-{
-    delay(msec);
-}
-
-void _EM7180::_pinModeInput(uint8_t pin)
-{
-    pinMode(pin, INPUT);
-}
-
-void _EM7180::_attachRisingInterrupt(uint8_t pin, void (*isr)(void))
-{
-    attachInterrupt(pin, isr, RISING);
-}
-
-void _EM7180::_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
-{
-    Wire.beginTransmission(address);  // Initialize the Tx buffer
-    Wire.write(subAddress);           // Put slave register address in Tx buffer
-    Wire.write(data);                 // Put data in Tx buffer
-    Wire.endTransmission();           // Send the Tx buffer
-}
-
-void _EM7180::_readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
-{  
-    Wire.beginTransmission(address);   // Initialize the Tx buffer
-    Wire.write(subAddress);            // Put slave register address in Tx buffer
-    Wire.endTransmission(NOSTOP);      // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
-    while (Wire.available()) {
-        dest[i++] = Wire.read(); 
-    }         
-}
-
-void _EM7180::_readRegisters(uint8_t address, uint8_t subAddress1, uint8_t subAddress2, uint8_t count, uint8_t * dest)
-{  
-    Wire.beginTransmission(address);   // Initialize the Tx buffer
-    Wire.write(subAddress1);                     // Put slave register address in Tx buffer
-    Wire.write(subAddress2);                     // Put slave register address in Tx buffer
-    Wire.endTransmission(NOSTOP);             // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
-    while (Wire.available()) {
-        dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
-}
-#endif

@@ -121,14 +121,6 @@ class _EM7180 {
         static void readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest);
         static void writeRegister(uint8_t subAddress, uint8_t data);
 
-        // hardware-specific
-        static void _delay(uint32_t msec);
-        static void _pinModeInput(uint8_t pin);
-        static void _attachRisingInterrupt(uint8_t pin, void (*isr)(void));
-        static void _readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
-        static void _writeRegister(uint8_t address, uint8_t subAddress, uint8_t data);
-        static void _readRegisters(uint8_t address, uint8_t subAddress1, uint8_t subAddress2, uint8_t count, uint8_t * dest);
-
     public:
 
         const char * getErrorString(void);
