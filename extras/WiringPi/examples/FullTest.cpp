@@ -96,23 +96,13 @@ void loop()
     if (em7180.gotAccelerometer()) {
         int16_t ax, ay, az;
         em7180.readAccelerometer(ax, ay, az);
-        //printf("Accel: ");
-        //printf(ax);
-        //printf(", ");
-        //printf(ay);
-        //printf(", ");
-        //printf(az);
+        printf("Accel: %+d, %+d, %+d\n", ax, ay, az);
     }
 
     if (em7180.gotGyrometer()) {
         int16_t gx, gy, gz;
         em7180.readGyrometer(gx, gy, gz);
-        //printf("Gyro: ");
-        //printf(gx);
-        //printf(", ");
-        //printf(gy);
-        //printf(", ");
-        //printf(gz);
+        printf("Gyro: %+d, %+d, %+d\n", gx, gy, gz);
     }
 
     /*
@@ -130,16 +120,10 @@ void loop()
 
         em7180.readBarometer(pressure, temperature);
 
-        //printf("Baro:");
-        //printf("  Altimeter temperature = "); 
-        //printf( temperature, 2); 
-        //printf(" C"); 
-        //printf("  Altimeter pressure = "); 
-        //printf(pressure, 2);  
-        //printf(" mbar");
+        printf("Baro:\n");
+        printf("  Altimeter temperature = %2.2f C\n", temperature); 
+        printf("  Altimeter pressure = %2.2f mbar\n", pressure); 
         float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f;
-        //printf("  Altitude = "); 
-        //printf(altitude, 2); 
-        //printf(" m\n");
+        printf("  Altitude = %5.2f m\n\n", altitude); 
     }
 }
