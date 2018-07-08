@@ -1,5 +1,5 @@
 # 
-# Makefile for EM7180 WiringPi library
+# Makefile for EM7180 WiringPi examples
 #
 # Copyright (c) 2018 Simon D. Levy
 #
@@ -17,22 +17,31 @@
 # You should have received a copy of the GNU General Public License
 # along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 
-SRCDIR = ../../../src
+  
+ALL = GetInfo
 
-all: libem7180.so 
+EMSRC = ../../../src
+RPISRC = ../src
 
-libem7180.so: EM7180.o wiringpi_platform.o
-	g++ -shared -o libem7180.so EM7180.o wiringpi_platform.o
+all: $(ALL)
 
-EM7180.o: $(SRCDIR)/EM7180.cpp $(SRCDIR)/EM7180.h
-	g++ -Wall -fpic -std=c++11 -c $(SRCDIR)/EM7180.cpp
+GetInfo: GetInfo.o EM7180.o wiringpi_platform.o
+	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o wiringpi_platform.o -lwiringPi
 
-wiringpi_platform.o: wiringpi_platform.cpp $(SRCDIR)/cross_platform.h
-	g++ -Wall -fpic -std=c++11 -c -I$(SRCDIR) wiringpi_platform.cpp
+GetInfo.o: GetInfo.cpp 
+	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c GetInfo.cpp
 
-install: libem7180.so
-	cp libem7180.so /usr/lib
-	cp $(SRCDIR)/EM7180.h /usr/local/include
+EM7180.o: $(EMSRC)/EM7180.cpp 
+	g++ -std=c++11 -Wall -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
+
+wiringpi_platform.o: $(RPISRC)/wiringpi_platform.cpp 
+	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c $(RPISRC)/wiringpi_platform.cpp
+
+run: GetInfo
+	./GetInfo
+
+edit:
+	vim GetInfo.cpp
 
 clean:
-	rm -f *.o *.so *~ 
+	rm -f $(ALL) *.o *~
