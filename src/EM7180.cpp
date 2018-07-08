@@ -21,17 +21,6 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if defined(ARDUINO)
-#include <Arduino.h>
-#ifdef __MK20DX256__
-#include <i2c_t3.h>
-#define NOSTOP I2C_NOSTOP
-#else
-#include <Wire.h>
-#define NOSTOP false
-#endif
-#endif
-
 #include "EM7180.h"
 
 float EM7180::uint32_reg_to_float (uint8_t *buf)
@@ -155,7 +144,7 @@ bool _EM7180::begin(void)
             break;
         }
         writeRegister(EM7180_ResetRequest, 0x01);
-        delay(500);  
+        _delay(500);  
     }
 
 
@@ -326,7 +315,7 @@ bool EM7180::begin(int8_t interruptPin)
 
     // Enable EM7180 run mode
     writeRegister(EM7180_HostControl, 0x01); // set SENtral in normal run mode
-    delay(100);
+    _delay(100);
 
     // Disable stillness mode
     setIntegerParam (0x49, 0x00);
@@ -338,8 +327,8 @@ bool EM7180::begin(int8_t interruptPin)
     if (interruptPin >= 0) {
 
         // Set up the interrupt pin: active high, push-pull
-        pinMode(interruptPin, INPUT);
-        attachInterrupt(interruptPin, interruptHandler, RISING);  // define interrupt for INT pin output of EM7180
+        _pinModeInput(interruptPin);
+        _attachRisingInterrupt(interruptPin, interruptHandler);  
 
         // Check event status register to clear the EM7180 interrupt before the main loop
         readRegister(EM7180_EventStatus); // reading clears the register and interrupt
@@ -358,7 +347,7 @@ void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magF
     // Read sensor new FS values from parameter space
     writeRegister(EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
     writeRegister(EM7180_AlgorithmControl, 0x80); // Request parameter transfer process
-    byte param_xfer = readRegister(EM7180_ParamAcknowledge);
+    uint8_t param_xfer = readRegister(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A)) {
         param_xfer = readRegister(EM7180_ParamAcknowledge);
     }
@@ -552,6 +541,30 @@ void _EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 // Platform-specific code ------------------------------------------------------------------------
 
 #if defined(ARDUINO)
+#include <Arduino.h>
+#ifdef __MK20DX256__
+#include <i2c_t3.h>
+#define NOSTOP I2C_NOSTOP
+#else
+#include <Wire.h>
+#define NOSTOP false
+#endif
+
+void _EM7180::_delay(uint32_t msec)
+{
+    delay(msec);
+}
+
+void _EM7180::_pinModeInput(uint8_t pin)
+{
+    pinMode(pin, INPUT);
+}
+
+void _EM7180::_attachRisingInterrupt(uint8_t pin, void (*isr)(void))
+{
+    attachInterrupt(pin, isr, RISING);
+}
+
 void _EM7180::_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
 {
     Wire.beginTransmission(address);  // Initialize the Tx buffer
