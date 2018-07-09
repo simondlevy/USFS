@@ -21,6 +21,9 @@
 #include "EM7180.h"
 #include <wiringPi.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include <math.h>
 
 static const uint8_t  ARES           = 8;    // Gs
@@ -36,6 +39,12 @@ EM7180 em7180 = EM7180(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_R
 
 void setup()
 {
+    // Set up the wiringPi library
+    if (wiringPiSetup () < 0) {
+        fprintf (stderr, "Unable to setup wiringPi: %s\n", strerror (errno));
+        exit(1);
+    }
+
     delay(100);
 
     // Start the EM7180 in master mode, polling instead of interrupt

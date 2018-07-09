@@ -22,6 +22,10 @@
 
 #include "EM7180.h"
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <wiringPi.h>
 
 // This works for LadybugFC; you should change it for your controller.
 static const uint8_t INTERRUPT_PIN = 12;
@@ -41,6 +45,11 @@ EM7180 em7180 = EM7180(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_R
 
 void setup()
 {
+    // Set up the wiringPi library
+    if (wiringPiSetup () < 0) {
+        fprintf (stderr, "Unable to setup wiringPi: %s\n", strerror (errno));
+        exit(1);
+    }
 
     // Start the EM7180 in master mode with interrupt
     if (!em7180.begin(INTERRUPT_PIN)) {
