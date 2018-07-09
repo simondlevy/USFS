@@ -27,8 +27,8 @@
 #include <errno.h>
 #include <wiringPi.h>
 
-// This works for LadybugFC; you should change it for your controller.
-static const uint8_t INTERRUPT_PIN = 12;
+// Use GPIO Pin 17, which is Pin 0 for wiringPi library
+static const uint8_t INTERRUPT_PIN = 0;
 
 extern volatile bool newData;
 
