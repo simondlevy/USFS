@@ -126,4 +126,6 @@ void loop()
         float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f;
         printf("  Altitude = %5.2f m\n\n", altitude); 
     }
+
+    delay(100);
 }
