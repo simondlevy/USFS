@@ -4,3 +4,4 @@
 *.so
 extras/WiringPi/examples/GetInfo
 extras/WiringPi/examples/FullTest
+extras/WiringPi/examples/Interrupt

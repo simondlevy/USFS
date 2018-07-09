@@ -18,7 +18,7 @@
 # along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 
   
-ALL = GetInfo FullTest
+ALL = GetInfo FullTest Interrupt
 
 EMSRC = ../../../src
 RPISRC = ../src
@@ -36,6 +36,12 @@ FullTest: FullTest.o EM7180.o wiringpi_platform.o main.o
 
 FullTest.o: FullTest.cpp 
 	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c FullTest.cpp
+
+Interrupt: Interrupt.o EM7180.o wiringpi_platform.o main.o
+	g++ -std=c++11 -o Interrupt Interrupt.o EM7180.o wiringpi_platform.o main.o -lwiringPi
+
+Interrupt.o: Interrupt.cpp 
+	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c Interrupt.cpp
 
 EM7180.o: $(EMSRC)/EM7180.cpp 
 	g++ -std=c++11 -Wall -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
