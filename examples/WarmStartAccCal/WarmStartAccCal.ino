@@ -713,7 +713,7 @@ void setup()
         delay(500);  
     }
 
-    if (!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
+    if (!(em7180.getSentralStatus() & 0x04))  Serial.println("EEPROM upload successful!");
 
     // Take user input to choose Warm Start or not...
     Serial.println("Send '1' for Warm Start, '0' for no Warm Start");
