@@ -237,6 +237,11 @@ uint8_t EM7180::getSentralStatus(void)
     return readRegister(EM7180_SentralStatus); 
 }
 
+void EM7180::requestReset(void)
+{
+    writeRegister(EM7180_ResetRequest, 0x01);
+}
+
 void EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
 {
     uint8_t rawData[6];  // x/y/z register data stored here

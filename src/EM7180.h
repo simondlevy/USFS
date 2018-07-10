@@ -149,6 +149,8 @@ class EM7180 {
         bool hasCustom2(void);
         bool hasCustom3(void);
 
+        void requestReset(void);
+
 };
 
 class EM7180Master : public EM7180 {

@@ -708,7 +708,7 @@ void setup()
 
         if (stat) break;
 
-        writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
+        em7180.requestReset();
 
         delay(500);  
     }
