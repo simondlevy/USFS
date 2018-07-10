@@ -830,7 +830,7 @@ void setup()
     readParams(0x4B, param);// Request to read  parameter 75
     EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
     Serial.print("Gyroscope New Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
+    em7180.requestParamRead(0x00);//End parameter transfer
     em7180.algorithmControlReset(); // re-enable algorithm
 
     // Read EM7180 status
@@ -900,13 +900,13 @@ void loop()
     }
 
     // Check event status register, way to check data ready by polling rather than interrupt
-    uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
+    uint8_t eventStatus = em7180.getEventStatus(); // reading clears the register
 
     // Check for errors
     // Error detected, what is it?
     if (eventStatus & 0x02) { 
 
-        uint8_t errorStatus = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
+        uint8_t errorStatus = em7180.getErrorStatus();
         if (!errorStatus)
         {
             Serial.print(" EM7180 sensor status = "); Serial.println(errorStatus);

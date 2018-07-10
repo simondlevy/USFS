@@ -420,6 +420,12 @@ uint8_t EM7180::getSensorStatus(void)
     return readRegister(EM7180_SensorStatus);
 }
 
+uint8_t EM7180::getErrorStatus(void)
+{
+    return readRegister(EM7180_ErrorRegister);
+}
+
+
 // EM7180Master -------------------------------------------------------------
 
 EM7180Master::EM7180Master(

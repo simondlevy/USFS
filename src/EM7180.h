@@ -181,6 +181,7 @@ class EM7180 {
         uint8_t getPassThruStatus(void);
         uint8_t getEventStatus(void);
         uint8_t getSensorStatus(void);
+        uint8_t getErrorStatus(void);
 
 }; // class EM7180
 
