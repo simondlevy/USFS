@@ -136,10 +136,11 @@ class EM7180 {
 
         const char * getErrorString(void);
 
-        uint8_t getProductId(void); 
-        uint8_t getRevisionId(void); 
+        uint8_t  getProductId(void); 
+        uint8_t  getRevisionId(void); 
         uint16_t getRamVersion(void);
         uint16_t getRomVersion(void);
+        uint8_t  getSentralStatus(void);
 
         bool hasBaro(void);
         bool hasHumidity(void);

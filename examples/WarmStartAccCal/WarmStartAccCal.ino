@@ -682,31 +682,26 @@ void setup()
     Serial.print("EM7180 ROM Version: 0x");
     Serial.print(em7180.getRomVersion(), HEX);
     Serial.println(" (should be: 0xE609)");
-
-    uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
-    uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
     Serial.print("EM7180 RAM Version: 0x"); 
-    Serial.print(RAM1); 
-    Serial.println(RAM2);
-    uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
+    Serial.println(em7180.getRamVersion());
+
     Serial.print("EM7180 ProductID: 0x"); 
-    Serial.print(PID, HEX); 
+    Serial.print(em7180.getProductId(), HEX);
     Serial.println(" Should be: 0x80");
-    uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
     Serial.print("EM7180 RevisionID: 0x"); 
-    Serial.print(RID, HEX); 
+    Serial.print(em7180.getRevisionId(), HEX); 
     Serial.println(" Should be: 0x02");
 
     // Give some time to read the screen
     delay(1000);
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    byte stat = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  Serial.println("EEPROM detected on the sensor bus!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  Serial.println("EEPROM uploaded config file!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  Serial.println("EEPROM CRC incorrect!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  Serial.println("EM7180 in initialized state!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  Serial.println("No EEPROM detected!");
+    uint8_t stat = em7180.getSentralStatus() & 0x01;
+    if (stat & 0x01) Serial.println("EEPROM detected on the sensor bus!");
+    if (stat & 0x02) Serial.println("EEPROM uploaded config file!");
+    if (stat & 0x04) Serial.println("EEPROM CRC incorrect!");
+    if (stat & 0x08) Serial.println("EM7180 in initialized state!");
+    if (stat & 0x10) Serial.println("No EEPROM detected!");
 
     int count = 0;
     while(!stat)

@@ -232,6 +232,11 @@ uint16_t EM7180::getRomVersion(void)
     return rom1 << 8 | rom2;
 }
 
+uint8_t EM7180::getSentralStatus(void)
+{
+    return readRegister(EM7180_SentralStatus); 
+}
+
 void EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
 {
     uint8_t rawData[6];  // x/y/z register data stored here
