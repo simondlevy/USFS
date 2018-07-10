@@ -762,8 +762,8 @@ void setup()
     em7180.setRunDisable();
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
-    writeByte(EM7180_ADDRESS, EM7180_ACC_LPF_BW, 0x03); // 41Hz
-    writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, 0x01); // 184Hz
+    em7180.setAccelLpfBandwidth(0x03); // 41Hz
+    em7180.setGyroLpfBandwidth(0x01); // 184Hz
 
     // Set accel/gyro/mage desired ODR rates
     writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, 0x02); // 100 Hz

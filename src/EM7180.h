@@ -154,6 +154,9 @@ class EM7180 {
         void setMasterMode(void);
         void setRunEnable(void);
         void setRunDisable(void);
+
+        void setAccelLpfBandwidth(uint8_t bw);
+        void setGyroLpfBandwidth(uint8_t bw);
 };
 
 class EM7180Master : public EM7180 {

@@ -315,6 +315,16 @@ void EM7180::setRunDisable(void)
     writeRegister(EM7180_HostControl, 0x00); 
 }
 
+void EM7180::setAccelLpfBandwidth(uint8_t bw)
+{
+    writeRegister(EM7180_ACC_LPF_BW, bw); 
+}
+
+void EM7180::setGyroLpfBandwidth(uint8_t bw)
+{
+    writeRegister(EM7180_GYRO_LPF_BW, bw); 
+}
+
 EM7180Master::EM7180Master(
         uint8_t aRes, 
         uint16_t gRes, 
