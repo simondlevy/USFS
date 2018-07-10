@@ -157,6 +157,12 @@ class EM7180 {
 
         void setAccelLpfBandwidth(uint8_t bw);
         void setGyroLpfBandwidth(uint8_t bw);
+        
+        void setQRateDivisor(uint8_t divisor);
+        void setMagRate(uint8_t rate);
+        void setAccelRate(uint8_t rate);
+        void setGyroRate(uint8_t rate);
+        void setBaroRate(uint8_t rate);
 };
 
 class EM7180Master : public EM7180 {

@@ -766,11 +766,11 @@ void setup()
     em7180.setGyroLpfBandwidth(0x01); // 184Hz
 
     // Set accel/gyro/mage desired ODR rates
-    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, 0x02); // 100 Hz
-    writeByte(EM7180_ADDRESS, EM7180_MagRate, 0x64); // 100 Hz
-    writeByte(EM7180_ADDRESS, EM7180_AccelRate, 0x14); // 200/10 Hz
-    writeByte(EM7180_ADDRESS, EM7180_GyroRate, 0x14); // 200/10 Hz
-    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
+    em7180.setQRateDivisor(0x02); // 100 Hz
+    em7180.setMagRate(0x64); // 100 Hz
+    em7180.setAccelRate(0x14); // 200/10 Hz
+    em7180.setGyroRate(0x14); // 200/10 Hz
+    em7180.setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data

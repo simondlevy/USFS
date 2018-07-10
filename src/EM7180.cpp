@@ -325,6 +325,31 @@ void EM7180::setGyroLpfBandwidth(uint8_t bw)
     writeRegister(EM7180_GYRO_LPF_BW, bw); 
 }
 
+void EM7180::setQRateDivisor(uint8_t divisor)
+{
+    writeRegister(EM7180_QRateDivisor, divisor);
+}
+
+void EM7180::setMagRate(uint8_t rate)
+{
+    writeRegister(EM7180_MagRate, rate);
+}
+
+void EM7180::setAccelRate(uint8_t rate)
+{
+    writeRegister(EM7180_AccelRate, rate);
+}
+
+void EM7180::setGyroRate(uint8_t rate)
+{
+    writeRegister(EM7180_GyroRate, rate);
+}
+
+void EM7180::setBaroRate(uint8_t rate)
+{
+    writeRegister(EM7180_BaroRate, rate);
+}
+
 EM7180Master::EM7180Master(
         uint8_t aRes, 
         uint16_t gRes, 
