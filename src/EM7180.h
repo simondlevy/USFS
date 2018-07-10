@@ -149,7 +149,7 @@ class _EM7180 {
         bool hasCustom3(void);
 };
 
-class EM7180 : public _EM7180 {
+class EM7180Master : public _EM7180 {
 
     private:
 
@@ -174,7 +174,8 @@ class EM7180 : public _EM7180 {
 
     public:
 
-        EM7180(uint8_t  aRes,          // Gs
+        EM7180Master(
+                uint8_t  aRes,          // Gs
                 uint16_t gRes,          // radians per second
                 uint16_t mRes,          // microTeslas
                 uint8_t  magRate,       // Hz

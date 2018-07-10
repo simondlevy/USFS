@@ -24,7 +24,7 @@
 #include "EM7180.h"
 #include "cross_platform.h"
 
-float EM7180::uint32_reg_to_float (uint8_t *buf)
+float EM7180Master::uint32_reg_to_float (uint8_t *buf)
 {
     union {
         uint32_t ui32;
@@ -38,7 +38,7 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) 
+void EM7180Master::setIntegerParam(uint8_t param, uint32_t param_val) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = param_val & (0xFF);
@@ -60,7 +60,7 @@ void EM7180::setIntegerParam(uint8_t param, uint32_t param_val)
     writeRegister(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
+void EM7180Master::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
@@ -81,7 +81,7 @@ void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     writeRegister(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180::setGyroFs(uint16_t gyro_fs) 
+void EM7180Master::setGyroFs(uint16_t gyro_fs) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
@@ -107,7 +107,7 @@ bool _EM7180::hasFeature(uint8_t features)
     return features & readRegister(EM7180_FeatureFlags);
 }
 
-bool EM7180::algorithmStatus(uint8_t status)
+bool EM7180Master::algorithmStatus(uint8_t status)
 {
     return readRegister(EM7180_AlgorithmStatus) & status;
 }
@@ -264,7 +264,15 @@ bool EM7180_Passthru::begin(void)
     return true;
 }
 
-EM7180::EM7180(uint8_t aRes, uint16_t gRes, uint16_t mRes, uint8_t magRate, uint16_t accelRate, uint16_t gyroRate, uint8_t baroRate, uint8_t qRateDivisor) 
+EM7180Master::EM7180Master(
+        uint8_t aRes, 
+        uint16_t gRes, 
+        uint16_t mRes, 
+        uint8_t magRate, 
+        uint16_t accelRate, 
+        uint16_t gyroRate, 
+        uint8_t baroRate, 
+        uint8_t qRateDivisor) 
 {
     _aRes = aRes;
     _gRes = gRes;
@@ -277,7 +285,7 @@ EM7180::EM7180(uint8_t aRes, uint16_t gRes, uint16_t mRes, uint8_t magRate, uint
 }
 
 
-bool EM7180::begin(int8_t interruptPin)
+bool EM7180Master::begin(int8_t interruptPin)
 {
     // Fail immediately if unable to upload EEPROM
     if (!_EM7180::begin()) return false;
@@ -333,7 +341,7 @@ bool EM7180::begin(int8_t interruptPin)
     return readRegister(EM7180_SensorStatus) ? false : true;
 }
 
-void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
+void EM7180Master::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
 {
     uint8_t param[4];
 
@@ -364,49 +372,49 @@ void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magF
     writeRegister(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 }
 
-bool EM7180::algorithmStatusStandby(void)
+bool EM7180Master::algorithmStatusStandby(void)
 {
     return algorithmStatus(0x01);
 }
 
-bool EM7180::algorithmStatusSlow(void)
+bool EM7180Master::algorithmStatusSlow(void)
 {
     return algorithmStatus(0x02);
 }
 
-bool EM7180::algorithmStatusStillness(void)
+bool EM7180Master::algorithmStatusStillness(void)
 {
     return algorithmStatus(0x04);
 }
 
-bool EM7180::algorithmStatusMagCalibrationCompleted(void)
+bool EM7180Master::algorithmStatusMagCalibrationCompleted(void)
 {
     return algorithmStatus(0x08);
 }
 
-bool EM7180::algorithmStatusMagneticAnomalyDetected(void)
+bool EM7180Master::algorithmStatusMagneticAnomalyDetected(void)
 {
     return algorithmStatus(0x10);
 }
 
-bool EM7180::algorithmStatusUnreliableData(void)
+bool EM7180Master::algorithmStatusUnreliableData(void)
 {
     return algorithmStatus(0x20);
 }
 
-bool EM7180::runStatusNormal()
+bool EM7180Master::runStatusNormal()
 {
     return (readRegister(EM7180_RunStatus) & 0x01);
 }
 
-void EM7180::checkEventStatus(void)
+void EM7180Master::checkEventStatus(void)
 {
     // Check event status register, way to check data ready by checkEventStatusing rather than interrupt
     _eventStatus = readRegister(EM7180_EventStatus); // reading clears the register
 
 }
 
-bool EM7180::gotError(void)
+bool EM7180Master::gotError(void)
 {
     if (_eventStatus & 0x02) {
 
@@ -416,32 +424,32 @@ bool EM7180::gotError(void)
     return false;
 }
 
-bool EM7180::gotQuaternion(void)
+bool EM7180Master::gotQuaternion(void)
 {
     return _eventStatus & 0x04;
 }
 
-bool EM7180::gotMagnetometer(void)
+bool EM7180Master::gotMagnetometer(void)
 {
     return _eventStatus & 0x08;
 }
 
-bool EM7180::gotAccelerometer(void)
+bool EM7180Master::gotAccelerometer(void)
 {
     return _eventStatus & 0x10;
 }
 
-bool EM7180::gotGyrometer(void)
+bool EM7180Master::gotGyrometer(void)
 {
     return _eventStatus & 0x20;
 }
 
-bool EM7180::gotBarometer(void)
+bool EM7180Master::gotBarometer(void)
 {
     return _eventStatus & 0x40;
 }
 
-void EM7180::readQuaternion(float & qw, float & qx, float & qy, float &qz)
+void EM7180Master::readQuaternion(float & qw, float & qx, float & qy, float &qz)
 {
     uint8_t rawData[16];  // x/y/z/w quaternion register data stored here (note unusual order!)
 
@@ -453,23 +461,23 @@ void EM7180::readQuaternion(float & qw, float & qx, float & qy, float &qz)
     qw = uint32_reg_to_float (&rawData[12]); 
 }
 
-void EM7180::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
+void EM7180Master::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
 {
     readThreeAxis(EM7180_AX, ax, ay, az);
 }
 
-void EM7180::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
+void EM7180Master::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
 {
     readThreeAxis(EM7180_GX, gx, gy, gz);
 }
 
-void EM7180::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
+void EM7180Master::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
 {
     readThreeAxis(EM7180_MX, mx, my, mz);
 }
 
 
-void EM7180::readBarometer(float & pressure, float & temperature)
+void EM7180Master::readBarometer(float & pressure, float & temperature)
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
 
@@ -484,32 +492,32 @@ void EM7180::readBarometer(float & pressure, float & temperature)
     temperature = (float) rawTemperature*0.01;  // temperature in degrees C
 }
 
-uint8_t EM7180::getActualMagRate()
+uint8_t EM7180Master::getActualMagRate()
 {
     return readRegister(EM7180_ActualMagRate);
 }
 
-uint16_t EM7180::getActualAccelRate()
+uint16_t EM7180Master::getActualAccelRate()
 {
     return 10*readRegister(EM7180_ActualAccelRate);
 }
 
-uint16_t EM7180::getActualGyroRate()
+uint16_t EM7180Master::getActualGyroRate()
 {
     return 10*readRegister(EM7180_ActualGyroRate);
 }
 
-uint8_t EM7180::getActualBaroRate()
+uint8_t EM7180Master::getActualBaroRate()
 {
     return readRegister(EM7180_ActualBaroRate);
 }
 
-uint8_t EM7180::getActualTempRate()
+uint8_t EM7180Master::getActualTempRate()
 {
     return readRegister(EM7180_ActualTempRate);
 }
 
-bool EM7180::gotInterrupt(void)
+bool EM7180Master::gotInterrupt(void)
 {
     return newData;
 }
