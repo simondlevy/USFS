@@ -395,6 +395,31 @@ uint8_t EM7180::readSavedParamByte3(void)
     return readRegister(EM7180_SavedParamByte3);
 }
 
+uint8_t EM7180::getRunStatus(void)
+{
+    return readRegister(EM7180_RunStatus);
+}
+
+uint8_t EM7180::getAlgorithmStatus(void)
+{
+    return readRegister(EM7180_AlgorithmStatus);
+}
+
+uint8_t EM7180::getPassThruStatus(void)
+{
+    return readRegister(EM7180_PassThruStatus);
+}
+
+uint8_t EM7180::getEventStatus(void)
+{
+    return readRegister(EM7180_EventStatus);
+}
+
+uint8_t EM7180::getSensorStatus(void)
+{
+    return readRegister(EM7180_SensorStatus);
+}
+
 // EM7180Master -------------------------------------------------------------
 
 EM7180Master::EM7180Master(
@@ -535,7 +560,7 @@ bool EM7180Master::algorithmStatusUnreliableData(void)
     return algorithmStatus(0x20);
 }
 
-bool EM7180Master::runStatusNormal()
+bool EM7180Master::runStatusNormal(void)
 {
     return (readRegister(EM7180_RunStatus) & 0x01);
 }

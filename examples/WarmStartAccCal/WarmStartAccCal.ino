@@ -811,7 +811,7 @@ void setup()
     readParams(0x4B, param); // Request to read  parameter 75
     uint16_t EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
     Serial.print("Gyroscope Default Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
+    em7180.requestParamRead(0x00);//End parameter transfer
     em7180.algorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
@@ -834,18 +834,16 @@ void setup()
     em7180.algorithmControlReset(); // re-enable algorithm
 
     // Read EM7180 status
-    uint8_t runStatus = readByte(EM7180_ADDRESS, EM7180_RunStatus);
-    if (runStatus & 0x01) Serial.println(" EM7180 run status = normal mode");
-    uint8_t algoStatus = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
+    if (em7180.getRunStatus() & 0x01) Serial.println(" EM7180 run status = normal mode");
+    uint8_t algoStatus = em7180.getAlgorithmStatus();
     if (algoStatus & 0x01) Serial.println(" EM7180 standby status");
     if (algoStatus & 0x02) Serial.println(" EM7180 algorithm slow");
     if (algoStatus & 0x04) Serial.println(" EM7180 in stillness mode");
     if (algoStatus & 0x08) Serial.println(" EM7180 mag calibration completed");
     if (algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
     if (algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
-    uint8_t passthruStatus = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
-    if (passthruStatus & 0x01) Serial.print(" EM7180 in passthru mode!");
-    uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus);
+    if (em7180.getPassThruStatus() & 0x01) Serial.print(" EM7180 in passthru mode!");
+    uint8_t eventStatus = em7180.getEventStatus();
     if (eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
     if (eventStatus & 0x02) Serial.println(" EM7180 Error");
 
@@ -853,7 +851,7 @@ void setup()
     delay(1000);
 
     // Check sensor status
-    uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
+    uint8_t sensorStatus = em7180.getSensorStatus();
     if (sensorStatus & 0x01) sensorError("Magnetometer not acknowledging!");
     if (sensorStatus & 0x02) sensorError("Accelerometer not acknowledging!");
     if (sensorStatus & 0x04) sensorError("Gyro not acknowledging!");

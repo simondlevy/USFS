@@ -176,6 +176,12 @@ class EM7180 {
         uint8_t readSavedParamByte2(void);
         uint8_t readSavedParamByte3(void);
 
+        uint8_t getRunStatus(void);
+        uint8_t getAlgorithmStatus(void);
+        uint8_t getPassThruStatus(void);
+        uint8_t getEventStatus(void);
+        uint8_t getSensorStatus(void);
+
 }; // class EM7180
 
 class EM7180Master : public EM7180 {
