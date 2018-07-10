@@ -657,8 +657,11 @@ static void sensorError(const char * errmsg)
 
 // ======================================================================================
 
+EM7180 em7180;
+
 void setup()
 {  
+    // Support both Teensy and traditional Arduino
 #ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
 #else
@@ -669,16 +672,17 @@ void setup()
     Serial.begin(115200);
     delay(1000);
 
-    // should detect SENtral at 0x28
+    // Should detect SENtral at 0x28
     I2Cscan();
 
+    // Start EM7180 interaction
+    em7180.begin();
+
     // Read SENtral device information
-    uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
-    uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
-    Serial.print("EM7180 ROM Version: 0x"); 
-    Serial.print(ROM1, HEX); 
-    Serial.print(ROM2, HEX); 
-    Serial.println(" Should be: 0xE69");
+    Serial.print("EM7180 ROM Version: 0x");
+    Serial.print(em7180.getRomVersion(), HEX);
+    Serial.println(" (should be: 0xE609)");
+
     uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
     uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
     Serial.print("EM7180 RAM Version: 0x"); 

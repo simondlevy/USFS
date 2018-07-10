@@ -121,8 +121,6 @@ class EM7180 {
        // Cross-platform support
         uint8_t  _i2c;
 
-        bool begin(void);
-
         uint8_t errorStatus;
 
         
@@ -133,6 +131,8 @@ class EM7180 {
         void    writeRegister(uint8_t subAddress, uint8_t data);
 
     public:
+
+        bool begin(void);
 
         const char * getErrorString(void);
 
@@ -147,6 +147,7 @@ class EM7180 {
         bool hasCustom1(void);
         bool hasCustom2(void);
         bool hasCustom3(void);
+
 };
 
 class EM7180Master : public EM7180 {
