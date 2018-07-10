@@ -107,7 +107,7 @@
 #define M24512DFM_DATA_ADDRESS   0x50   // Address of the 500 page M24512DRC EEPROM data buffer, 1024 bits (128 8-bit bytes) per page
 
 //
-class _EM7180 {
+class EM7180 {
 
     private:
 
@@ -149,7 +149,7 @@ class _EM7180 {
         bool hasCustom3(void);
 };
 
-class EM7180Master : public _EM7180 {
+class EM7180Master : public EM7180 {
 
     private:
 
@@ -239,7 +239,7 @@ class EM7180Master : public _EM7180 {
         void getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs);
 };
 
-class EM7180_Passthru : public _EM7180 {
+class EM7180Passthru : public EM7180 {
 
     public:
 

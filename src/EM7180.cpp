@@ -102,7 +102,7 @@ void EM7180Master::setGyroFs(uint16_t gyro_fs)
     writeRegister(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-bool _EM7180::hasFeature(uint8_t features)
+bool EM7180::hasFeature(uint8_t features)
 {
     return features & readRegister(EM7180_FeatureFlags);
 }
@@ -121,7 +121,7 @@ void interruptHandler()
 
 // public methods ========================================================================================================
 
-bool _EM7180::begin(void)
+bool EM7180::begin(void)
 {
     _i2c = _i2c_setup(EM7180_ADDRESS);
 
@@ -156,7 +156,7 @@ bool _EM7180::begin(void)
     return true;
 }
 
-const char * _EM7180::getErrorString(void)
+const char * EM7180::getErrorString(void)
 {
     if (errorStatus & 0x01) return "Magnetometer error";
     if (errorStatus & 0x02) return "Accelerometer error";
@@ -176,47 +176,47 @@ const char * _EM7180::getErrorString(void)
 }
 
 
-bool _EM7180::hasBaro(void)
+bool EM7180::hasBaro(void)
 {
     return hasFeature(0x01);
 }
 
-bool _EM7180::hasHumidity(void)
+bool EM7180::hasHumidity(void)
 {
     return hasFeature(0x02);
 }
 
-bool _EM7180::hasTemperature(void)
+bool EM7180::hasTemperature(void)
 {
     return hasFeature(0x04);
 }
 
-bool _EM7180::hasCustom1(void)
+bool EM7180::hasCustom1(void)
 {
     return hasFeature(0x08);
 }
 
-bool _EM7180::hasCustom2(void)
+bool EM7180::hasCustom2(void)
 {
     return hasFeature(0x10);
 }
 
-bool _EM7180::hasCustom3(void)
+bool EM7180::hasCustom3(void)
 {
     return hasFeature(0x20);
 }
 
-uint8_t _EM7180::getProductId(void) 
+uint8_t EM7180::getProductId(void) 
 {
     return readRegister(EM7180_ProductID);
 }
 
-uint8_t _EM7180::getRevisionId(void) 
+uint8_t EM7180::getRevisionId(void) 
 {
     return readRegister(EM7180_RevisionID);
 }
 
-uint16_t _EM7180::getRamVersion(void)
+uint16_t EM7180::getRamVersion(void)
 {
     uint16_t ram1 = readRegister(EM7180_RAMVersion1);
     uint16_t ram2 = readRegister(EM7180_RAMVersion2);
@@ -224,7 +224,7 @@ uint16_t _EM7180::getRamVersion(void)
     return ram1 << 8 | ram2;
 }
 
-uint16_t _EM7180::getRomVersion(void)
+uint16_t EM7180::getRomVersion(void)
 {
     uint16_t rom1 = readRegister(EM7180_ROMVersion1);
     uint16_t rom2 = readRegister(EM7180_ROMVersion2);
@@ -232,7 +232,7 @@ uint16_t _EM7180::getRomVersion(void)
     return rom1 << 8 | rom2;
 }
 
-void _EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
+void EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
 {
     uint8_t rawData[6];  // x/y/z register data stored here
     readRegisters(xreg, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -241,10 +241,10 @@ void _EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
     z = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-bool EM7180_Passthru::begin(void)
+bool EM7180Passthru::begin(void)
 {
     // Do generic intialization
-    if (!_EM7180::begin()) return false;
+    if (!EM7180::begin()) return false;
 
     // First put SENtral in standby mode
     uint8_t c = readRegister(EM7180_AlgorithmControl);
@@ -288,7 +288,7 @@ EM7180Master::EM7180Master(
 bool EM7180Master::begin(int8_t interruptPin)
 {
     // Fail immediately if unable to upload EEPROM
-    if (!_EM7180::begin()) return false;
+    if (!EM7180::begin()) return false;
 
     // Enter EM7180 initialized state
     writeRegister(EM7180_HostControl, 0x00); // set SENtral in initialized state to configure registers
@@ -522,19 +522,19 @@ bool EM7180Master::gotInterrupt(void)
     return newData;
 }
 
-uint8_t _EM7180::readRegister(uint8_t subAddress)
+uint8_t EM7180::readRegister(uint8_t subAddress)
 {
     uint8_t data;
     readRegisters(subAddress, 1, &data);
     return data;                       
 }
 
-void _EM7180::writeRegister(uint8_t subAddress, uint8_t data)
+void EM7180::writeRegister(uint8_t subAddress, uint8_t data)
 {
     _i2c_writeRegister(_i2c, subAddress, data);
 }
 
-void _EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
+void EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     _i2c_readRegisters(_i2c, subAddress, count, dest);
 }

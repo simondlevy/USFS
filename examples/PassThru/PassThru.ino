@@ -187,7 +187,7 @@ static void readAccelData(int16_t * destination)
     destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
 }
 
-EM7180_Passthru em7180p;
+EM7180Passthru em7180p;
 
 void setup()
 {
