@@ -167,6 +167,15 @@ class EM7180 {
         void algorithmControlRequestParameterTransfer(void);
         void algorithmControlReset(void); 
 
+        void enableEvents(uint8_t mask);
+
+        void    requestParamRead(uint8_t param);
+        uint8_t getParamAcknowledge(void);
+        uint8_t readSavedParamByte0(void);
+        uint8_t readSavedParamByte1(void);
+        uint8_t readSavedParamByte2(void);
+        uint8_t readSavedParamByte3(void);
+
 }; // class EM7180
 
 class EM7180Master : public EM7180 {

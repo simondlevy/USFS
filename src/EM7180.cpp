@@ -360,6 +360,43 @@ void EM7180::algorithmControlReset(void)
     writeRegister(EM7180_AlgorithmControl, 0x00);
 }
 
+void EM7180::enableEvents(uint8_t mask)
+{
+    writeRegister(EM7180_EnableEvents, mask);
+}
+
+void EM7180::requestParamRead(uint8_t param)
+{
+    writeRegister(EM7180_ParamRequest, param); 
+}
+
+uint8_t EM7180::getParamAcknowledge(void)
+{
+    return readRegister(EM7180_ParamAcknowledge);
+}
+
+uint8_t EM7180::readSavedParamByte0(void)
+{
+    return readRegister(EM7180_SavedParamByte0);
+}
+
+uint8_t EM7180::readSavedParamByte1(void)
+{
+    return readRegister(EM7180_SavedParamByte1);
+}
+
+uint8_t EM7180::readSavedParamByte2(void)
+{
+    return readRegister(EM7180_SavedParamByte2);
+}
+
+uint8_t EM7180::readSavedParamByte3(void)
+{
+    return readRegister(EM7180_SavedParamByte3);
+}
+
+// EM7180Master -------------------------------------------------------------
+
 EM7180Master::EM7180Master(
         uint8_t aRes, 
         uint16_t gRes, 
