@@ -163,6 +163,8 @@ void loop()
         Serial.print(altitude, 2); 
         Serial.println(" m\n");
     }
+
+    delay(100);
 }
 
 
