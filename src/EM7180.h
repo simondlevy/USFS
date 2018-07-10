@@ -150,7 +150,10 @@ class EM7180 {
         bool hasCustom3(void);
 
         void requestReset(void);
-
+        void setPassThroughMode(void);
+        void setMasterMode(void);
+        void setRunEnable(void);
+        void setRunDisable(void);
 };
 
 class EM7180Master : public EM7180 {

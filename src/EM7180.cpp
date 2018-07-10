@@ -251,6 +251,37 @@ void EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
     z = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
+void EM7180::setPassThroughMode()
+{
+    // First put SENtral in standby mode
+    writeRegister(EM7180_AlgorithmControl, 0x01);
+    _delay(5);
+
+    // Place SENtral in pass-through mode
+    writeRegister(EM7180_PassThruControl, 0x01);
+    while (true) {
+        if (readRegister(EM7180_PassThruStatus) & 0x01) break;
+        _delay(5);
+    }
+}
+
+void EM7180::setMasterMode()
+{
+    // Cancel pass-through mode
+    writeRegister(EM7180_PassThruControl, 0x00);
+    while (true) {
+        if (!(readRegister(EM7180_PassThruStatus) & 0x01)) break;
+        _delay(5);
+    }
+
+    // Re-start algorithm
+    writeRegister(EM7180_AlgorithmControl, 0x00);
+    while (true) {
+        if (!(readRegister(EM7180_AlgorithmStatus) & 0x01)) break;
+        _delay(5);
+    }
+}
+
 bool EM7180Passthru::begin(void)
 {
     // Do generic intialization
@@ -272,6 +303,16 @@ bool EM7180Passthru::begin(void)
 
     // Success
     return true;
+}
+
+void EM7180::setRunEnable(void)
+{
+    writeRegister(EM7180_HostControl, 0x01); 
+}
+
+void EM7180::setRunDisable(void)
+{
+    writeRegister(EM7180_HostControl, 0x00); 
 }
 
 EM7180Master::EM7180Master(

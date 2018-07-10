@@ -22,6 +22,8 @@
 
 #include "EM7180.h"
 
+EM7180 em7180;
+
 static const float MAGNETIC_DECLINATION =  13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
 
 /*************************************************************************************************/
@@ -358,50 +360,6 @@ static void EM7180_acc_cal_upload()
     writeByte(EM7180_ADDRESS, EM7180_GP56, cal_num_byte[1]);
 }
 
-static void WS_PassThroughMode()
-{
-    uint8_t stat = 0;
-
-    // First put SENtral in standby mode
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x01);
-    delay(5);
-
-    // Place SENtral in pass-through mode
-    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x01);
-    delay(5);
-    stat = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
-    while(!(stat & 0x01))
-    {
-        stat = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
-        delay(5);
-    }
-}
-
-static void WS_Resume()
-{
-    uint8_t stat = 0;
-
-    // Cancel pass-through mode
-    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x00);
-    delay(5);
-    stat = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
-    while((stat & 0x01))
-    {
-        stat = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
-        delay(5);
-    }
-
-    // Re-start algorithm
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00);
-    delay(5);
-    stat = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
-    while((stat & 0x01))
-    {
-        stat = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
-        delay(5);
-    }
-}
-
 static void readSenParams()
 {
     uint8_t data[140];
@@ -476,14 +434,14 @@ static void Accel_cal_check(int16_t accelCount[3])
             delay(100);
 
             // Put the Sentral in pass-thru mode
-            WS_PassThroughMode();
+            em7180.setPassThroughMode();
 
             // Store accelerometer calibration data to the M24512DFM I2C EEPROM
             writeAccCal();
 
 
             // Take Sentral out of pass-thru mode and re-start algorithm
-            WS_Resume();
+            em7180.setMasterMode();
             accel_cal_saved++;
             if (accel_cal_saved > 6) accel_cal_saved = 0;
         }
@@ -657,8 +615,6 @@ static void sensorError(const char * errmsg)
 
 // ======================================================================================
 
-EM7180 em7180;
-
 void setup()
 {  
     // Support both Teensy and traditional Arduino
@@ -731,13 +687,13 @@ void setup()
         Serial.println("!!!Warm Start active!!!");
 
         // Put the Sentral in pass-thru mode
-        WS_PassThroughMode();
+        em7180.setPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        WS_Resume();
+        em7180.setMasterMode();
     } else
     {
         Serial.println("***No Warm Start***");
@@ -764,7 +720,7 @@ void setup()
         Serial.println("!!!Accel Cal Active!!!");
 
         // Put the Sentral in pass-thru mode
-        WS_PassThroughMode();
+        em7180.setPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readAccelCal();
@@ -776,7 +732,7 @@ void setup()
         Serial.print("Z-acc min: "); Serial.println(global_conf.accZero_min[2]);
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        WS_Resume();
+        em7180.setMasterMode();
     } else
     {
         Serial.println("***No Accel Cal***");
@@ -785,7 +741,7 @@ void setup()
     delay(1000);
 
     // Set SENtral in initialized state to configure registers
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
+    em7180.setRunDisable();
 
     // Load Accel Cal
     if (accel_cal)
@@ -794,7 +750,7 @@ void setup()
     }
 
     // Force initialize
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01);
+    em7180.setRunEnable();
 
     // Load Warm Start parameters
     if (warm_start)
@@ -803,7 +759,7 @@ void setup()
     }
 
     // Set SENtral in initialized state to configure registers
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
+    em7180.setRunDisable();
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
     writeByte(EM7180_ADDRESS, EM7180_ACC_LPF_BW, 0x03); // 41Hz
@@ -825,7 +781,7 @@ void setup()
     writeByte(EM7180_ADDRESS, EM7180_EnableEvents, 0x07);
 
     // Enable EM7180 run mode
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // set SENtral in normal run mode
+    em7180.setRunEnable();
     delay(100);
 
     // EM7180 parameter adjustments
@@ -955,13 +911,13 @@ void loop()
         EM7180_get_WS_params();
 
         // Put the Sentral in pass-thru mode
-        WS_PassThroughMode();
+        em7180.setPassThroughMode();
 
         // Store WarmStart data to the M24512DFM I2C EEPROM
         writeSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        WS_Resume();
+        em7180.setMasterMode();
         warm_start_saved = true;
     }
 
