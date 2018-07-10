@@ -163,7 +163,11 @@ class EM7180 {
         void setAccelRate(uint8_t rate);
         void setGyroRate(uint8_t rate);
         void setBaroRate(uint8_t rate);
-};
+
+        void algorithmControlRequestParameterTransfer(void);
+        void algorithmControlReset(void); 
+
+}; // class EM7180
 
 class EM7180Master : public EM7180 {
 

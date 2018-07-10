@@ -350,6 +350,16 @@ void EM7180::setBaroRate(uint8_t rate)
     writeRegister(EM7180_BaroRate, rate);
 }
 
+void EM7180::algorithmControlRequestParameterTransfer(void)
+{
+    writeRegister(EM7180_AlgorithmControl, 0x80);
+}
+
+void EM7180::algorithmControlReset(void)
+{
+    writeRegister(EM7180_AlgorithmControl, 0x00);
+}
+
 EM7180Master::EM7180Master(
         uint8_t aRes, 
         uint16_t gRes, 

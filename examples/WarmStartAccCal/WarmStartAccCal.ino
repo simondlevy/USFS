@@ -120,7 +120,7 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs)
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0xCB);
 
     // Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80);
+    em7180.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
@@ -128,7 +128,7 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs)
         stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     }
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    em7180.algorithmControlReset(); // Re-start algorithm
 }
 
 static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
@@ -146,7 +146,7 @@ static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0xCA);
 
     //Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80);
+    em7180.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
@@ -155,7 +155,7 @@ static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     }
     // Parameter request = 0 to end parameter transfer process
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00);
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    em7180.algorithmControlReset(); // Re-start algorithm
 }
 
 static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
@@ -175,7 +175,7 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
 
     // Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80);
+    em7180.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
@@ -184,7 +184,7 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
     }
     // Parameter request = 0 to end parameter transfer process
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00);
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    em7180.algorithmControlReset(); // Re-start algorithm
 }
 
 static void EM7180_set_WS_params()
@@ -201,7 +201,7 @@ static void EM7180_set_WS_params()
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
 
     // Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80);
+    em7180.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
@@ -238,7 +238,7 @@ static void EM7180_get_WS_params()
     delay(10);
 
     // Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80);
+    em7180.algorithmControlRequestParameterTransfer();
     delay(10);
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
@@ -275,7 +275,7 @@ static void EM7180_get_WS_params()
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00);
 
     // Re-start algorithm
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00);
+    em7180.algorithmControlReset();
 }
 
 static void EM7180_acc_cal_upload()
@@ -773,7 +773,7 @@ void setup()
     em7180.setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
 
     // Configure operating mode
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
+    em7180.algorithmControlReset(); // read scale sensor data
 
     // Enable interrupt to host upon certain events
     // choose host interrupts when any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
@@ -789,7 +789,7 @@ void setup()
 
     // Read sensor default FS values from parameter space
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); // Request to read parameter 74
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); // Request parameter transfer process
+    em7180.algorithmControlRequestParameterTransfer(); // Request parameter transfer process
     byte param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A))
     {
@@ -817,7 +817,7 @@ void setup()
     uint16_t EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
     Serial.print("Gyroscope Default Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+    em7180.algorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
     EM7180_set_integer_param (0x49, 0x00);
@@ -828,7 +828,7 @@ void setup()
 
     // Read sensor new FS values from parameter space
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); // Request parameter transfer process
+    em7180.algorithmControlRequestParameterTransfer(); // Request parameter transfer process
     param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A))
     {
@@ -855,7 +855,7 @@ void setup()
     EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
     Serial.print("Gyroscope New Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+    em7180.algorithmControlReset(); // re-enable algorithm
 
     // Read EM7180 status
     uint8_t runStatus = readByte(EM7180_ADDRESS, EM7180_RunStatus);
