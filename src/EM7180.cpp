@@ -38,13 +38,6 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-static volatile bool newData;
-
-void interruptHandler()
-{
-    newData = true;
-}
-
 bool EM7180::begin(void)
 {
     _i2c = _i2c_setup(EM7180_ADDRESS);
@@ -656,7 +649,7 @@ const char * EM7180_Master::getErrorString(void)
     return _em7180.getErrorString();
 }
 
-bool EM7180_Master::begin(int8_t interruptPin)
+bool EM7180_Master::begin(void)
 {
     // Fail immediately if unable to upload EEPROM
     if (!_em7180.begin()) return false;
@@ -695,18 +688,6 @@ bool EM7180_Master::begin(int8_t interruptPin)
     // Write desired sensor full scale ranges to the EM7180
     setMagAccFs(_mRes, _aRes);
     setGyroFs(_gRes); 
-
-    if (interruptPin >= 0) {
-
-        // Set up the interrupt pin: active high, push-pull
-        _pinModeInput(interruptPin);
-        _attachRisingInterrupt(interruptPin, interruptHandler);  
-
-        // Check event status register to clear the EM7180 interrupt before the main loop
-        _em7180.getEventStatus(); // reading clears the register and interrupt
-
-        newData = false;
-    }
 
     // Success
     return _em7180.getSensorStatus() ? false : true;
@@ -844,10 +825,3 @@ uint8_t EM7180_Master::getActualTempRate()
 {
     return _em7180.getActualTempRate();
 }
-
-bool EM7180_Master::gotInterrupt(void)
-{
-    return newData;
-}
-
-

@@ -23,10 +23,6 @@
 
 void    _delay(uint32_t msec);
 
-void    _pinModeInput(uint8_t pin);
-
-void    _attachRisingInterrupt(uint8_t pin, void (*isr)(void));
-
 uint8_t _i2c_setup(uint8_t address);
 
 void    _i2c_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data);

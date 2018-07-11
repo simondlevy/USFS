@@ -274,13 +274,11 @@ class EM7180_Master {
 
         bool hasCustom3(void);
 
-        bool begin(int8_t pin=-1);
+        bool begin(void);
 
         void checkEventStatus(void);
 
         bool gotError(void);
-
-        bool gotInterrupt(void);
 
         bool gotQuaternion(void);
 
