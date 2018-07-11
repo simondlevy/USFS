@@ -106,12 +106,12 @@ void loop()
         if(yaw < 0) yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
         roll  *= 180.0f / PI;
 
-        Serial.print("Quaternion Yaw, Pitch, Roll: ");
-        Serial.print(yaw, 2);
+        Serial.print("Quaternion Roll, Pitch, Yaw: ");
+        Serial.print(roll, 2);
         Serial.print(", ");
         Serial.print(pitch, 2);
         Serial.print(", ");
-        Serial.println(roll, 2);
+        Serial.println(yaw, 2);
     }
 
     if (em7180.gotAccelerometer()) {
