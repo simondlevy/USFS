@@ -191,6 +191,19 @@ class EM7180 {
         void loadParamByte2(uint8_t value);
         void loadParamByte3(uint8_t value);
 
+        void writeGp36(uint8_t value);
+        void writeGp37(uint8_t value);
+        void writeGp38(uint8_t value);
+        void writeGp39(uint8_t value);
+        void writeGp40(uint8_t value);
+        void writeGp50(uint8_t value);
+        void writeGp51(uint8_t value);
+        void writeGp52(uint8_t value);
+        void writeGp53(uint8_t value);
+        void writeGp54(uint8_t value);
+        void writeGp55(uint8_t value);
+        void writeGp56(uint8_t value);
+
 }; // class EM7180
 
 class EM7180Master : public EM7180 {

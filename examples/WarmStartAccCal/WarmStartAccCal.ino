@@ -68,14 +68,6 @@ static Sentral_WS_params  WS_params;
 // I2C read/write functions for the MPU9250 and AK8963 sensors
 //===================================================================================================================
 
-static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
-{
-    Wire.beginTransmission(address);  // Initialize the Tx buffer
-    Wire.write(subAddress);           // Put slave register address in Tx buffer
-    Wire.write(data);                 // Put data in Tx buffer
-    Wire.endTransmission();           // Send the Tx buffer
-}
-
 static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(address);            // Initialize the Tx buffer
@@ -229,8 +221,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (4096000000/(global_conf.accZero_max[0] - global_conf.accZero_min[0])) - 1000000;
         cal_num = (int16_t)big_cal_num;
     }
-    writeByte(EM7180_ADDRESS, EM7180_GP36, cal_num_byte[0]);
-    writeByte(EM7180_ADDRESS, EM7180_GP37, cal_num_byte[1]);
+    em7180.writeGp36(cal_num_byte[0]);
+    em7180.writeGp37(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -241,8 +233,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (4096000000/(global_conf.accZero_max[1] - global_conf.accZero_min[1])) - 1000000;
         cal_num = (int16_t)big_cal_num;
     }
-    writeByte(EM7180_ADDRESS, EM7180_GP38, cal_num_byte[0]);
-    writeByte(EM7180_ADDRESS, EM7180_GP39, cal_num_byte[1]);  
+    em7180.writeGp38(cal_num_byte[0]);
+    em7180.writeGp39(cal_num_byte[1]);  
 
     if (!accel_cal)
     {
@@ -253,8 +245,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (4096000000/(global_conf.accZero_max[2] - global_conf.accZero_min[2])) - 1000000;
         cal_num = (int16_t)big_cal_num;
     }
-    writeByte(EM7180_ADDRESS, EM7180_GP40, cal_num_byte[0]);
-    writeByte(EM7180_ADDRESS, EM7180_GP50, cal_num_byte[1]);
+    em7180.writeGp40(cal_num_byte[0]);
+    em7180.writeGp50(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -265,8 +257,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 - global_conf.accZero_min[0]))*100000)/4096;
         cal_num = (int16_t)big_cal_num;
     }
-    writeByte(EM7180_ADDRESS, EM7180_GP51, cal_num_byte[0]);
-    writeByte(EM7180_ADDRESS, EM7180_GP52, cal_num_byte[1]);
+    em7180.writeGp51(cal_num_byte[0]);
+    em7180.writeGp52(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -277,8 +269,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 - global_conf.accZero_min[1]))*100000)/4096;
         cal_num = (int16_t)big_cal_num;
     }
-    writeByte(EM7180_ADDRESS, EM7180_GP53, cal_num_byte[0]);
-    writeByte(EM7180_ADDRESS, EM7180_GP54, cal_num_byte[1]);
+    em7180.writeGp53(cal_num_byte[0]);
+    em7180.writeGp54(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -289,8 +281,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 - global_conf.accZero_min[2]))*100000)/4096;
         cal_num = -(int16_t)big_cal_num;
     }
-    writeByte(EM7180_ADDRESS, EM7180_GP55, cal_num_byte[0]);
-    writeByte(EM7180_ADDRESS, EM7180_GP56, cal_num_byte[1]);
+    em7180.writeGp55(cal_num_byte[0]);
+    em7180.writeGp56(cal_num_byte[1]);
 }
 
 static void readSenParams()

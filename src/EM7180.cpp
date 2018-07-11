@@ -487,6 +487,65 @@ void EM7180::loadParamByte3(uint8_t value)
     writeRegister(EM7180_LoadParamByte3, value);
 }
 
+void EM7180::writeGp36(uint8_t value)
+{
+    writeRegister(EM7180_GP36, value);
+}
+
+void EM7180::writeGp37(uint8_t value)
+{
+    writeRegister(EM7180_GP37, value);
+}
+
+void EM7180::writeGp38(uint8_t value)
+{
+    writeRegister(EM7180_GP38, value);
+}
+
+void EM7180::writeGp39(uint8_t value)
+{
+    writeRegister(EM7180_GP39, value);
+}
+
+void EM7180::writeGp40(uint8_t value)
+{
+    writeRegister(EM7180_GP40, value);
+}
+
+void EM7180::writeGp50(uint8_t value)
+{
+    writeRegister(EM7180_GP50, value);
+}
+
+void EM7180::writeGp51(uint8_t value)
+{
+    writeRegister(EM7180_GP51, value);
+}
+
+void EM7180::writeGp52(uint8_t value)
+{
+    writeRegister(EM7180_GP52, value);
+}
+
+void EM7180::writeGp53(uint8_t value)
+{
+    writeRegister(EM7180_GP53, value);
+}
+
+void EM7180::writeGp54(uint8_t value)
+{
+    writeRegister(EM7180_GP54, value);
+}
+
+void EM7180::writeGp55(uint8_t value)
+{
+    writeRegister(EM7180_GP55, value);
+}
+
+void EM7180::writeGp56(uint8_t value)
+{
+    writeRegister(EM7180_GP56, value);
+}
 
 // EM7180Master -------------------------------------------------------------
 
