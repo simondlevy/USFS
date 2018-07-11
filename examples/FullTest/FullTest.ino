@@ -39,7 +39,7 @@ static const uint16_t GYRO_RATE      = 200;  // Hz
 static const uint8_t  BARO_RATE      = 50;   // Hz
 static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
-EM7180Master em7180 = EM7180Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
 void setup()
 {

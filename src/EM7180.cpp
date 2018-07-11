@@ -559,9 +559,9 @@ void EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     _i2c_readRegisters(_i2c, subAddress, count, dest);
 }
-// EM7180Master ==========================================================================================================
+// EM7180_Master ==========================================================================================================
 
-EM7180Master::EM7180Master(
+EM7180_Master::EM7180_Master(
         uint8_t aRes, 
         uint16_t gRes, 
         uint16_t mRes, 
@@ -581,82 +581,82 @@ EM7180Master::EM7180Master(
     _qRateDivisor = qRateDivisor;
 }
 
-uint8_t EM7180Master::getProductId(void) 
+uint8_t EM7180_Master::getProductId(void) 
 {
     return _em7180.getProductId();
 }
 
-uint8_t EM7180Master::getRevisionId(void) 
+uint8_t EM7180_Master::getRevisionId(void) 
 {
     return _em7180.getRevisionId();
 }
 
-uint16_t EM7180Master::getRamVersion(void)
+uint16_t EM7180_Master::getRamVersion(void)
 {
     return _em7180.getRamVersion();
 }
 
-uint16_t EM7180Master::getRomVersion(void)
+uint16_t EM7180_Master::getRomVersion(void)
 {
     return _em7180.getRomVersion();
 }
 
-bool EM7180Master::hasBaro(void)
+bool EM7180_Master::hasBaro(void)
 {
     return _em7180.hasFeature(0x01);
 }
 
-bool EM7180Master::hasHumidity(void)
+bool EM7180_Master::hasHumidity(void)
 {
     return _em7180.hasFeature(0x02);
 }
 
-bool EM7180Master::hasTemperature(void)
+bool EM7180_Master::hasTemperature(void)
 {
     return _em7180.hasFeature(0x04);
 }
 
-bool EM7180Master::hasCustom1(void)
+bool EM7180_Master::hasCustom1(void)
 {
     return _em7180.hasFeature(0x08);
 }
 
-bool EM7180Master::hasCustom2(void)
+bool EM7180_Master::hasCustom2(void)
 {
     return _em7180.hasFeature(0x10);
 }
 
-bool EM7180Master::hasCustom3(void)
+bool EM7180_Master::hasCustom3(void)
 {
     return _em7180.hasFeature(0x20);
 }
 
-void EM7180Master::setIntegerParam(uint8_t param, uint32_t param_val) 
+void EM7180_Master::setIntegerParam(uint8_t param, uint32_t param_val) 
 {
     _em7180.setIntegerParam(param, param_val);
 }
 
-void EM7180Master::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
+void EM7180_Master::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
 {
     _em7180.setMagAccFs(mag_fs, acc_fs);
 }
 
-void EM7180Master::setGyroFs(uint16_t gyro_fs) 
+void EM7180_Master::setGyroFs(uint16_t gyro_fs) 
 {
     _em7180.setGyroFs(gyro_fs);
 }
 
-bool EM7180Master::algorithmStatus(uint8_t status)
+bool EM7180_Master::algorithmStatus(uint8_t status)
 {
     return _em7180.getAlgorithmStatus() & status;
 }
 
-const char * EM7180Master::getErrorString(void)
+const char * EM7180_Master::getErrorString(void)
 {
     return _em7180.getErrorString();
 }
 
-bool EM7180Master::begin(int8_t interruptPin)
+bool EM7180_Master::begin(int8_t interruptPin)
 {
     // Fail immediately if unable to upload EEPROM
     if (!_em7180.begin()) return false;
@@ -712,54 +712,54 @@ bool EM7180Master::begin(int8_t interruptPin)
     return _em7180.getSensorStatus() ? false : true;
 }
 
-void EM7180Master::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
+void EM7180_Master::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
 {
     _em7180.getFullScaleRanges(accFs, gyroFs, magFs);
 }
 
-bool EM7180Master::algorithmStatusStandby(void)
+bool EM7180_Master::algorithmStatusStandby(void)
 {
     return algorithmStatus(0x01);
 }
 
-bool EM7180Master::algorithmStatusSlow(void)
+bool EM7180_Master::algorithmStatusSlow(void)
 {
     return algorithmStatus(0x02);
 }
 
-bool EM7180Master::algorithmStatusStillness(void)
+bool EM7180_Master::algorithmStatusStillness(void)
 {
     return algorithmStatus(0x04);
 }
 
-bool EM7180Master::algorithmStatusMagCalibrationCompleted(void)
+bool EM7180_Master::algorithmStatusMagCalibrationCompleted(void)
 {
     return algorithmStatus(0x08);
 }
 
-bool EM7180Master::algorithmStatusMagneticAnomalyDetected(void)
+bool EM7180_Master::algorithmStatusMagneticAnomalyDetected(void)
 {
     return algorithmStatus(0x10);
 }
 
-bool EM7180Master::algorithmStatusUnreliableData(void)
+bool EM7180_Master::algorithmStatusUnreliableData(void)
 {
     return algorithmStatus(0x20);
 }
 
-bool EM7180Master::runStatusNormal(void)
+bool EM7180_Master::runStatusNormal(void)
 {
     return _em7180.getRunStatus() & 0x01;
 }
 
-void EM7180Master::checkEventStatus(void)
+void EM7180_Master::checkEventStatus(void)
 {
     // Check event status register, way to check data ready by checkEventStatusing rather than interrupt
     _eventStatus = _em7180.getEventStatus(); // reading clears the register
 
 }
 
-bool EM7180Master::gotError(void)
+bool EM7180_Master::gotError(void)
 {
     if (_eventStatus & 0x02) {
 
@@ -769,83 +769,83 @@ bool EM7180Master::gotError(void)
     return false;
 }
 
-bool EM7180Master::gotQuaternion(void)
+bool EM7180_Master::gotQuaternion(void)
 {
     return _eventStatus & 0x04;
 }
 
-bool EM7180Master::gotMagnetometer(void)
+bool EM7180_Master::gotMagnetometer(void)
 {
     return _eventStatus & 0x08;
 }
 
-bool EM7180Master::gotAccelerometer(void)
+bool EM7180_Master::gotAccelerometer(void)
 {
     return _eventStatus & 0x10;
 }
 
-bool EM7180Master::gotGyrometer(void)
+bool EM7180_Master::gotGyrometer(void)
 {
     return _eventStatus & 0x20;
 }
 
-bool EM7180Master::gotBarometer(void)
+bool EM7180_Master::gotBarometer(void)
 {
     return _eventStatus & 0x40;
 }
 
-void EM7180Master::readQuaternion(float & qw, float & qx, float & qy, float &qz)
+void EM7180_Master::readQuaternion(float & qw, float & qx, float & qy, float &qz)
 {
     _em7180.readQuaternion(qw, qx, qy, qz);
 }
 
-void EM7180Master::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
+void EM7180_Master::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
 {
     _em7180.readAccelerometer(ax, ay, az);
 }
 
-void EM7180Master::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
+void EM7180_Master::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
 {
     _em7180.readGyrometer(gx, gy, gz);
 }
 
-void EM7180Master::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
+void EM7180_Master::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
 {
     _em7180.readMagnetometer(mx, my, mz);
 }
 
 
-void EM7180Master::readBarometer(float & pressure, float & temperature)
+void EM7180_Master::readBarometer(float & pressure, float & temperature)
 {
     _em7180.readBarometer(pressure, temperature);
 }
 
-uint8_t EM7180Master::getActualMagRate()
+uint8_t EM7180_Master::getActualMagRate()
 {
     return _em7180.getActualMagRate();
 }
 
-uint16_t EM7180Master::getActualAccelRate()
+uint16_t EM7180_Master::getActualAccelRate()
 {
     return 10*_em7180.getActualAccelRate();
 }
 
-uint16_t EM7180Master::getActualGyroRate()
+uint16_t EM7180_Master::getActualGyroRate()
 {
     return 10*_em7180.getActualGyroRate();
 }
 
-uint8_t EM7180Master::getActualBaroRate()
+uint8_t EM7180_Master::getActualBaroRate()
 {
     return _em7180.getActualBaroRate();
 }
 
-uint8_t EM7180Master::getActualTempRate()
+uint8_t EM7180_Master::getActualTempRate()
 {
     return _em7180.getActualTempRate();
 }
 
-bool EM7180Master::gotInterrupt(void)
+bool EM7180_Master::gotInterrupt(void)
 {
     return newData;
 }

@@ -23,7 +23,7 @@
 
 class EM7180 {
 
-    friend class EM7180Master;
+    friend class EM7180_Master;
 
     protected:
 
@@ -217,7 +217,7 @@ class EM7180 {
 
 }; // class EM7180
 
-class EM7180Master {
+class EM7180_Master {
 
     private:
 
@@ -242,7 +242,7 @@ class EM7180Master {
 
     public:
 
-        EM7180Master(
+        EM7180_Master(
                 uint8_t  aRes,          // Gs
                 uint16_t gRes,          // radians per second
                 uint16_t mRes,          // microTeslas
