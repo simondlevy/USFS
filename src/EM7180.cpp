@@ -24,7 +24,7 @@
 #include "EM7180.h"
 #include "cross_platform.h"
 
-float EM7180Master::uint32_reg_to_float (uint8_t *buf)
+float EM7180::uint32_reg_to_float (uint8_t *buf)
 {
     union {
         uint32_t ui32;
@@ -546,6 +546,24 @@ void EM7180::writeGp56(uint8_t value)
 {
     writeRegister(EM7180_GP56, value);
 }
+
+void EM7180::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
+{
+    readThreeAxis(EM7180_AX, ax, ay, az);
+}
+
+void EM7180::readQuaternion(float & qw, float & qx, float & qy, float &qz)
+{
+    uint8_t rawData[16];  // x/y/z/w quaternion register data stored here (note unusual order!)
+
+    readRegisters(EM7180_QX, 16, &rawData[0]);       
+
+    qx = uint32_reg_to_float (&rawData[0]);
+    qy = uint32_reg_to_float (&rawData[4]);
+    qz = uint32_reg_to_float (&rawData[8]);
+    qw = uint32_reg_to_float (&rawData[12]); 
+}
+
 
 // EM7180Master -------------------------------------------------------------
 

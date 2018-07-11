@@ -65,23 +65,6 @@ static Sentral_WS_params  WS_params;
 #endif
 
 //===================================================================================================================
-// I2C read/write functions for the MPU9250 and AK8963 sensors
-//===================================================================================================================
-
-static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
-{  
-    Wire.beginTransmission(address);            // Initialize the Tx buffer
-    Wire.write(subAddress);                     // Put slave register address in Tx buffer
-    Wire.endTransmission(NOSTOP);           // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    Wire.requestFrom(address, (size_t) count);  // Read bytes from slave register address 
-    while (Wire.available())
-    {
-        dest[i++] = Wire.read();
-    }                                           // Put read results in the Rx buffer
-}
-
-//===================================================================================================================
 //====== Sentral parameter management functions
 //===================================================================================================================
 
@@ -399,45 +382,6 @@ static void writeAccCal()
         data[(2*axis + 7)] = (global_conf.accZero_min[axis] >> 8);
     }
     M24512DFMwriteBytes(M24512DFM_DATA_ADDRESS, 0x7f, 0x8c, 12, data); // Page 255
-}
-
-//===================================================================================================================
-//====== Set of useful function to access acceleration. gyroscope, magnetometer, and temperature data
-//===================================================================================================================
-
-static float uint32_reg_to_float (uint8_t *buf)
-{
-    union {
-        uint32_t ui32;
-        float f;
-    } u;
-
-    u.ui32 =     (((uint32_t)buf[0]) +
-            (((uint32_t)buf[1]) <<  8) +
-            (((uint32_t)buf[2]) << 16) +
-            (((uint32_t)buf[3]) << 24));
-    return u.f;
-}
-
-static void readSENtralAccelData(int16_t * destination)
-{
-    uint8_t rawData[6];  // x/y/z accel register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  // Turn the MSB and LSB into a signed 16-bit value
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
-}
-
-
-static void readSENtralQuatData(float * destination)
-{
-    uint8_t rawData[16];  // x/y/z quaternion register data stored here
-    readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       // Read the sixteen raw data registers into data array
-    destination[0] = uint32_reg_to_float (&rawData[0]);
-    destination[1] = uint32_reg_to_float (&rawData[4]);
-    destination[2] = uint32_reg_to_float (&rawData[8]);
-    destination[3] = uint32_reg_to_float (&rawData[12]);  // SENtral stores quats as qx, qy, qz, q0!
-
 }
 
 //===================================================================================================================
@@ -853,7 +797,7 @@ void loop()
 
         int16_t accelCount[3];
 
-        readSENtralAccelData(accelCount);
+        em7180.readAccelerometer(accelCount[0], accelCount[1], accelCount[2]);
 
         // Now we'll calculate the accleration value into actual g's
         ax = (float)accelCount[0]*0.000488;  // get actual g value
@@ -865,7 +809,7 @@ void loop()
     }
 
     if (eventStatus & 0x04) {
-        readSENtralQuatData(Quat);
+        em7180.readQuaternion(Quat[0], Quat[1], Quat[2], Quat[3]);
     }
 
     // Serial print and/or display at 0.5 s rate independent of data rates

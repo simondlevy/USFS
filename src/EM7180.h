@@ -204,6 +204,11 @@ class EM7180 {
         void writeGp55(uint8_t value);
         void writeGp56(uint8_t value);
 
+        void readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
+        void readQuaternion(float & qw, float & qx, float & qy, float & qz);
+
+        static float uint32_reg_to_float (uint8_t *buf);
+
 }; // class EM7180
 
 class EM7180Master : public EM7180 {
@@ -217,8 +222,6 @@ class EM7180Master : public EM7180 {
         void setGyroFs(uint16_t gyro_fs);
         void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
         void setIntegerParam (uint8_t param, uint32_t param_val);
-
-        static float uint32_reg_to_float (uint8_t *buf);
 
         uint8_t  _aRes;         // Gs
         uint16_t _gRes;         // radians per second
