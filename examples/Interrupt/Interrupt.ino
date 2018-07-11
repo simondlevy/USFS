@@ -33,10 +33,6 @@
 #endif
 
 // This works for LadybugFC; you should change it for your controller.
-static const uint8_t INTERRUPT_PIN = 12;
-
-extern volatile bool newData;
-
 static const uint8_t  ARES           = 8;    // Gs
 static const uint16_t GRES           = 2000; // degrees per second
 static const uint16_t MRES           = 1000; // microTeslas
@@ -47,6 +43,15 @@ static const uint8_t  BARO_RATE      = 50;   // Hz
 static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
 EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+
+static const uint8_t INTERRUPT_PIN = 12;
+
+static volatile bool newData;
+
+static void interruptHandler()
+{
+    newData = true;
+}
 
 void setup()
 {
@@ -60,8 +65,12 @@ void setup()
 
     Serial.begin(115200);
 
+    // Set up the interrupt pin: active high, push-pull
+    pinMode(INTERRUPT_PIN, INPUT);
+    attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
+
     // Start the EM7180 in master mode with interrupt
-    if (!em7180.begin(INTERRUPT_PIN)) {
+    if (!em7180.begin()) {
 
         while (true) {
             Serial.println(em7180.getErrorString());
@@ -71,9 +80,11 @@ void setup()
 
 void loop()
 {  
-    if (em7180.gotInterrupt()) {
+    if (newData) {
 
-        em7180.checkEventStatus();
+        newData = false;
+
+        em7180.checkEventStatus(); // this also clears the interrupt
 
         if (em7180.gotError()) {
             Serial.print("ERROR: ");

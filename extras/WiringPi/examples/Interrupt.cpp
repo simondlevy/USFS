@@ -27,10 +27,6 @@
 #include <errno.h>
 #include <wiringPi.h>
 
-// Use GPIO Pin 17, which is Pin 0 for wiringPi library
-static const uint8_t INTERRUPT_PIN = 0;
-
-extern volatile bool newData;
 
 static const uint8_t  ARES           = 8;    // Gs
 static const uint16_t GRES           = 2000; // degrees per second
@@ -43,6 +39,16 @@ static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
 EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
+// Use GPIO Pin 17, which is Pin 0 for wiringPi library
+static const uint8_t INTERRUPT_PIN = 0;
+
+static bool newData;
+
+static void interruptHandler(void)
+{
+    newData = true;
+}
+
 void setup()
 {
     // Set up the wiringPi library
@@ -51,8 +57,12 @@ void setup()
         exit(1);
     }
 
-    // Start the EM7180 in master mode with interrupt
-    if (!em7180.begin(INTERRUPT_PIN)) {
+    // Set up the interrupt
+    pinMode(INTERRUPT_PIN, INPUT);
+    wiringPiISR(pin, INT_EDGE_RISING, interruptHandler) ;
+
+    // Start the EM7180 in master mode
+    if (!em7180.begin()) {
 
         while (true) {
             fprintf(stderr, "%s\n", em7180.getErrorString());
@@ -62,7 +72,9 @@ void setup()
 
 void loop()
 {  
-    if (em7180.gotInterrupt()) {
+    if (newData) {
+
+        newData = false;
 
         em7180.checkEventStatus();
 

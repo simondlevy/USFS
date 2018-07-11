@@ -26,16 +26,6 @@ void _delay(uint32_t msec)
     delay(msec);
 }
 
-void _pinModeInput(uint8_t pin)
-{
-    pinMode(pin, INPUT);
-}
-
-void _attachRisingInterrupt(uint8_t pin, void (*isr)(void))
-{
-    wiringPiISR(pin, INT_EDGE_RISING, isr) ;
-}
-
 uint8_t _i2c_setup(uint8_t address)
 {
     return (uint8_t)wiringPiI2CSetup (address);
