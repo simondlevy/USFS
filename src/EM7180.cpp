@@ -14,7 +14,7 @@
    (at your option) any later version.
 
    EM7180 is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
@@ -423,6 +423,68 @@ uint8_t EM7180::getSensorStatus(void)
 uint8_t EM7180::getErrorStatus(void)
 {
     return readRegister(EM7180_ErrorRegister);
+}
+
+void EM7180::setGyroFs(uint16_t gyro_fs) 
+{
+    uint8_t bytes[4], STAT;
+    bytes[0] = gyro_fs & (0xFF);
+    bytes[1] = (gyro_fs >> 8) & (0xFF);
+    bytes[2] = 0x00;
+    bytes[3] = 0x00;
+    writeRegister(EM7180_LoadParamByte0, bytes[0]); //Gyro LSB
+    writeRegister(EM7180_LoadParamByte1, bytes[1]); //Gyro MSB
+    writeRegister(EM7180_LoadParamByte2, bytes[2]); //Unused
+    writeRegister(EM7180_LoadParamByte3, bytes[3]); //Unused
+    writeRegister(EM7180_ParamRequest, 0xCB); //Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a paramter write processs
+    writeRegister(EM7180_AlgorithmControl, 0x80); //Request parameter transfer procedure
+    STAT = readRegister(EM7180_ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
+    while(!(STAT==0xCB)) {
+        STAT = readRegister(EM7180_ParamAcknowledge);
+    }
+    writeRegister(EM7180_ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
+    writeRegister(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+}
+
+void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
+{
+    uint8_t bytes[4], STAT;
+    bytes[0] = mag_fs & (0xFF);
+    bytes[1] = (mag_fs >> 8) & (0xFF);
+    bytes[2] = acc_fs & (0xFF);
+    bytes[3] = (acc_fs >> 8) & (0xFF);
+    writeRegister(EM7180_LoadParamByte0, bytes[0]); //Mag LSB
+    writeRegister(EM7180_LoadParamByte1, bytes[1]); //Mag MSB
+    writeRegister(EM7180_LoadParamByte2, bytes[2]); //Acc LSB
+    writeRegister(EM7180_LoadParamByte3, bytes[3]); //Acc MSB
+    writeRegister(EM7180_ParamRequest, 0xCA); //Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a paramter write processs
+    writeRegister(EM7180_AlgorithmControl, 0x80); //Request parameter transfer procedure
+    STAT = readRegister(EM7180_ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
+    while(!(STAT==0xCA)) {
+        STAT = readRegister(EM7180_ParamAcknowledge);
+    }
+    writeRegister(EM7180_ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
+    writeRegister(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+}
+
+void EM7180::loadParamByte0(uint8_t value)
+{
+    writeRegister(EM7180_LoadParamByte0, value);
+}
+
+void EM7180::loadParamByte1(uint8_t value)
+{
+    writeRegister(EM7180_LoadParamByte1, value);
+}
+
+void EM7180::loadParamByte2(uint8_t value)
+{
+    writeRegister(EM7180_LoadParamByte2, value);
+}
+
+void EM7180::loadParamByte3(uint8_t value)
+{
+    writeRegister(EM7180_LoadParamByte3, value);
 }
 
 

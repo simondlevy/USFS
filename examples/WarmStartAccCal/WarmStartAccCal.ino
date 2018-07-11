@@ -76,17 +76,6 @@ static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
     Wire.endTransmission();           // Send the Tx buffer
 }
 
-static uint8_t readByte(uint8_t address, uint8_t subAddress)
-{
-    uint8_t data; // `data` will store the register data   
-    Wire.beginTransmission(address);         // Initialize the Tx buffer
-    Wire.write(subAddress);                  // Put slave register address in Tx buffer
-    Wire.endTransmission(NOSTOP);        // Send the Tx buffer, but send a restart to keep connection alive
-    Wire.requestFrom(address, (size_t) 1);   // Read one byte from slave register address 
-    data = Wire.read();                      // Fill Rx buffer with result
-    return data;                             // Return data read from slave register
-}
-
 static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(address);            // Initialize the Tx buffer
@@ -104,63 +93,9 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
 //====== Sentral parameter management functions
 //===================================================================================================================
 
-static void EM7180_set_gyro_FS (uint16_t gyro_fs)
-{
-    uint8_t bytes[4], stat;
-    bytes[0] = gyro_fs & (0xFF);
-    bytes[1] = (gyro_fs >> 8) & (0xFF);
-    bytes[2] = 0x00;
-    bytes[3] = 0x00;
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); //Gyro LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]); //Gyro MSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]); //Unused
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); //Unused
-
-    // Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a paramter write processs
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0xCB);
-
-    // Request parameter transfer procedure
-    em7180.algorithmControlRequestParameterTransfer();
-
-    // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    while(!(stat==0xCB)) {
-        stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    }
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    em7180.algorithmControlReset(); // Re-start algorithm
-}
-
-static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
-    uint8_t bytes[4], stat;
-    bytes[0] = mag_fs & (0xFF);
-    bytes[1] = (mag_fs >> 8) & (0xFF);
-    bytes[2] = acc_fs & (0xFF);
-    bytes[3] = (acc_fs >> 8) & (0xFF);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); //Mag LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]); //Mag MSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]); //Acc LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); //Acc MSB
-
-    // Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a paramter write processs
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0xCA);
-
-    //Request parameter transfer procedure
-    em7180.algorithmControlRequestParameterTransfer();
-
-    // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    while(!(stat==0xCA)) {
-        stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    }
-    // Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00);
-    em7180.algorithmControlReset(); // Re-start algorithm
-}
-
 static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
 {
-    uint8_t bytes[4], stat;
+    uint8_t bytes[4];
     bytes[0] = param_val & (0xFF);
     bytes[1] = (param_val >> 8) & (0xFF);
     bytes[2] = (param_val >> 16) & (0xFF);
@@ -168,22 +103,22 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
 
     // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
     param = param | 0x80;
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); //Param LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); //Param MSB
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
+    em7180.loadParamByte0(bytes[0]); //Param LSB
+    em7180.loadParamByte1(bytes[1]);
+    em7180.loadParamByte2(bytes[2]);
+    em7180.loadParamByte3(bytes[3]); //Param MSB
+    em7180.requestParamRead(param);
 
     // Request parameter transfer procedure
     em7180.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    while(!(stat==param)) {
-        stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    while (true) {
+        if (em7180.getParamAcknowledge() == param) break;
     }
+
     // Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00);
+    em7180.requestParamRead(0x00);
     em7180.algorithmControlReset(); // Re-start algorithm
 }
 
@@ -194,39 +129,37 @@ static void EM7180_set_WS_params()
 
     // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
     param = param | 0x80;
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, WS_params.Sen_param[0][0]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, WS_params.Sen_param[0][1]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, WS_params.Sen_param[0][2]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, WS_params.Sen_param[0][3]);
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
+    em7180.loadParamByte0(WS_params.Sen_param[0][0]);
+    em7180.loadParamByte1(WS_params.Sen_param[0][1]);
+    em7180.loadParamByte2(WS_params.Sen_param[0][2]);
+    em7180.loadParamByte3(WS_params.Sen_param[0][3]);
+    em7180.requestParamRead(param);
 
     // Request parameter transfer procedure
     em7180.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    while(!(stat==param))
-    {
-        stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    stat = em7180.getParamAcknowledge();
+    while(!(stat==param)) {
+        stat = em7180.getParamAcknowledge();
     }
-    for(uint8_t i=1; i<35; i++)
-    {
+    for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
-        writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, WS_params.Sen_param[i][0]);
-        writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, WS_params.Sen_param[i][1]);
-        writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, WS_params.Sen_param[i][2]);
-        writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, WS_params.Sen_param[i][3]);
-        writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
+        em7180.loadParamByte0(WS_params.Sen_param[i][0]);
+        em7180.loadParamByte1(WS_params.Sen_param[i][1]);
+        em7180.loadParamByte2(WS_params.Sen_param[i][2]);
+        em7180.loadParamByte3(WS_params.Sen_param[i][3]);
+        em7180.requestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        stat = em7180.getParamAcknowledge();
         while(!(stat==param))
         {
-            stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+            stat = em7180.getParamAcknowledge();
         }
     }
     // Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00);
+    em7180.requestParamRead(0x00);
 }
 
 static void EM7180_get_WS_params()
@@ -234,7 +167,7 @@ static void EM7180_get_WS_params()
     uint8_t param = 1;
     uint8_t stat;
 
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
+    em7180.requestParamRead(param);
     delay(10);
 
     // Request parameter transfer procedure
@@ -242,37 +175,37 @@ static void EM7180_get_WS_params()
     delay(10);
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    stat = em7180.getParamAcknowledge();
     while(!(stat==param))
     {
-        stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        stat = em7180.getParamAcknowledge();
     }
 
     // Parameter is the decimal value with the MSB set low (default) to indicate a paramter read processs
-    WS_params.Sen_param[0][0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
-    WS_params.Sen_param[0][1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
-    WS_params.Sen_param[0][2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
-    WS_params.Sen_param[0][3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    WS_params.Sen_param[0][0] = em7180.readSavedParamByte0();
+    WS_params.Sen_param[0][1] = em7180.readSavedParamByte1();
+    WS_params.Sen_param[0][2] = em7180.readSavedParamByte2();
+    WS_params.Sen_param[0][3] = em7180.readSavedParamByte3();
 
     for(uint8_t i=1; i<35; i++)
     {
         param = (i+1);
-        writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
+        em7180.requestParamRead(param);
         delay(10);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        stat = em7180.getParamAcknowledge();
         while(!(stat==param))
         {
-            stat = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+            stat = em7180.getParamAcknowledge();
         }
-        WS_params.Sen_param[i][0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
-        WS_params.Sen_param[i][1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
-        WS_params.Sen_param[i][2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
-        WS_params.Sen_param[i][3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+        WS_params.Sen_param[i][0] = em7180.readSavedParamByte0();
+        WS_params.Sen_param[i][1] = em7180.readSavedParamByte1();
+        WS_params.Sen_param[i][2] = em7180.readSavedParamByte2();
+        WS_params.Sen_param[i][3] = em7180.readSavedParamByte3();
     }
     // Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00);
+    em7180.requestParamRead(0x00);
 
     // Re-start algorithm
     em7180.algorithmControlReset();
@@ -818,8 +751,8 @@ void setup()
     EM7180_set_integer_param (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the EM7180
-    EM7180_set_mag_acc_FS (0x3E8, 0x08); // 1000 uT, 8 g
-    EM7180_set_gyro_FS (0x7D0); // 2000 dps
+    em7180.setMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
+    em7180.setGyroFs(0x7D0); // 2000 dps
 
     // Read sensor new FS values from parameter space
     readParams(0x4A, param);// Request to read  parameter 74

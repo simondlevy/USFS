@@ -183,6 +183,14 @@ class EM7180 {
         uint8_t getSensorStatus(void);
         uint8_t getErrorStatus(void);
 
+        void setGyroFs(uint16_t gyro_fs);
+        void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
+
+        void loadParamByte0(uint8_t value);
+        void loadParamByte1(uint8_t value);
+        void loadParamByte2(uint8_t value);
+        void loadParamByte3(uint8_t value);
+
 }; // class EM7180
 
 class EM7180Master : public EM7180 {
