@@ -12,6 +12,8 @@ working with the EM7180 SENtral sensor hub on this board:
 The <b>examples</b> directory contains sketches showing how to use these two classes. As usual, just clone the repo
 into your Arduino libraries folder to get started. The class library and
 examples were adapted from Kris Winer's [repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).
+We strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for
+a comprehensive overview of the EM7180 and other sensor-fusion solutions.
 
 RaspberryPi users should download and install [WiringPi](http://wiringpi.com/),
 then cd to the <b>examples</b> folders in <b>EM7180/extras/WiringPi/examples</b>, and run <b>make</b>
