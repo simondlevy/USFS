@@ -3,9 +3,8 @@ This folder contains a modified version of the Warm-Start / Accelerometer-Calibr
 
 <ul>
 <p><li>Uses the <a href="https://github.com/simondlevy/EM7180/blob/master/src/EM7180.h">EM7180</a> class
-<p><li>Removed the pass-through code 
 <p><li>Runs I<sup>2</sup>C over pins 18/19 instead of 16/17
-<p><li>Simplified the output to the bare minimum for performing the calibration
+<p><li>Simplifies the output to the bare minimum for performing the calibration
 </ul>
 
 You can still follow Greg Tomasch's 
