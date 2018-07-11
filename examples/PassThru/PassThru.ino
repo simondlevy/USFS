@@ -187,7 +187,7 @@ static void readAccelData(int16_t * destination)
     destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
 }
 
-EM7180_Passthru em7180p;
+EM7180 em7180;
 
 void setup()
 {
@@ -203,12 +203,15 @@ void setup()
     delay(100);
 
     // Start the EM7180 in pass-through mode
-    if (!em7180p.begin()) {
+    if (!em7180.begin()) {
 
         while (true) {
-            Serial.println(em7180p.getErrorString());
+            Serial.println(em7180.getErrorString());
         }
     }    
+
+    // Set up for pass-through mode
+    em7180.setPassThroughMode();
 
     // Read the WHO_AM_I register, this is a good test of communication
     byte c = _readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);  // Read WHO_AM_I register for MPU-9250

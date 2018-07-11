@@ -39,7 +39,7 @@ static const uint16_t GYRO_RATE      = 200;  // Hz
 static const uint8_t  BARO_RATE      = 50;   // Hz
 static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
-EM7180 em7180 = EM7180(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
 void setup()
 {
@@ -106,12 +106,12 @@ void loop()
         if(yaw < 0) yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
         roll  *= 180.0f / PI;
 
-        Serial.print("Quaternion Yaw, Pitch, Roll: ");
-        Serial.print(yaw, 2);
+        Serial.print("Quaternion Roll, Pitch, Yaw: ");
+        Serial.print(roll, 2);
         Serial.print(", ");
         Serial.print(pitch, 2);
         Serial.print(", ");
-        Serial.println(roll, 2);
+        Serial.println(yaw, 2);
     }
 
     if (em7180.gotAccelerometer()) {
@@ -163,6 +163,8 @@ void loop()
         Serial.print(altitude, 2); 
         Serial.println(" m\n");
     }
+
+    delay(100);
 }
 
 

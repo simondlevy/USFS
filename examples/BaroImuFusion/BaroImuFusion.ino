@@ -37,7 +37,7 @@ static const uint16_t GYRO_RATE      = 330;  // Hz
 static const uint8_t  BARO_RATE      = 50;   // Hz
 static const uint8_t  Q_RATE_DIVISOR = 5;    // 1/5 gyro rate
  
-EM7180 em7180 = EM7180(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
 
 // 1G = 2048 accelerometer reading
@@ -81,7 +81,6 @@ static void computeIMU ()
 
     Serial.print(" => ");
     Serial.println(acc_Z_minus_grav);
-
     float LINaccData[3];
     LINaccData[0] = -(a11*acc_X_minus_grav + a12*acc_Y_minus_grav + a13*acc_Z_minus_grav); // 0=LAT 
     LINaccData[1] = -(a21*acc_X_minus_grav + a22*acc_Y_minus_grav + a23*acc_Z_minus_grav); // 1=LON
