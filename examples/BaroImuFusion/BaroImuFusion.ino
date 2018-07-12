@@ -99,7 +99,7 @@ void setup()
 
     Serial.begin(115200);
 
-    // Start the EM7180 in master mode, polling instead of interrupt
+    // Start the EM7180 in master mode
     if (!em7180.begin()) {
 
         while (true) {
