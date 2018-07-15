@@ -1,6 +1,6 @@
-EM7180					KEYWORD1
-EM7180_Passthru				KEYWORD1
-begin					KEYWORD2
+EM7180	KEYWORD1
+EM7180_Passthru	KEYWORD1
+begin	KEYWORD2
 getErrorString	KEYWORD2
 getProductId	KEYWORD2
 getRevisionId	KEYWORD2
