@@ -21,8 +21,19 @@
 
 #include <Arduino.h>
 
-//Teensy 3.1/3.2 (__MK20DX256__), Teensy LC (__MKL26Z64__) Teensy 3.5 (__MK64FX512__), Teensy 3.6 (__MK66FX1M0__)
-#if defined(CORE_TEENSY) && ( defined(__MK20DX256__) || defined(__MKL26Z64__) || defined(__MK64FX512__) || defined(__MK66FX1M0__) )
+/* For Teensy use i2c_t3 library and I2C_NOSTOP
+   Teensy 3.0 (__MK20DX128__)
+   Teensy 3.1/3.2 (__MK20DX256__)
+   Teensy LC (__MKL26Z64__)
+   Teensy 3.5 (__MK64FX512__)
+   Teensy 3.6 (__MK66FX1M0__)
+*/
+#if defined(CORE_TEENSY)   && (  \
+    defined(__MK20DX128__) ||    \
+    defined(__MK20DX256__) ||    \
+    defined(__MKL26Z64__)  ||    \
+    defined(__MK64FX512__) ||    \
+    defined(__MK66FX1M0__)    )
 #include <i2c_t3.h>
 #define NOSTOP I2C_NOSTOP
 #else
