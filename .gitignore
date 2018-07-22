@@ -5,3 +5,5 @@
 extras/WiringPi/examples/GetInfo
 extras/WiringPi/examples/FullTest
 extras/WiringPi/examples/Interrupt
+extras/i2cdev/examples/GetInfo
+extras/i2cdev/examples/FullTest
