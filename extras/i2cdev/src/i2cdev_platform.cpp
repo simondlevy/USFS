@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 static const uint8_t I2C_BUS_NUMBER = 1;
 
@@ -40,13 +41,13 @@ uint8_t _i2c_setup(uint8_t address)
     int fd = open(fname, O_RDWR);
     if (fd < 0) {
         fprintf(stderr, "Unable to open %s\n", fname);
-        return 0;
+        exit(1);
     }
 
     // Attempt to make this device an I2C slave
     if (ioctl(fd, I2C_SLAVE, address) < 0) {
         fprintf(stderr, "ioctl failed on %s\n", fname);
-        return 0;
+        exit(1);
     }
 
     return fd;
@@ -54,18 +55,14 @@ uint8_t _i2c_setup(uint8_t address)
 
 void _i2c_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
 {
-    (void)address;
-    (void)subAddress;
-    (void)data;
+    i2c_smbus_write_byte_data(address, subAddress, data);
 }
 
 void _i2c_readRegisters(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {
-    (void)address;
-    (void)subAddress;
-    (void)count;
-    (void)dest;
+    i2c_smbus_write_byte(address, subAddress);
 
-    for (uint8_t i=0; i<count; ++i) {
+    for (uint8_t k=0; k<count; ++k) {
+        dest[k] = i2c_smbus_read_byte(address);
     }
 }

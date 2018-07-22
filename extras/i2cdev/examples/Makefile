@@ -1,5 +1,5 @@
 # 
-# Makefile for EM7180 WiringPi examples
+# Makefile for EM7180 i2cdev examples
 #
 # Copyright (c) 2018 Simon D. Levy
 #
@@ -18,36 +18,30 @@
 # along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 
   
-ALL = GetInfo FullTest Interrupt
+ALL = GetInfo FullTest
 
 EMSRC = ../../../src
 RPISRC = ../src
 
 all: $(ALL)
 
-GetInfo: GetInfo.o EM7180.o wiringpi_platform.o main.o
-	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o wiringpi_platform.o main.o -lwiringPi
+GetInfo: GetInfo.o EM7180.o i2cdev_platform.o main.o
+	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o i2cdev_platform.o main.o 
 
 GetInfo.o: GetInfo.cpp 
 	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c GetInfo.cpp
 
-FullTest: FullTest.o EM7180.o wiringpi_platform.o main.o
-	g++ -std=c++11 -o FullTest FullTest.o EM7180.o wiringpi_platform.o main.o -lwiringPi
+FullTest: FullTest.o EM7180.o i2cdev_platform.o main.o
+	g++ -std=c++11 -o FullTest FullTest.o EM7180.o i2cdev_platform.o main.o 
 
 FullTest.o: FullTest.cpp 
 	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c FullTest.cpp
 
-Interrupt: Interrupt.o EM7180.o wiringpi_platform.o main.o
-	g++ -std=c++11 -o Interrupt Interrupt.o EM7180.o wiringpi_platform.o main.o -lwiringPi
-
-Interrupt.o: Interrupt.cpp 
-	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c Interrupt.cpp
-
 EM7180.o: $(EMSRC)/EM7180.cpp 
 	g++ -std=c++11 -Wall -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
 
-wiringpi_platform.o: $(RPISRC)/wiringpi_platform.cpp 
-	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c $(RPISRC)/wiringpi_platform.cpp
+i2cdev_platform.o: $(RPISRC)/i2cdev_platform.cpp 
+	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c $(RPISRC)/i2cdev_platform.cpp
 
 main.o: main.cpp 
 	g++ -std=c++11 -Wall -c main.cpp

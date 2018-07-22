@@ -17,11 +17,11 @@
  */
 
 #include "EM7180.h"
-#include <wiringPi.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 
 static const uint8_t  ARES           = 8;    // Gs
 static const uint16_t GRES           = 2000; // degrees per second
@@ -36,17 +36,11 @@ EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYR
 
 void setup()
 {
-    // Set up the wiringPi library
-    if (wiringPiSetup () < 0) {
-        fprintf (stderr, "Unable to setup wiringPi: %s\n", strerror (errno));
-        exit(1);
-    }
-
     // Start the EM7180 in master mode
     if (!em7180.begin()) {
 
         while (true) {
-            printf(em7180.getErrorString());
+            printf("%s\n", em7180.getErrorString());
         }
     }    
 }
@@ -92,5 +86,5 @@ void loop()
     static uint32_t count;
     printf("%d ----------------------------------------------\n", count++);
 
-    delay(1000);
+    usleep(1000000);
 }

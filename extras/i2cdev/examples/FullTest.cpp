@@ -19,12 +19,12 @@
  */
 
 #include "EM7180.h"
-#include <wiringPi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <math.h>
+#include <unistd.h>
 
 static const uint8_t  ARES           = 8;    // Gs
 static const uint16_t GRES           = 2000; // degrees per second
@@ -39,14 +39,6 @@ EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYR
 
 void setup()
 {
-    // Set up the wiringPi library
-    if (wiringPiSetup () < 0) {
-        fprintf (stderr, "Unable to setup wiringPi: %s\n", strerror (errno));
-        exit(1);
-    }
-
-    delay(100);
-
     // Start the EM7180 in master mode
     if (!em7180.begin()) {
 
@@ -136,5 +128,5 @@ void loop()
         printf("  Altitude = %5.2f m\n\n", altitude); 
     }
 
-    delay(100);
+    usleep(100000);
 }
