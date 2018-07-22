@@ -3,8 +3,19 @@
 This repository contains Arduino, Raspberry Pi (WiringPi), and Linux i2cdev
 libraries and examples for working with the incredible <a
 href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/">
-EM7180 Ultimate Sensor Fusion Solution</a> from Pesky Products. The library provides two C++ classes for
-working with the EM7180 SENtral sensor hub on this board:
+EM7180 Ultimate Sensor Fusion Solution</a> from Pesky Products. 
+
+We have tested this library on the following hardware:
+
+* Ladybug STM32L4 board from Tlera Corp
+
+* Teensy 3.2, 3.6
+
+* Raspberry Pi 3
+
+* NVIDIA Jetson TX1
+
+The library provides two C++ classes for working with the EM7180 SENtral sensor hub on this board:
 
 * An <b>EM7180</b> class providing a convenient API for the full functionality of the EM7180 unit
 
