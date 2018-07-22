@@ -1,7 +1,8 @@
 <a href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/"><img src="sentral.jpg" width=300></a>
 
-This repository contains Arduino and Raspberry Pi (WiringPi) libraries and examples for working with the incredible
-<a href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/">
+This repository contains Arduino, Raspberry Pi (WiringPi), and Linux i2cdev
+libraries and examples for working with the incredible <a
+href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/">
 EM7180 Ultimate Sensor Fusion Solution</a> from Pesky Products. The library provides two C++ classes for
 working with the EM7180 SENtral sensor hub on this board:
 
@@ -16,5 +17,7 @@ We strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180
 a comprehensive overview of the EM7180 and other sensor-fusion solutions.
 
 RaspberryPi users should download and install [WiringPi](http://wiringpi.com/),
-then cd to the <b>examples</b> folders in <b>EM7180/extras/WiringPi/examples</b>, and run <b>make</b>
+then cd to <b>EM7180/extras/WiringPi/examples</b>, and run <b>make</b>
 to build the examples.
+
+Users of NVIDIA Jetson and other Linux-based boards can cd to <b>EM7180/extras/i2cdev/examples</b>, and run <b>make</b>.
