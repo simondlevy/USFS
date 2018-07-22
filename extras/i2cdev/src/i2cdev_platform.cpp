@@ -20,21 +20,16 @@
 
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
-#include <time.h>
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 static const uint8_t I2C_BUS_NUMBER = 1;
 
 void _delay(uint32_t msec)
 {
-    struct timespec t;
-
-    t.tv_sec  = msec / 1000;
-    t.tv_nsec = msec*1000000 % 1000000000;
-
-    nanosleep(&t, NULL);
+    usleep(msec*1000);
 }
 
 uint8_t _i2c_setup(uint8_t address)
