@@ -20,16 +20,41 @@
 
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
+#include <time.h>
+#include <string.h>
+#include <stdio.h>
+#include <fcntl.h>
+
+static const uint8_t I2C_BUS_NUMBER = 1;
 
 void _delay(uint32_t msec)
 {
-    (void)msec;
+    struct timespec t;
+
+    t.tv_sec  = msec / 1000;
+    t.tv_nsec = msec*1000000 % 1000000000;
+
+    nanosleep(&t, NULL);
 }
 
 uint8_t _i2c_setup(uint8_t address)
 {
-    (void)address;
-    return 0;
+    // Attempt to open /dev/i2c-<NUMBER>
+    char fname[32];
+    sprintf(fname,"/dev/i2c-%d", I2C_BUS_NUMBER);
+    int fd = open(fname, O_RDWR);
+    if (fd < 0) {
+        fprintf(stderr, "Unable to open %s\n", fname);
+        return 0;
+    }
+
+    // Attempt to make this device an I2C slave
+    if (ioctl(fd, I2C_SLAVE, address) < 0) {
+        fprintf(stderr, "ioctl failed on %s\n", fname);
+        return 0;
+    }
+
+    return fd;
 }
 
 void _i2c_writeRegister(uint8_t address, uint8_t subAddress, uint8_t data)
