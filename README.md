@@ -29,6 +29,7 @@ a comprehensive overview of the EM7180 and other sensor-fusion solutions.
 
 RaspberryPi users should download and install [WiringPi](http://wiringpi.com/),
 then cd to <b>EM7180/extras/WiringPi/examples</b>, and run <b>make</b>
-to build the examples.
+to build the examples.  You may have to run the examples as root; e.g., <tt>sudo ./GetInfo</tt>.
 
-Users of NVIDIA Jetson and other Linux-based boards can cd to <b>EM7180/extras/i2cdev/examples</b>, and run <b>make</b>.
+Users of NVIDIA Jetson and other Linux-based boards can cd to <b>EM7180/extras/i2cdev/examples</b>, and run <b>make</b>.You may have to run the examples as root; e.g., <tt>sudo ./GetInfo</tt>.
+
