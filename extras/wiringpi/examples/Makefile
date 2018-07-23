@@ -18,36 +18,41 @@
 # along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 
   
+# Change this to whereever you installed CrossPlatformI2C
+CPI2C = $(HOME)/CrossPlatformI2C/
+
 ALL = GetInfo FullTest Interrupt
 
 EMSRC = ../../../src
-RPISRC = ../src
+
+I2CINC = $(CPI2C)/src
+I2CSRC = $(CPI2C)/extras/wiringpi/src
 
 all: $(ALL)
 
-GetInfo: GetInfo.o EM7180.o wiringpi_platform.o main.o
-	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o wiringpi_platform.o main.o -lwiringPi
+GetInfo: GetInfo.o EM7180.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o WiringPiI2C.o main.o -lwiringPi
 
 GetInfo.o: GetInfo.cpp 
-	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c GetInfo.cpp
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c GetInfo.cpp
 
-FullTest: FullTest.o EM7180.o wiringpi_platform.o main.o
-	g++ -std=c++11 -o FullTest FullTest.o EM7180.o wiringpi_platform.o main.o -lwiringPi
+FullTest: FullTest.o EM7180.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o FullTest FullTest.o EM7180.o WiringPiI2C.o main.o -lwiringPi
 
 FullTest.o: FullTest.cpp 
-	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c FullTest.cpp
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c FullTest.cpp
 
-Interrupt: Interrupt.o EM7180.o wiringpi_platform.o main.o
-	g++ -std=c++11 -o Interrupt Interrupt.o EM7180.o wiringpi_platform.o main.o -lwiringPi
+Interrupt: Interrupt.o EM7180.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o Interrupt Interrupt.o EM7180.o WiringPiI2C.o main.o -lwiringPi
 
 Interrupt.o: Interrupt.cpp 
-	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c Interrupt.cpp
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c Interrupt.cpp
 
 EM7180.o: $(EMSRC)/EM7180.cpp 
-	g++ -std=c++11 -Wall -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
 
-wiringpi_platform.o: $(RPISRC)/wiringpi_platform.cpp 
-	g++ -std=c++11 -Wall -I$(RPISRC) -I$(EMSRC) -c $(RPISRC)/wiringpi_platform.cpp
+WiringPiI2C.o: $(I2CSRC)/WiringPiI2C.cpp 
+	g++ -std=c++11 -Wall -I$(I2CINC) -c $(I2CSRC)/WiringPiI2C.cpp
 
 main.o: main.cpp 
 	g++ -std=c++11 -Wall -c main.cpp

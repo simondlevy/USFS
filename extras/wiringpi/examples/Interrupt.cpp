@@ -59,7 +59,7 @@ void setup()
 
     // Set up the interrupt
     pinMode(INTERRUPT_PIN, INPUT);
-    wiringPiISR(pin, INT_EDGE_RISING, interruptHandler) ;
+    wiringPiISR(INTERRUPT_PIN, INT_EDGE_RISING, interruptHandler) ;
 
     // Start the EM7180 in master mode
     if (!em7180.begin()) {
