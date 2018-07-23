@@ -5,7 +5,10 @@ libraries and examples for working with the incredible <a
 href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/">
 EM7180 Ultimate Sensor Fusion Solution</a> from Pesky Products. 
 
-We have tested this library on the following hardware:
+To use this library you will also need our I2C cross-platform support 
+[library](https://github.com/simondlevy/CrossPlatformI2C).
+
+We have tested this EM7180 library on the following hardware:
 
 * Ladybug STM32L4 board from Tlera Corp
 

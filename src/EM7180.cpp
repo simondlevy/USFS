@@ -22,7 +22,7 @@
 */
 
 #include "EM7180.h"
-#include "cross_platform.h"
+#include "CrossPlatformI2C.h"
 
 float EM7180::uint32_reg_to_float (uint8_t *buf)
 {
@@ -40,7 +40,7 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
 
 bool EM7180::begin(void)
 {
-    _i2c = _i2c_setup(EM7180_ADDRESS);
+    _i2c = cpi2c_open(EM7180_ADDRESS);
 
     errorStatus = 0;
 
@@ -61,7 +61,7 @@ bool EM7180::begin(void)
             break;
         }
         writeRegister(EM7180_ResetRequest, 0x01);
-        _delay(500);  
+        cpi2c_delay(500);  
     }
 
 
@@ -141,13 +141,13 @@ void EM7180::setPassThroughMode()
 {
     // First put SENtral in standby mode
     writeRegister(EM7180_AlgorithmControl, 0x01);
-    _delay(5);
+    cpi2c_delay(5);
 
     // Place SENtral in pass-through mode
     writeRegister(EM7180_PassThruControl, 0x01);
     while (true) {
         if (readRegister(EM7180_PassThruStatus) & 0x01) break;
-        _delay(5);
+        cpi2c_delay(5);
     }
 }
 
@@ -162,14 +162,14 @@ void EM7180::setMasterMode()
     writeRegister(EM7180_PassThruControl, 0x00);
     while (true) {
         if (!(readRegister(EM7180_PassThruStatus) & 0x01)) break;
-        _delay(5);
+        cpi2c_delay(5);
     }
 
     // Re-start algorithm
     writeRegister(EM7180_AlgorithmControl, 0x00);
     while (true) {
         if (!(readRegister(EM7180_AlgorithmStatus) & 0x01)) break;
-        _delay(5);
+        cpi2c_delay(5);
     }
 }
 
@@ -545,12 +545,12 @@ uint8_t EM7180::readRegister(uint8_t subAddress)
 
 void EM7180::writeRegister(uint8_t subAddress, uint8_t data)
 {
-    _i2c_writeRegister(_i2c, subAddress, data);
+    cpi2c_writeRegister(_i2c, subAddress, data);
 }
 
 void EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    _i2c_readRegisters(_i2c, subAddress, count, dest);
+    cpi2c_readRegisters(_i2c, subAddress, count, dest);
 }
 // EM7180_Master ==========================================================================================================
 
@@ -680,7 +680,7 @@ bool EM7180_Master::begin(void)
 
     // Enable EM7180 run mode
     _em7180.setRunEnable();// set SENtral in normal run mode
-    _delay(100);
+    cpi2c_delay(100);
 
     // Disable stillness mode
     setIntegerParam (0x49, 0x00);
