@@ -18,9 +18,6 @@
 
 #include "EM7180.h"
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
 #include <unistd.h>
 
 static const uint8_t  ARES           = 8;    // Gs
