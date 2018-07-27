@@ -24,6 +24,12 @@
 #include "EM7180.h"
 #include "CrossPlatformI2C.h"
 
+#if defined(ARDUINO)
+#include <Arduino.h>
+#else
+extern void delay(uint32_t msec);
+#endif
+
 float EM7180::uint32_reg_to_float (uint8_t *buf)
 {
     union {
@@ -61,7 +67,7 @@ bool EM7180::begin(void)
             break;
         }
         writeRegister(EM7180_ResetRequest, 0x01);
-        cpi2c_delay(500);  
+        delay(500);  
     }
 
 
@@ -141,13 +147,13 @@ void EM7180::setPassThroughMode()
 {
     // First put SENtral in standby mode
     writeRegister(EM7180_AlgorithmControl, 0x01);
-    cpi2c_delay(5);
+    delay(5);
 
     // Place SENtral in pass-through mode
     writeRegister(EM7180_PassThruControl, 0x01);
     while (true) {
         if (readRegister(EM7180_PassThruStatus) & 0x01) break;
-        cpi2c_delay(5);
+        delay(5);
     }
 }
 
@@ -162,14 +168,14 @@ void EM7180::setMasterMode()
     writeRegister(EM7180_PassThruControl, 0x00);
     while (true) {
         if (!(readRegister(EM7180_PassThruStatus) & 0x01)) break;
-        cpi2c_delay(5);
+        delay(5);
     }
 
     // Re-start algorithm
     writeRegister(EM7180_AlgorithmControl, 0x00);
     while (true) {
         if (!(readRegister(EM7180_AlgorithmStatus) & 0x01)) break;
-        cpi2c_delay(5);
+        delay(5);
     }
 }
 
@@ -680,7 +686,7 @@ bool EM7180_Master::begin(void)
 
     // Enable EM7180 run mode
     _em7180.setRunEnable();// set SENtral in normal run mode
-    cpi2c_delay(100);
+    delay(100);
 
     // Disable stillness mode
     setIntegerParam (0x49, 0x00);
