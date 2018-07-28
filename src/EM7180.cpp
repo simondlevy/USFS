@@ -26,8 +26,10 @@
 
 #if defined(ARDUINO)
 #include <Arduino.h>
-#else
+#elif defined(__arm__)
 extern "C" {void delay(uint32_t msec);}
+#else
+void delay(uint32_t msec);
 #endif
 
 float EM7180::uint32_reg_to_float (uint8_t *buf)
