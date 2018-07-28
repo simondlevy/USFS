@@ -1,5 +1,5 @@
 # 
-# Makefile for EM7180 i2cdev examples
+# Makefile for EM7180 WiringPi examples
 #
 # Copyright (c) 2018 Simon D. Levy
 #
@@ -17,35 +17,42 @@
 # You should have received a copy of the GNU General Public License
 # along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 
+  
 # Change this to whereever you installed CrossPlatformI2C
 CPI2C = $(HOME)/CrossPlatformI2C/
-  
-ALL = GetInfo FullTest
 
-EMSRC = ../../../src
+ALL = GetInfo FullTest Interrupt
+
+EMSRC = ../../src
+
+I2CINC = $(CPI2C)/src
+I2CSRC = $(CPI2C)/extras/wiringpi/src
 
 all: $(ALL)
 
-I2CINC = $(CPI2C)/src
-I2CSRC = $(CPI2C)/extras/i2cdev/src
-
-GetInfo: GetInfo.o EM7180.o I2CDevI2C.o main.o
-	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o I2CDevI2C.o main.o 
+GetInfo: GetInfo.o EM7180.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o WiringPiI2C.o main.o -lwiringPi
 
 GetInfo.o: GetInfo.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c GetInfo.cpp
 
-FullTest: FullTest.o EM7180.o I2CDevI2C.o main.o
-	g++ -std=c++11 -o FullTest FullTest.o EM7180.o I2CDevI2C.o main.o 
+FullTest: FullTest.o EM7180.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o FullTest FullTest.o EM7180.o WiringPiI2C.o main.o -lwiringPi
 
 FullTest.o: FullTest.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c FullTest.cpp
 
+Interrupt: Interrupt.o EM7180.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o Interrupt Interrupt.o EM7180.o WiringPiI2C.o main.o -lwiringPi
+
+Interrupt.o: Interrupt.cpp 
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c Interrupt.cpp
+
 EM7180.o: $(EMSRC)/EM7180.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
 
-I2CDevI2C.o: $(I2CSRC)/I2CDevI2C.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -c $(I2CSRC)/I2CDevI2C.cpp
+WiringPiI2C.o: $(I2CSRC)/WiringPiI2C.cpp 
+	g++ -std=c++11 -Wall -I$(I2CINC) -c $(I2CSRC)/WiringPiI2C.cpp
 
 main.o: main.cpp 
 	g++ -std=c++11 -Wall -c main.cpp

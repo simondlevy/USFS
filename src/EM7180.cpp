@@ -27,7 +27,7 @@
 #if defined(ARDUINO)
 #include <Arduino.h>
 #else
-extern void delay(uint32_t msec);
+extern "C" {void delay(uint32_t msec);}
 #endif
 
 float EM7180::uint32_reg_to_float (uint8_t *buf)

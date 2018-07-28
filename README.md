@@ -31,13 +31,13 @@ We strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180
 a comprehensive overview of the EM7180 and other sensor-fusion solutions.
 
 RaspberryPi users should download and install [WiringPi](http://wiringpi.com/),
-then cd to <b>EM7180/extras/WiringPi/examples</b>, and run <b>make</b>
+then cd to <b>EM7180/extras/wiringpi</b>, and run <b>make</b>
 to build the examples.  You may have to run the examples as root; e.g., <tt>sudo ./GetInfo</tt>.
 
 Users of NVIDIA Jetson and other Linux-based boards should install I<sup>2</sup>C support by running the command:
 <pre>
   sudo apt-get install libi2c-dev i2c-tools
 </pre>
-You can then can cd to <b>EM7180/extras/i2cdev/examples</b>, and run
+You can then can cd to <b>EM7180/extras/i2cdev</b>, and run
 <b>make</b>. You may have to run the examples as root; e.g., <tt>sudo ./GetInfo</tt>.
 
