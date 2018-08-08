@@ -46,9 +46,9 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-bool EM7180::begin(void)
+bool EM7180::begin(uint8_t bus)
 {
-    _i2c = cpi2c_open(EM7180_ADDRESS);
+    _i2c = cpi2c_open(EM7180_ADDRESS, bus);
 
     errorStatus = 0;
 
@@ -657,10 +657,10 @@ const char * EM7180_Master::getErrorString(void)
     return _em7180.getErrorString();
 }
 
-bool EM7180_Master::begin(void)
+bool EM7180_Master::begin(uint8_t bus)
 {
     // Fail immediately if unable to upload EEPROM
-    if (!_em7180.begin()) return false;
+    if (!_em7180.begin(bus)) return false;
 
     // Enter EM7180 initialized state
     _em7180.setRunDisable();// set SENtral in initialized state to configure registers

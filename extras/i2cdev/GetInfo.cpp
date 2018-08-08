@@ -33,8 +33,8 @@ EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYR
 
 void setup()
 {
-    // Start the EM7180 in master mode
-    if (!em7180.begin()) {
+    // Start the EM7180 in master mode on I^2C bus 0
+    if (!em7180.begin(0)) {
 
         while (true) {
             printf("%s\n", em7180.getErrorString());

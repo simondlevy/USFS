@@ -131,7 +131,7 @@ class EM7180 {
 
     public:
 
-        bool begin(void);
+        bool begin(uint8_t bus=1);
 
         const char * getErrorString(void);
 
@@ -274,7 +274,7 @@ class EM7180_Master {
 
         bool hasCustom3(void);
 
-        bool begin(void);
+        bool begin(uint8_t bus=1);
 
         void checkEventStatus(void);
 
