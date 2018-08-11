@@ -1,6 +1,12 @@
 /* 
    PassThru.ino: Example sketch for running EM7180 SENtral sensor hub in pass-through mode.
 
+   Additional dependencies:
+
+       https://github.com/simondlevy/MPU9250
+
+       https://github.com/simondlevy/CrossPlatformI2C
+
    This file is part of EM7180.
 
    EM7180 is free software: you can redistribute it and/or modify
