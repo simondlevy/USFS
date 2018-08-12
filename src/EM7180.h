@@ -243,26 +243,6 @@ class EM7180_Master {
 
         const char * getErrorString(void);
 
-        uint8_t  getProductId(void); 
-
-        uint8_t  getRevisionId(void); 
-
-        uint16_t getRamVersion(void);
-
-        uint16_t getRomVersion(void);
-
-        bool hasBaro(void);
-
-        bool hasHumidity(void);
-
-        bool hasTemperature(void);
-
-        bool hasCustom1(void);
-
-        bool hasCustom2(void);
-
-        bool hasCustom3(void);
-
         bool begin(uint8_t bus=1);
 
         void checkEventStatus(void);
@@ -288,30 +268,4 @@ class EM7180_Master {
         void readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
         void readBarometer(float & pressure, float & temperature);
-
-        uint8_t getActualMagRate();
-
-        uint16_t getActualAccelRate();
-
-        uint16_t getActualGyroRate();
-
-        uint8_t getActualBaroRate();
-
-        uint8_t getActualTempRate();
-
-        bool runStatusNormal(void);
-
-        bool algorithmStatusStandby(void);
-
-        bool algorithmStatusSlow(void);
-
-        bool algorithmStatusStillness(void);
-
-        bool algorithmStatusMagCalibrationCompleted(void);
-
-        bool algorithmStatusMagneticAnomalyDetected(void);
-
-        bool algorithmStatusUnreliableData(void);
-
-        void getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs);
 };

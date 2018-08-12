@@ -571,56 +571,6 @@ EM7180_Master::EM7180_Master(uint8_t magRate, uint16_t accelRate, uint16_t gyroR
     _qRateDivisor = qRateDivisor;
 }
 
-uint8_t EM7180_Master::getProductId(void) 
-{
-    return _em7180.getProductId();
-}
-
-uint8_t EM7180_Master::getRevisionId(void) 
-{
-    return _em7180.getRevisionId();
-}
-
-uint16_t EM7180_Master::getRamVersion(void)
-{
-    return _em7180.getRamVersion();
-}
-
-uint16_t EM7180_Master::getRomVersion(void)
-{
-    return _em7180.getRomVersion();
-}
-
-bool EM7180_Master::hasBaro(void)
-{
-    return _em7180.hasFeature(0x01);
-}
-
-bool EM7180_Master::hasHumidity(void)
-{
-    return _em7180.hasFeature(0x02);
-}
-
-bool EM7180_Master::hasTemperature(void)
-{
-    return _em7180.hasFeature(0x04);
-}
-
-bool EM7180_Master::hasCustom1(void)
-{
-    return _em7180.hasFeature(0x08);
-}
-
-bool EM7180_Master::hasCustom2(void)
-{
-    return _em7180.hasFeature(0x10);
-}
-
-bool EM7180_Master::hasCustom3(void)
-{
-    return _em7180.hasFeature(0x20);
-}
-
 void EM7180_Master::setIntegerParam(uint8_t param, uint32_t param_val) 
 {
     _em7180.setIntegerParam(param, param_val);
@@ -684,46 +634,6 @@ bool EM7180_Master::begin(uint8_t bus)
 
     // Success
     return _em7180.getSensorStatus() ? false : true;
-}
-
-void EM7180_Master::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
-{
-    _em7180.getFullScaleRanges(accFs, gyroFs, magFs);
-}
-
-bool EM7180_Master::algorithmStatusStandby(void)
-{
-    return algorithmStatus(0x01);
-}
-
-bool EM7180_Master::algorithmStatusSlow(void)
-{
-    return algorithmStatus(0x02);
-}
-
-bool EM7180_Master::algorithmStatusStillness(void)
-{
-    return algorithmStatus(0x04);
-}
-
-bool EM7180_Master::algorithmStatusMagCalibrationCompleted(void)
-{
-    return algorithmStatus(0x08);
-}
-
-bool EM7180_Master::algorithmStatusMagneticAnomalyDetected(void)
-{
-    return algorithmStatus(0x10);
-}
-
-bool EM7180_Master::algorithmStatusUnreliableData(void)
-{
-    return algorithmStatus(0x20);
-}
-
-bool EM7180_Master::runStatusNormal(void)
-{
-    return _em7180.getRunStatus() & 0x01;
 }
 
 void EM7180_Master::checkEventStatus(void)
@@ -792,29 +702,4 @@ void EM7180_Master::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
 void EM7180_Master::readBarometer(float & pressure, float & temperature)
 {
     _em7180.readBarometer(pressure, temperature);
-}
-
-uint8_t EM7180_Master::getActualMagRate()
-{
-    return _em7180.getActualMagRate();
-}
-
-uint16_t EM7180_Master::getActualAccelRate()
-{
-    return 10*_em7180.getActualAccelRate();
-}
-
-uint16_t EM7180_Master::getActualGyroRate()
-{
-    return 10*_em7180.getActualGyroRate();
-}
-
-uint8_t EM7180_Master::getActualBaroRate()
-{
-    return _em7180.getActualBaroRate();
-}
-
-uint8_t EM7180_Master::getActualTempRate()
-{
-    return _em7180.getActualTempRate();
 }
