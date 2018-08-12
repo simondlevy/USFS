@@ -1,5 +1,5 @@
 /* 
-   PassThru.ino: Example sketch for running EM7180 SENtral sensor hub in pass-through mode.
+   PassthruTest.ino: Example sketch for running EM7180 SENtral sensor hub in pass-through mode.
 
    Additional dependencies:
 
