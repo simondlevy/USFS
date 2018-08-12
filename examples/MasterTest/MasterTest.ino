@@ -112,7 +112,7 @@ void loop()
     }
 
     if (em7180.gotAccelerometer()) {
-        int16_t ax, ay, az;
+        float ax, ay, az;
         em7180.readAccelerometer(ax, ay, az);
         Serial.print("Accel: ");
         Serial.print(ax);
@@ -123,7 +123,7 @@ void loop()
     }
 
     if (em7180.gotGyrometer()) {
-        int16_t gx, gy, gz;
+        float gx, gy, gz;
         em7180.readGyrometer(gx, gy, gz);
         Serial.print("Gyro: ");
         Serial.print(gx);
@@ -133,7 +133,18 @@ void loop()
         Serial.println(gz);
     }
 
-    /*
+    if (em7180.gotMagnetometer()) {
+        float mx, my, mz;
+        em7180.readMagnetometer(mx, my, mz);
+        Serial.print("Mag: ");
+        Serial.print(mx);
+        Serial.print(", ");
+        Serial.print(my);
+        Serial.print(", ");
+        Serial.println(mz);
+    }
+
+     /*
        Or define output variable according to the Android system, where
        heading (0 to 360) is defined by the angle between the y-axis and True
        North, pitch is rotation about the x-axis (-180 to +180), and roll is

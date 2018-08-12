@@ -29,87 +29,87 @@ class EM7180 {
 
         // EM7180 SENtral register map
         // see http://www.emdeveloper.com/downloads/7180/EMSentral_EM7180_Register_Map_v1_3.pdf
-        static const uint8_t EM7180_QX                 = 0x00;  // this is a 32-bit normalized floating point number read from registers = 0x00-03
-        static const uint8_t EM7180_QY                 = 0x04;  // this is a 32-bit normalized floating point number read from registers = 0x04-07
-        static const uint8_t EM7180_QZ                 = 0x08;  // this is a 32-bit normalized floating point number read from registers = 0x08-0B
-        static const uint8_t EM7180_QW                 = 0x0C;  // this is a 32-bit normalized floating point number read from registers = 0x0C-0F
-        static const uint8_t EM7180_QTIME              = 0x10;  // this is a 16-bit unsigned integer read from registers = 0x10-11
-        static const uint8_t EM7180_MX                 = 0x12;  // int16_t from registers = 0x12-13
-        static const uint8_t EM7180_MY                 = 0x14;  // int16_t from registers = 0x14-15
-        static const uint8_t EM7180_MZ                 = 0x16;  // int16_t from registers = 0x16-17
-        static const uint8_t EM7180_MTIME              = 0x18;  // uint16_t from registers = 0x18-19
-        static const uint8_t EM7180_AX                 = 0x1A;  // int16_t from registers = 0x1A-1B
-        static const uint8_t EM7180_AY                 = 0x1C;  // int16_t from registers = 0x1C-1D
-        static const uint8_t EM7180_AZ                 = 0x1E;  // int16_t from registers = 0x1E-1F
-        static const uint8_t EM7180_ATIME              = 0x20;  // uint16_t from registers = 0x20-21
-        static const uint8_t EM7180_GX                 = 0x22;  // int16_t from registers = 0x22-23
-        static const uint8_t EM7180_GY                 = 0x24;  // int16_t from registers = 0x24-25
-        static const uint8_t EM7180_GZ                 = 0x26;  // int16_t from registers = 0x26-27
-        static const uint8_t EM7180_GTIME              = 0x28;  // uint16_t from registers = 0x28-29
-        static const uint8_t EM7180_Baro               = 0x2A;  // start of two-byte MS5637 pressure data, 16-bit signed interger
-        static const uint8_t EM7180_BaroTIME           = 0x2C;  // start of two-byte MS5637 pressure timestamp, 16-bit unsigned
-        static const uint8_t EM7180_Temp               = 0x2E;  // start of two-byte MS5637 temperature data, 16-bit signed interger
-        static const uint8_t EM7180_TempTIME           = 0x30;  // start of two-byte MS5637 temperature timestamp, 16-bit unsigned
-        static const uint8_t EM7180_QRateDivisor       = 0x32;  // uint8_t 
-        static const uint8_t EM7180_EnableEvents       = 0x33;
-        static const uint8_t EM7180_HostControl        = 0x34;
-        static const uint8_t EM7180_EventStatus        = 0x35;
-        static const uint8_t EM7180_SensorStatus       = 0x36;
-        static const uint8_t EM7180_SentralStatus      = 0x37;
-        static const uint8_t EM7180_AlgorithmStatus    = 0x38;
-        static const uint8_t EM7180_FeatureFlags       = 0x39;
-        static const uint8_t EM7180_ParamAcknowledge   = 0x3A;
-        static const uint8_t EM7180_SavedParamByte0    = 0x3B;
-        static const uint8_t EM7180_SavedParamByte1    = 0x3C;
-        static const uint8_t EM7180_SavedParamByte2    = 0x3D;
-        static const uint8_t EM7180_SavedParamByte3    = 0x3E;
-        static const uint8_t EM7180_ActualMagRate      = 0x45;
-        static const uint8_t EM7180_ActualAccelRate    = 0x46;
-        static const uint8_t EM7180_ActualGyroRate     = 0x47;
-        static const uint8_t EM7180_ActualBaroRate     = 0x48;
-        static const uint8_t EM7180_ActualTempRate     = 0x49;
-        static const uint8_t EM7180_ErrorRegister      = 0x50;
-        static const uint8_t EM7180_AlgorithmControl   = 0x54;
-        static const uint8_t EM7180_MagRate            = 0x55;
-        static const uint8_t EM7180_AccelRate          = 0x56;
-        static const uint8_t EM7180_GyroRate           = 0x57;
-        static const uint8_t EM7180_BaroRate           = 0x58;
-        static const uint8_t EM7180_TempRate           = 0x59;
-        static const uint8_t EM7180_LoadParamByte0     = 0x60;
-        static const uint8_t EM7180_LoadParamByte1     = 0x61;
-        static const uint8_t EM7180_LoadParamByte2     = 0x62;
-        static const uint8_t EM7180_LoadParamByte3     = 0x63;
-        static const uint8_t EM7180_ParamRequest       = 0x64;
-        static const uint8_t EM7180_ROMVersion1        = 0x70;
-        static const uint8_t EM7180_ROMVersion2        = 0x71;
-        static const uint8_t EM7180_RAMVersion1        = 0x72;
-        static const uint8_t EM7180_RAMVersion2        = 0x73;
-        static const uint8_t EM7180_ProductID          = 0x90;
-        static const uint8_t EM7180_RevisionID         = 0x91;
-        static const uint8_t EM7180_RunStatus          = 0x92;
-        static const uint8_t EM7180_UploadAddress      = 0x94; // uint16_t registers = 0x94 (MSB)-5(LSB)
-        static const uint8_t EM7180_UploadData         = 0x96;  
-        static const uint8_t EM7180_CRCHost            = 0x97; // uint32_t from registers = 0x97-9A
-        static const uint8_t EM7180_ResetRequest       = 0x9B;   
-        static const uint8_t EM7180_PassThruStatus     = 0x9E;   
-        static const uint8_t EM7180_PassThruControl    = 0xA0;
-        static const uint8_t EM7180_ACC_LPF_BW         = 0x5B;  //Register GP36
-        static const uint8_t EM7180_GYRO_LPF_BW        = 0x5C;  //Register GP37
-        static const uint8_t EM7180_BARO_LPF_BW        = 0x5D;  //Register GP38
-        static const uint8_t EM7180_GP36               = 0x5B;
-        static const uint8_t EM7180_GP37               = 0x5C;
-        static const uint8_t EM7180_GP38               = 0x5D;
-        static const uint8_t EM7180_GP39               = 0x5E;
-        static const uint8_t EM7180_GP40               = 0x5F;
-        static const uint8_t EM7180_GP50               = 0x69;
-        static const uint8_t EM7180_GP51               = 0x6A;
-        static const uint8_t EM7180_GP52               = 0x6B;
-        static const uint8_t EM7180_GP53               = 0x6C;
-        static const uint8_t EM7180_GP54               = 0x6D;
-        static const uint8_t EM7180_GP55               = 0x6E;
-        static const uint8_t EM7180_GP56               = 0x6F;
+        static const uint8_t QX                 = 0x00;  // this is a 32-bit normalized floating point number read from registers = 0x00-03
+        static const uint8_t QY                 = 0x04;  // this is a 32-bit normalized floating point number read from registers = 0x04-07
+        static const uint8_t QZ                 = 0x08;  // this is a 32-bit normalized floating point number read from registers = 0x08-0B
+        static const uint8_t QW                 = 0x0C;  // this is a 32-bit normalized floating point number read from registers = 0x0C-0F
+        static const uint8_t QTIME              = 0x10;  // this is a 16-bit unsigned integer read from registers = 0x10-11
+        static const uint8_t MX                 = 0x12;  // int16_t from registers = 0x12-13
+        static const uint8_t MY                 = 0x14;  // int16_t from registers = 0x14-15
+        static const uint8_t MZ                 = 0x16;  // int16_t from registers = 0x16-17
+        static const uint8_t MTIME              = 0x18;  // uint16_t from registers = 0x18-19
+        static const uint8_t AX                 = 0x1A;  // int16_t from registers = 0x1A-1B
+        static const uint8_t AY                 = 0x1C;  // int16_t from registers = 0x1C-1D
+        static const uint8_t AZ                 = 0x1E;  // int16_t from registers = 0x1E-1F
+        static const uint8_t ATIME              = 0x20;  // uint16_t from registers = 0x20-21
+        static const uint8_t GX                 = 0x22;  // int16_t from registers = 0x22-23
+        static const uint8_t GY                 = 0x24;  // int16_t from registers = 0x24-25
+        static const uint8_t GZ                 = 0x26;  // int16_t from registers = 0x26-27
+        static const uint8_t GTIME              = 0x28;  // uint16_t from registers = 0x28-29
+        static const uint8_t Baro               = 0x2A;  // start of two-byte MS5637 pressure data, 16-bit signed interger
+        static const uint8_t BaroTIME           = 0x2C;  // start of two-byte MS5637 pressure timestamp, 16-bit unsigned
+        static const uint8_t Temp               = 0x2E;  // start of two-byte MS5637 temperature data, 16-bit signed interger
+        static const uint8_t TempTIME           = 0x30;  // start of two-byte MS5637 temperature timestamp, 16-bit unsigned
+        static const uint8_t QRateDivisor       = 0x32;  // uint8_t 
+        static const uint8_t EnableEvents       = 0x33;
+        static const uint8_t HostControl        = 0x34;
+        static const uint8_t EventStatus        = 0x35;
+        static const uint8_t SensorStatus       = 0x36;
+        static const uint8_t SentralStatus      = 0x37;
+        static const uint8_t AlgorithmStatus    = 0x38;
+        static const uint8_t FeatureFlags       = 0x39;
+        static const uint8_t ParamAcknowledge   = 0x3A;
+        static const uint8_t SavedParamByte0    = 0x3B;
+        static const uint8_t SavedParamByte1    = 0x3C;
+        static const uint8_t SavedParamByte2    = 0x3D;
+        static const uint8_t SavedParamByte3    = 0x3E;
+        static const uint8_t ActualMagRate      = 0x45;
+        static const uint8_t ActualAccelRate    = 0x46;
+        static const uint8_t ActualGyroRate     = 0x47;
+        static const uint8_t ActualBaroRate     = 0x48;
+        static const uint8_t ActualTempRate     = 0x49;
+        static const uint8_t ErrorRegister      = 0x50;
+        static const uint8_t AlgorithmControl   = 0x54;
+        static const uint8_t MagRate            = 0x55;
+        static const uint8_t AccelRate          = 0x56;
+        static const uint8_t GyroRate           = 0x57;
+        static const uint8_t BaroRate           = 0x58;
+        static const uint8_t TempRate           = 0x59;
+        static const uint8_t LoadParamByte0     = 0x60;
+        static const uint8_t LoadParamByte1     = 0x61;
+        static const uint8_t LoadParamByte2     = 0x62;
+        static const uint8_t LoadParamByte3     = 0x63;
+        static const uint8_t ParamRequest       = 0x64;
+        static const uint8_t ROMVersion1        = 0x70;
+        static const uint8_t ROMVersion2        = 0x71;
+        static const uint8_t RAMVersion1        = 0x72;
+        static const uint8_t RAMVersion2        = 0x73;
+        static const uint8_t ProductID          = 0x90;
+        static const uint8_t RevisionID         = 0x91;
+        static const uint8_t RunStatus          = 0x92;
+        static const uint8_t UploadAddress      = 0x94; // uint16_t registers = 0x94 (MSB)-5(LSB)
+        static const uint8_t UploadData         = 0x96;  
+        static const uint8_t CRCHost            = 0x97; // uint32_t from registers = 0x97-9A
+        static const uint8_t ResetRequest       = 0x9B;   
+        static const uint8_t PassThruStatus     = 0x9E;   
+        static const uint8_t PassThruControl    = 0xA0;
+        static const uint8_t ACC_LPF_BW         = 0x5B;  //Register GP36
+        static const uint8_t GYRO_LPF_BW        = 0x5C;  //Register GP37
+        static const uint8_t BARO_LPF_BW        = 0x5D;  //Register GP38
+        static const uint8_t GP36               = 0x5B;
+        static const uint8_t GP37               = 0x5C;
+        static const uint8_t GP38               = 0x5D;
+        static const uint8_t GP39               = 0x5E;
+        static const uint8_t GP40               = 0x5F;
+        static const uint8_t GP50               = 0x69;
+        static const uint8_t GP51               = 0x6A;
+        static const uint8_t GP52               = 0x6B;
+        static const uint8_t GP53               = 0x6C;
+        static const uint8_t GP54               = 0x6D;
+        static const uint8_t GP55               = 0x6E;
+        static const uint8_t GP56               = 0x6F;
 
-        static const uint8_t EM7180_ADDRESS           = 0x28;   // Address of the EM7180 SENtral sensor hub
+        static const uint8_t ADDRESS           = 0x28;   // Address of the EM7180 SENtral sensor hub
 
 
         bool hasFeature(uint8_t features);
@@ -225,17 +225,13 @@ class EM7180_Master {
 
         uint8_t _eventStatus;
 
-        bool algorithmStatus(uint8_t status);
-
-        void setGyroFs(uint16_t gyro_fs);
-        void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
-        void setIntegerParam (uint8_t param, uint32_t param_val);
-
         uint8_t  _magRate;      // Hz
         uint16_t _accelRate;    // Hz
         uint16_t _gyroRate;     // Hz
         uint8_t  _baroRate;     // Hz
         uint8_t  _qRateDivisor; // w.r.t. gyro rate
+
+        void readThreeAxis(uint8_t regx, float & x, float & y, float & z, float scale);
 
     public:
 
@@ -259,11 +255,11 @@ class EM7180_Master {
 
         bool gotBarometer(void);
 
-        void readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz);
+        void readMagnetometer(float & mx, float & my, float & mz);
 
-        void readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
+        void readAccelerometer(float & ax, float & ay, float & az);
 
-        void readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz);
+        void readGyrometer(float & gx, float & gy, float & gz);
 
         void readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
