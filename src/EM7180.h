@@ -231,26 +231,15 @@ class EM7180_Master {
         void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
         void setIntegerParam (uint8_t param, uint32_t param_val);
 
-        uint8_t  _aRes;         // Gs
-        uint16_t _gRes;         // radians per second
-        uint16_t _mRes;         // microTeslas
         uint8_t  _magRate;      // Hz
         uint16_t _accelRate;    // Hz
         uint16_t _gyroRate;     // Hz
         uint8_t  _baroRate;     // Hz
-        uint8_t  _qRateDivisor; // 1/3 gyro rate
+        uint8_t  _qRateDivisor; // w.r.t. gyro rate
 
     public:
 
-        EM7180_Master(
-                uint8_t  aRes,          // Gs
-                uint16_t gRes,          // radians per second
-                uint16_t mRes,          // microTeslas
-                uint8_t  magRate,       // Hz
-                uint16_t accelRate,     // Hz
-                uint16_t gyroRate,      // Hz
-                uint8_t  baroRate,      // Hz
-                uint8_t  qRateDivisor); // 1/3 gyro rate
+        EM7180_Master(uint8_t  magRate, uint16_t accelRate, uint16_t gyroRate, uint8_t  baroRate, uint8_t qRateDivisor); 
 
         const char * getErrorString(void);
 

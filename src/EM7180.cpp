@@ -562,19 +562,8 @@ void EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 }
 // EM7180_Master ==========================================================================================================
 
-EM7180_Master::EM7180_Master(
-        uint8_t aRes, 
-        uint16_t gRes, 
-        uint16_t mRes, 
-        uint8_t magRate, 
-        uint16_t accelRate, 
-        uint16_t gyroRate, 
-        uint8_t baroRate, 
-        uint8_t qRateDivisor) 
+EM7180_Master::EM7180_Master(uint8_t magRate, uint16_t accelRate, uint16_t gyroRate, uint8_t baroRate, uint8_t qRateDivisor) 
 {
-    _aRes = aRes;
-    _gRes = gRes;
-    _mRes = mRes;
     _magRate = magRate;
     _accelRate = accelRate;
     _gyroRate = gyroRate; 
@@ -692,10 +681,6 @@ bool EM7180_Master::begin(uint8_t bus)
 
     // Disable stillness mode
     setIntegerParam (0x49, 0x00);
-
-    // Write desired sensor full scale ranges to the EM7180
-    setMagAccFs(_mRes, _aRes);
-    setGyroFs(_gRes); 
 
     // Success
     return _em7180.getSensorStatus() ? false : true;
