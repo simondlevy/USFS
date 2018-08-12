@@ -20,7 +20,7 @@
 # Change this to whereever you installed CrossPlatformI2C
 CPI2C = $(HOME)/CrossPlatformI2C/
   
-ALL = GetInfo FullTest
+ALL = MasterTest
 
 EMSRC = ../../src
 
@@ -29,17 +29,11 @@ all: $(ALL)
 I2CINC = $(CPI2C)/src
 I2CSRC = $(CPI2C)/extras/i2cdev/src
 
-GetInfo: GetInfo.o EM7180.o I2CDevI2C.o main.o
-	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o I2CDevI2C.o main.o 
+MasterTest: MasterTest.o EM7180.o I2CDevI2C.o main.o
+	g++ -std=c++11 -o MasterTest MasterTest.o EM7180.o I2CDevI2C.o main.o 
 
-GetInfo.o: GetInfo.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c GetInfo.cpp
-
-FullTest: FullTest.o EM7180.o I2CDevI2C.o main.o
-	g++ -std=c++11 -o FullTest FullTest.o EM7180.o I2CDevI2C.o main.o 
-
-FullTest.o: FullTest.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c FullTest.cpp
+MasterTest.o: MasterTest.cpp 
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c MasterTest.cpp
 
 EM7180.o: $(EMSRC)/EM7180.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180.cpp

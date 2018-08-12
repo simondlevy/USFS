@@ -1,5 +1,5 @@
 /* 
-   FullTest.cpp: Example sketch for running EM7180 SENtral sensor hub in master mode 
+   MasterTest.cpp: Example sketch for running EM7180 SENtral sensor hub in master mode 
 
    Copyright (c) 2018 Simon D. Levy
 
@@ -19,36 +19,22 @@
  */
 
 #include "EM7180.h"
-#include <wiringPi.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
 #include <math.h>
+#include <unistd.h>
 
-static const uint8_t  ARES           = 8;    // Gs
-static const uint16_t GRES           = 2000; // degrees per second
-static const uint16_t MRES           = 1000; // microTeslas
 static const uint8_t  MAG_RATE       = 100;  // Hz
 static const uint16_t ACCEL_RATE     = 200;  // Hz
 static const uint16_t GYRO_RATE      = 200;  // Hz
 static const uint8_t  BARO_RATE      = 50;   // Hz
 static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
-EM7180_Master em7180 = EM7180_Master(ARES, GRES, MRES, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+EM7180_Master em7180 = EM7180_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
 void setup()
 {
-    // Set up the wiringPi library
-    if (wiringPiSetup () < 0) {
-        fprintf (stderr, "Unable to setup wiringPi: %s\n", strerror (errno));
-        exit(1);
-    }
-
-    delay(100);
-
-    // Start the EM7180 in master mode
-    if (!em7180.begin()) {
+    // Start the EM7180 in master mode on I^2C bus 0
+    if (!em7180.begin(0)) {
 
         while (true) {
             fprintf(stderr, "%s\n", em7180.getErrorString());
@@ -103,15 +89,15 @@ void loop()
     }
 
     if (em7180.gotAccelerometer()) {
-        int16_t ax, ay, az;
+        float ax, ay, az;
         em7180.readAccelerometer(ax, ay, az);
-        printf("Accel: %+d, %+d, %+d\n", ax, ay, az);
+        printf("Accel: %+3.3f, %+3.3f, %+3.3f\n", ax, ay, az);
     }
 
     if (em7180.gotGyrometer()) {
-        int16_t gx, gy, gz;
+        float gx, gy, gz;
         em7180.readGyrometer(gx, gy, gz);
-        printf("Gyro: %+d, %+d, %+d\n", gx, gy, gz);
+        printf("Gyro: %+3.3f, %+3.3f, %+3.3f\n", gx, gy, gz);
     }
 
     /*
@@ -136,5 +122,5 @@ void loop()
         printf("  Altitude = %5.2f m\n\n", altitude); 
     }
 
-    delay(100);
+    usleep(100000);
 }

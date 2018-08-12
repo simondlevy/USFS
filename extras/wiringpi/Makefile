@@ -21,7 +21,7 @@
 # Change this to whereever you installed CrossPlatformI2C
 CPI2C = $(HOME)/CrossPlatformI2C/
 
-ALL = GetInfo FullTest Interrupt
+ALL = MasterTest
 
 EMSRC = ../../src
 
@@ -30,23 +30,11 @@ I2CSRC = $(CPI2C)/extras/wiringpi/src
 
 all: $(ALL)
 
-GetInfo: GetInfo.o EM7180.o WiringPiI2C.o main.o
-	g++ -std=c++11 -o GetInfo GetInfo.o EM7180.o WiringPiI2C.o main.o -lwiringPi
+MasterTest: MasterTest.o EM7180.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o MasterTest MasterTest.o EM7180.o WiringPiI2C.o main.o -lwiringPi
 
-GetInfo.o: GetInfo.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c GetInfo.cpp
-
-FullTest: FullTest.o EM7180.o WiringPiI2C.o main.o
-	g++ -std=c++11 -o FullTest FullTest.o EM7180.o WiringPiI2C.o main.o -lwiringPi
-
-FullTest.o: FullTest.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c FullTest.cpp
-
-Interrupt: Interrupt.o EM7180.o WiringPiI2C.o main.o
-	g++ -std=c++11 -o Interrupt Interrupt.o EM7180.o WiringPiI2C.o main.o -lwiringPi
-
-Interrupt.o: Interrupt.cpp 
-	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c Interrupt.cpp
+MasterTest.o: MasterTest.cpp 
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c MasterTest.cpp
 
 EM7180.o: $(EMSRC)/EM7180.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
