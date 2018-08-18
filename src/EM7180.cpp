@@ -22,7 +22,7 @@
 */
 
 #include "EM7180.h"
-#include "CrossPlatformI2C.h"
+#include "CrossPlatformI2C_Core.h"
 
 #if defined(ARDUINO)
 #include <Arduino.h>
