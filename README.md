@@ -41,3 +41,5 @@ Users of NVIDIA Jetson and other Linux-based boards should install I<sup>2</sup>
 You can then can cd to <b>EM7180/extras/i2cdev</b>, and run
 <b>make</b>. You may have to run the examples as root; e.g., <tt>sudo ./GetInfo</tt>.
 
+An asynchronous [version](https://github.com/bmegli/EM7180.git) of this library is also available for Teensy 3.5.
+
