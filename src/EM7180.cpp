@@ -2,6 +2,8 @@
 
    EM7180.cpp: Class implementation for EM7180 SENtral Sensor
 
+   Copyright (C) 2018 Simon D. Levy
+
    Adapted from
 
      https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/MPU9250_BMP280
@@ -14,7 +16,7 @@
    (at your option) any later version.
 
    EM7180 is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License

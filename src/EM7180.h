@@ -1,6 +1,7 @@
 /* 
-
    EM7180.h: Class header for EM7180 SENtral Sensor
+
+   Copyright (C) 2018 Simon D. Levy
 
    This file is part of EM7180.
 

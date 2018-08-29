@@ -1,7 +1,7 @@
 # 
 # Makefile for EM7180 i2cdev examples
 #
-# Copyright (c) 2018 Simon D. Levy
+# Copyright (C) 2018 Simon D. Levy
 #
 # This file is part of EM7180.
 #

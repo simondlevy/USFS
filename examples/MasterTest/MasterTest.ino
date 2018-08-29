@@ -1,6 +1,8 @@
 /* 
    MasterTest.ino: Example sketch for running EM7180 SENtral sensor hub in master mode.
 
+   Copyright (C) 2018 Simon D. Levy
+
    Adapted from
 
      https://github.com/kriswiner/EM7180_SENtral_sensor_hub/tree/master/WarmStartandAccelCal

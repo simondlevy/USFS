@@ -1,7 +1,7 @@
 /* 
    MasterTest.cpp: Example sketch for running EM7180 SENtral sensor hub in master mode 
 
-   Copyright (c) 2018 Simon D. Levy
+   Copyright (C) 2018 Simon D. Levy
 
    This file is part of EM7180.
 

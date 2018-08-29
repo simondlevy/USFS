@@ -1,6 +1,8 @@
 /* 
    PassthruTest.ino: Example sketch for running EM7180 SENtral sensor hub in pass-through mode.
 
+   Copyright (C) 2018 Simon D. Levy
+
    Additional dependencies:
 
        https://github.com/simondlevy/MPU9250

@@ -1,6 +1,8 @@
 /* 
    main.pp: Generic main() for caling Arduino-style setup(), loop()
 
+   Copyright (C) 2018 Simon D. Levy
+
    This file is part of EM7180.
 
    EM7180 is free software: you can redistribute it and/or modify

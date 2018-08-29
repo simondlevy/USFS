@@ -1,6 +1,8 @@
 /* 
    WamStartAccAcall.ino: IMU calibration
 
+   Copyright (C) 2018 Simon D. Levy
+
    Adapted from
 
      https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/EM7180_MPU9250_BMP280
