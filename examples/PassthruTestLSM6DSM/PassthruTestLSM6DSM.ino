@@ -1,6 +1,6 @@
 /* 
-   PassthruTestNewLSM6DSM.ino: Example sketch for running NewLSM6DSM SENtral 
-   sensor hub in pass-through mode to talk directly to NewLSM6DSM
+   PassthruTestLSM6DSM.ino: Example sketch for running EM7180 SENtral 
+   sensor hub in pass-through mode to talk directly to LSM6DSM
 
    Copyright (C) 2018 Simon D. Levy
 
@@ -10,24 +10,24 @@
 
        https://github.com/simondlevy/CrossPlatformDataBus
 
-   This file is part of NewLSM6DSM.
+   This file is part of EM7180.
 
-   NewLSM6DSM is free software: you can redistribute it and/or modify
+   EM7180 is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   NewLSM6DSM is distributed in the hope that it will be useful,
+   EM7180 is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with NewLSM6DSM.  If not, see <http://www.gnu.org/licenses/>.
+   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "EM7180.h"
 
-#include <NewLSM6DSM.h>
+#include <LSM6DSM.h>
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
@@ -39,19 +39,12 @@
 
 EM7180 em7180;
 
-static const  NewLSM6DSM::Ascale_t ASCALE = NewLSM6DSM::AFS_2G;
-static const  NewLSM6DSM::Gscale_t GSCALE = NewLSM6DSM::GFS_250DPS;
-static const  NewLSM6DSM::Rate_t   RATE   = NewLSM6DSM::ODR_208Hz;
+static const  LSM6DSM::Ascale_t ASCALE = LSM6DSM::AFS_2G;
+static const  LSM6DSM::Gscale_t GSCALE = LSM6DSM::GFS_250DPS;
+static const  LSM6DSM::Rate_t   RATE   = LSM6DSM::ODR_208Hz;
 
-// Instantiate NewLSM6DSM class in master mode
-static NewLSM6DSM lsm6dsm(ASCALE, RATE, GSCALE, RATE);
-
-static void lsm6dsm_error(const char * errmsg) 
-{
-    Serial.print("NewLSM6DSM Error: ");
-    Serial.println(errmsg);
-    while (true) ;
-}
+// Instantiate LSM6DSM class
+static LSM6DSM lsm6dsm(ASCALE, RATE, GSCALE, RATE);
 
 static void reportAcceleration(const char * dim, float val)
 {
@@ -96,25 +89,19 @@ void setup()
 
     delay(100);
 
-    // Start the NewLSM6DSM
-    switch (lsm6dsm.begin()) {
-
-        case NewLSM6DSM::ERROR_ID:
-            lsm6dsm_error("Bad IMU device ID");
-        case NewLSM6DSM::ERROR_SELFTEST:
-            lsm6dsm_error("Failed self-test");
-        default:
-            Serial.println("NewLSM6DSM online!\n");
+    // Start the LSM6DSM
+    if (lsm6dsm.begin()) {
+        Serial.println("LSM6DSM online!\n");
     }
-
-    delay(4000);
+    else {
+        Serial.println("Unable to connect to LSM6DSM");
+        while (true) ;
+    }
 }
 
 
 void loop()
 {  
-    return;
-
     static float ax, ay, az, gx, gy, gz;
 
     lsm6dsm.readData(ax, ay, az, gx, gy, gz);
@@ -137,7 +124,7 @@ void loop()
         reportGyroRate("Y", gy);
         reportGyroRate("Z", gz);
 
-        Serial.println();;
+        Serial.println("\n");;
     }
 }
 
