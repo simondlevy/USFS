@@ -1,13 +1,14 @@
 /* 
    PassthruTestLSM6DSM.ino: Example sketch for running EM7180 SENtral 
-   sensor hub in pass-through mode to talk directly to LSM6DSM
+   sensor hub in pass-through mode to talk directly to LSM6DSM IMU and
+   LIS2MDL magenetometer
 
    Copyright (C) 2018 Simon D. Levy
 
    Additional dependencies:
 
-       https://github.com/simondlevy/LSM
-
+       https://github.com/simondlevy/LSM6DSM
+       https://github.com/simondlevy/LIS2MDL
        https://github.com/simondlevy/CrossPlatformDataBus
 
    This file is part of EM7180.
@@ -28,6 +29,7 @@
 #include "EM7180.h"
 
 #include <LSM6DSM.h>
+#include <LIS2MDL.h>
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
