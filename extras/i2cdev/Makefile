@@ -18,7 +18,7 @@
 # along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 
 # Change this to whereever you installed CrossPlatformI2C
-CPI2C = $(HOME)/CrossPlatformI2C/
+CPDB = $(HOME)/CrossPlatformDataBus
   
 ALL = MasterTest
 
@@ -26,8 +26,8 @@ EMSRC = ../../src
 
 all: $(ALL)
 
-I2CINC = $(CPI2C)/src
-I2CSRC = $(CPI2C)/extras/i2cdev/src
+I2CINC = $(CPDB)/src
+I2CSRC = $(CPDB)/extras/i2c/i2cdev/src
 
 MasterTest: MasterTest.o EM7180.o I2CDevI2C.o main.o
 	g++ -std=c++11 -o MasterTest MasterTest.o EM7180.o I2CDevI2C.o main.o 

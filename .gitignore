@@ -2,8 +2,4 @@
 *.bak
 *.o
 *.so
-extras/wiringpi/GetInfo
-extras/wiringpi/FullTest
-extras/wiringpi/Interrupt
-extras/i2cdev/GetInfo
-extras/i2cdev/FullTest
+extras/*/MasterTest
