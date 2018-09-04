@@ -1,9 +1,12 @@
 <a href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/"><img src="sentral.jpg" width=300></a>
 
 This repository contains Arduino, Raspberry Pi (WiringPi), and Linux i2cdev
-libraries and examples for working with the incredible <a
-href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/">
-EM7180 Ultimate Sensor Fusion Solution</a> from Pesky Products. 
+libraries and examples for working with the incredible 
+EM7180 Ultimate Sensor Fusion Solution boards 
+(both the [MPU9250](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-mpu9250/)
+version and
+[LSM6DSM + LIS2MD version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-lsm6dsm--lis2md/))
+from Pesky Products. 
 
 To use this library you will also need our cross-platform support 
 [library](https://github.com/simondlevy/CrossPlatformDataBus).
