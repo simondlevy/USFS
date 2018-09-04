@@ -39,11 +39,11 @@
 
 EM7180 em7180;
 
-static const         Ascale_t ASCALE     = AFS_2G;
-static const         Gscale_t GSCALE     = GFS_250DPS;
-static const         Mscale_t MSCALE     = MFS_16BITS;
-static const         Mmode_t  MMODE      = M_100Hz;
-static const uint8_t SAMPLE_RATE_DIVISOR = 4;         
+static const MPUIMU::Ascale_t  ASCALE              = MPUIMU::AFS_2G;
+static const MPUIMU::Gscale_t  GSCALE              = MPUIMU::GFS_250DPS;
+static const MPU9250::Mscale_t MSCALE              = MPU9250::MFS_16BITS;
+static const MPU9250::Mmode_t  MMODE               = MPU9250::M_100Hz;
+static const uint8_t           SAMPLE_RATE_DIVISOR = 4;         
 
 // Instantiate MPU9250 class in master mode
 static MPU9250_Master_I2C mpu9250(ASCALE, GSCALE, MSCALE, MMODE, SAMPLE_RATE_DIVISOR);
@@ -105,11 +105,11 @@ void setup()
     // Start the MPU9250 in master mode
     switch (mpu9250.begin()) {
 
-        case MPU_ERROR_IMU_ID:
+        case MPUIMU::ERROR_IMU_ID:
             mpu9250_error("Bad IMU device ID");
-        case MPU_ERROR_MAG_ID:
+        case MPUIMU::ERROR_MAG_ID:
             mpu9250_error("Bad magnetometer device ID");
-        case MPU_ERROR_SELFTEST:
+        case MPUIMU::ERROR_SELFTEST:
             mpu9250_error("Failed self-test");
         default:
             Serial.println("MPU6050 online!\n");
