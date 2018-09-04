@@ -41,7 +41,7 @@ EM7180 em7180;
 
 static const  LSM6DSM::Ascale_t ASCALE = LSM6DSM::AFS_2G;
 static const  LSM6DSM::Gscale_t GSCALE = LSM6DSM::GFS_250DPS;
-static const  LSM6DSM::Rate_t    RATE  = LSM6DSM::ODR_208Hz;
+static const  LSM6DSM::Rate_t   RATE   = LSM6DSM::ODR_208Hz;
 
 // Instantiate LSM6DSM class in master mode
 static LSM6DSM lsm6dsm(ASCALE, RATE, GSCALE, RATE);
