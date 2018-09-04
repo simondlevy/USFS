@@ -89,8 +89,12 @@ void setup()
         }
     }    
 
+    delay(100);
+
     // Put the EM7180 into pass-through mode
     em7180.setPassThroughMode();
+
+    delay(100);
 
     // Start the LSM6DSM
     switch (lsm6dsm.begin()) {
@@ -102,11 +106,15 @@ void setup()
         default:
             Serial.println("LSM6DSM online!\n");
     }
+
+    delay(4000);
 }
 
 
 void loop()
 {  
+    return;
+
     static float ax, ay, az, gx, gy, gz;
 
     lsm6dsm.readData(ax, ay, az, gx, gy, gz);
