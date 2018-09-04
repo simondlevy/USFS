@@ -42,7 +42,7 @@ Users of NVIDIA Jetson and other Linux-based boards should install I<sup>2</sup>
   sudo apt-get install libi2c-dev i2c-tools
 </pre>
 You can then can cd to <b>extras/i2cdev</b>, and run
-<b>make</b>. You may have to run the example as root; e.g., <tt>sudo ./MasterTest</tt>.
+<b>make</b>. You may have to run the example as root: <tt>sudo ./MasterTest</tt>.
 
 An asynchronous [version](https://github.com/bmegli/EM7180.git) of this library is also available for Teensy 3.5.
 
