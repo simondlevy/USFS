@@ -5,9 +5,9 @@
 
    Additional dependencies:
 
-       https://github.com/simondlevy/MPU9250
+       https://github.com/simondlevy/MPU
 
-       https://github.com/simondlevy/CrossPlatformI2C
+       https://github.com/simondlevy/CrossPlatformDataBus
 
    This file is part of EM7180.
 
@@ -25,7 +25,8 @@
  */
 
 #include "EM7180.h"
-#include <MPU9250.h>
+
+#include <MPU9250_Master_I2C.h>
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
@@ -44,7 +45,7 @@ static const Mmode_t  MMODE      = M_100Hz;
 static const uint8_t SAMPLE_RATE_DIVISOR = 4;         
 
 // Instantiate MPU9250 class in master mode
-static MPU9250_Master mpu9250(ASCALE, GSCALE, MSCALE, MMODE, SAMPLE_RATE_DIVISOR);
+static MPU9250_Master_I2C mpu9250(ASCALE, GSCALE, MSCALE, MMODE, SAMPLE_RATE_DIVISOR);
 
 static void mpu9250_error(const char * errmsg) 
 {
