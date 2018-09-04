@@ -22,6 +22,21 @@
 
 #include <stdint.h>
 
+// One ifdef needed to support delay() cross-platform
+#if defined(ARDUINO)
+#include <Arduino.h>
+
+#elif defined(__arm__) 
+#if defined(STM32F303)  || defined(STM32F405xx)
+extern "C" { void delay(uint32_t msec); }
+#else
+#include <wiringPi.h>
+#endif
+
+#else
+void delay(uint32_t msec);
+#endif
+
 class EM7180 {
 
     friend class EM7180_Master;
@@ -217,52 +232,3 @@ class EM7180 {
         static float uint32_reg_to_float (uint8_t *buf);
 
 }; // class EM7180
-
-class EM7180_Master {
-
-    private:
-
-        EM7180 _em7180;
-
-        uint8_t _eventStatus;
-
-        uint8_t  _magRate;      // Hz
-        uint16_t _accelRate;    // Hz
-        uint16_t _gyroRate;     // Hz
-        uint8_t  _baroRate;     // Hz
-        uint8_t  _qRateDivisor; // w.r.t. gyro rate
-
-        void readThreeAxis(uint8_t regx, float & x, float & y, float & z, float scale);
-
-    public:
-
-        EM7180_Master(uint8_t  magRate, uint16_t accelRate, uint16_t gyroRate, uint8_t  baroRate, uint8_t qRateDivisor); 
-
-        const char * getErrorString(void);
-
-        bool begin(uint8_t bus=1);
-
-        void checkEventStatus(void);
-
-        bool gotError(void);
-
-        bool gotQuaternion(void);
-
-        bool gotMagnetometer(void);
-
-        bool gotAccelerometer(void);
-
-        bool gotGyrometer(void);
-
-        bool gotBarometer(void);
-
-        void readMagnetometer(float & mx, float & my, float & mz);
-
-        void readAccelerometer(float & ax, float & ay, float & az);
-
-        void readGyrometer(float & gx, float & gy, float & gz);
-
-        void readQuaternion(float & qw, float & qx, float & qy, float & qz);
-
-        void readBarometer(float & pressure, float & temperature);
-};

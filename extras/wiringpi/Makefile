@@ -30,14 +30,17 @@ I2CSRC = $(CPDB)/extras/i2c/wiringpi/src/
 
 all: $(ALL)
 
-MasterTest: MasterTest.o EM7180.o WiringPiI2C.o main.o
-	g++ -std=c++11 -o MasterTest MasterTest.o EM7180.o WiringPiI2C.o main.o -lwiringPi
+MasterTest: MasterTest.o EM7180.o EM7180_Master.o WiringPiI2C.o main.o
+	g++ -std=c++11 -o MasterTest MasterTest.o EM7180.o EM7180_Master.o WiringPiI2C.o main.o -lwiringPi
 
 MasterTest.o: MasterTest.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c MasterTest.cpp
 
 EM7180.o: $(EMSRC)/EM7180.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180.cpp
+
+EM7180_Master.o: $(EMSRC)/EM7180_Master.cpp 
+	g++ -std=c++11 -Wall -I$(I2CINC) -I$(EMSRC) -c $(EMSRC)/EM7180_Master.cpp
 
 WiringPiI2C.o: $(I2CSRC)/WiringPiI2C.cpp 
 	g++ -std=c++11 -Wall -I$(I2CINC) -c $(I2CSRC)/WiringPiI2C.cpp

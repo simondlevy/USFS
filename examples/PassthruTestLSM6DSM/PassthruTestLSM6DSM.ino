@@ -25,7 +25,7 @@
    along with LSM6DSM.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LSM6DSM.h"
+#include "EM7180.h"
 
 #include <LSM6DSM.h>
 
@@ -37,12 +37,14 @@
 #define NOSTOP false
 #endif
 
+EM7180 em7180;
+
 static const  LSM6DSM::Ascale_t ASCALE = LSM6DSM::AFS_2G;
 static const  LSM6DSM::Gscale_t GSCALE = LSM6DSM::GFS_250DPS;
-static const  LSM6DSM::Grate_t  GRATE  = LSM6DSM::GODR_208Hz;
+static const  LSM6DSM::Rate_t    RATE  = LSM6DSM::ODR_208Hz;
 
 // Instantiate LSM6DSM class in master mode
-static LSM6DSM lsm6dsm(ASCALE, GSCALE, GRATE);
+static LSM6DSM lsm6dsm(ASCALE, RATE, GSCALE, RATE);
 
 static void lsm6dsm_error(const char * errmsg) 
 {
@@ -79,7 +81,18 @@ void setup()
 
     delay(100);
 
-    // Start the LSM6DSM in master mode
+    // Start the EM7180
+    if (!em7180.begin()) {
+
+        while (true) {
+            Serial.println(em7180.getErrorString());
+        }
+    }    
+
+    // Put the EM7180 into pass-through mode
+    em7180.setPassThroughMode();
+
+    // Start the LSM6DSM
     switch (lsm6dsm.begin()) {
 
         case LSM6DSM::ERROR_ID:

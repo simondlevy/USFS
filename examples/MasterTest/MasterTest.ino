@@ -22,7 +22,7 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EM7180.h"
+#include "EM7180_Master.h"
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>

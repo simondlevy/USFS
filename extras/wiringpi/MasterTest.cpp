@@ -18,7 +18,8 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EM7180.h"
+#include "EM7180_Master.h"
+
 #include <wiringPi.h>
 #include <stdio.h>
 #include <stdlib.h>
