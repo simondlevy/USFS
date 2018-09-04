@@ -1,5 +1,6 @@
 /* 
-   PassthruTest.ino: Example sketch for running EM7180 SENtral sensor hub in pass-through mode.
+   PassthruTestMPU9250.ino: Example sketch for running EM7180 SENtral 
+   sensor hub in pass-through mode to talk directly to MPU9250
 
    Copyright (C) 2018 Simon D. Levy
 
@@ -38,10 +39,10 @@
 
 EM7180 em7180;
 
-static const Ascale_t ASCALE     = AFS_2G;
-static const Gscale_t GSCALE     = GFS_250DPS;
-static const Mscale_t MSCALE     = MFS_16BITS;
-static const Mmode_t  MMODE      = M_100Hz;
+static const         Ascale_t ASCALE     = AFS_2G;
+static const         Gscale_t GSCALE     = GFS_250DPS;
+static const         Mscale_t MSCALE     = MFS_16BITS;
+static const         Mmode_t  MMODE      = M_100Hz;
 static const uint8_t SAMPLE_RATE_DIVISOR = 4;         
 
 // Instantiate MPU9250 class in master mode
