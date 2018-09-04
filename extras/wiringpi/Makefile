@@ -19,14 +19,14 @@
 
   
 # Change this to whereever you installed CrossPlatformI2C
-CPI2C = $(HOME)/CrossPlatformI2C/
+CPDB = $(HOME)/CrossPlatformDataBus
 
 ALL = MasterTest
 
 EMSRC = ../../src
 
-I2CINC = $(CPI2C)/src
-I2CSRC = $(CPI2C)/extras/wiringpi/src
+I2CINC = $(CPDB)/src
+I2CSRC = $(CPDB)/extras/i2c/wiringpi/src/
 
 all: $(ALL)
 
