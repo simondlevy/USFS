@@ -39,14 +39,22 @@
 #define NOSTOP false
 #endif
 
-EM7180 em7180;
-
+// LSM6DSM params
 static const  LSM6DSM::Ascale_t ASCALE = LSM6DSM::AFS_2G;
 static const  LSM6DSM::Gscale_t GSCALE = LSM6DSM::GFS_250DPS;
 static const  LSM6DSM::Rate_t   RATE   = LSM6DSM::ODR_208Hz;
 
+// LIS2MDL params
+static const  LIS2MDL::Rate_t MRATE = LIS2MDL::ODR_50Hz;
+
 // Instantiate LSM6DSM class
 static LSM6DSM lsm6dsm(ASCALE, RATE, GSCALE, RATE);
+
+// Instantiate LIS2MDL class
+static LIS2MDL lis2mdl(MRATE);
+
+// Instantiate EM7180 class
+EM7180 em7180;
 
 static void reportAcceleration(const char * dim, float val)
 {
@@ -62,6 +70,14 @@ static void reportGyroRate(const char * dim, float val)
     Serial.print("-gyro rate: ");
     Serial.print(val, 1);
     Serial.print(" degrees/sec  "); 
+}
+
+static void reportMagnetometer(const char * dim, float val)
+{
+    Serial.print(dim);
+    Serial.print("-magnetometer: ");
+    Serial.print(val);
+    Serial.print(" milligauss  "); 
 }
 
 void setup()
@@ -99,14 +115,30 @@ void setup()
         Serial.println("Unable to connect to LSM6DSM");
         while (true) ;
     }
+
+    // Start the LIS2MDL
+    if (lis2mdl.begin()) {
+        Serial.println("LIS2MDL online!\n");
+    }
+    else {
+        Serial.println("Unable to connect to LIS2MDL");
+        while (true) ;
+    }
 }
 
 
 void loop()
 {  
-    static float ax, ay, az, gx, gy, gz;
 
+    static float ax, ay, az, gx, gy, gz, mx, my, mz;
+
+    // Read from LSM6DSM
     lsm6dsm.readData(ax, ay, az, gx, gy, gz);
+
+    // Read from LIS2MDL
+    if (lis2mdl.checkNewData()) {
+        lis2mdl.readData(mx, my, mz);
+    }
 
     // Report at 4 Hz
     static uint32_t msec_prev;
@@ -125,6 +157,12 @@ void loop()
         reportGyroRate("X", gx);
         reportGyroRate("Y", gy);
         reportGyroRate("Z", gz);
+
+        Serial.println();
+
+        reportMagnetometer("X", mx);
+        reportMagnetometer("Y", my);
+        reportMagnetometer("Z", mz);
 
         Serial.println("\n");;
     }
