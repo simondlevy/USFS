@@ -30,6 +30,7 @@
 
 #include <LSM6DSM.h>
 #include <LIS2MDL.h>
+#include <LPS22HB.h>
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
@@ -47,11 +48,17 @@ static const  LSM6DSM::Rate_t   RATE   = LSM6DSM::ODR_208Hz;
 // LIS2MDL params
 static const  LIS2MDL::Rate_t MRATE = LIS2MDL::ODR_50Hz;
 
+// LPS22HB params
+static const  LPS22HB::Rate_t BRATE = LPS22HB::ODR_50Hz;
+
 // Instantiate LSM6DSM class
 static LSM6DSM lsm6dsm(ASCALE, RATE, GSCALE, RATE);
 
 // Instantiate LIS2MDL class
 static LIS2MDL lis2mdl(MRATE);
+
+// Instantiate LPS22HB class
+static LPS22HB lps22hb(BRATE);
 
 // Instantiate EM7180 class
 EM7180 em7180;
@@ -124,12 +131,21 @@ void setup()
         Serial.println("Unable to connect to LIS2MDL");
         while (true) ;
     }
+
+    // Start the LPS22HB
+    if (lps22hb.begin()) {
+        Serial.println("LPS22HB online!\n");
+    }
+    else {
+        Serial.println("Unable to connect to LPS22HB");
+        while (true) ;
+    }
 }
 
 
 void loop()
 {  
-    static float ax, ay, az, gx, gy, gz, mx, my, mz;
+    static float ax, ay, az, gx, gy, gz, mx, my, mz, pressure;
 
     // Read from LSM6DSM
     if (lsm6dsm.checkNewData()) {
@@ -139,6 +155,11 @@ void loop()
     // Read from LIS2MDL
     if (lis2mdl.checkNewData()) {
         lis2mdl.readData(mx, my, mz);
+    }
+
+    // Read from LIS2MDL
+    if (lps22hb.checkNewData()) {
+        pressure = lps22hb.readPressure();
     }
 
     // Report at 4 Hz
@@ -165,7 +186,13 @@ void loop()
         reportMagnetometer("Y", my);
         reportMagnetometer("Z", mz);
 
-        Serial.println("\n");;
+        Serial.println();
+
+        Serial.print("Pressure: ");
+        Serial.print(pressure);
+        Serial.println(" mBar\n");
+
+
     }
 }
 
