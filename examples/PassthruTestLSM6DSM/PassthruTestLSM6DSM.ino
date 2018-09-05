@@ -145,7 +145,7 @@ void setup()
 
 void loop()
 {  
-    static float ax, ay, az, gx, gy, gz, mx, my, mz, pressure;
+    static float ax, ay, az, gx, gy, gz, mx, my, mz, pressure, temperature;
 
     // Read from LSM6DSM
     if (lsm6dsm.checkNewData()) {
@@ -160,6 +160,7 @@ void loop()
     // Read from LIS2MDL
     if (lps22hb.checkNewData()) {
         pressure = lps22hb.readPressure();
+        temperature = lps22hb.readTemperature();
     }
 
     // Report at 4 Hz
@@ -190,8 +191,11 @@ void loop()
 
         Serial.print("Pressure: ");
         Serial.print(pressure);
-        Serial.println(" mBar\n");
+        Serial.println(" mBar");
 
+        Serial.print("Temperature: ");
+        Serial.print(temperature);
+        Serial.println(" C\n");
 
     }
 }
