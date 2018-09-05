@@ -129,11 +129,12 @@ void setup()
 
 void loop()
 {  
-
     static float ax, ay, az, gx, gy, gz, mx, my, mz;
 
     // Read from LSM6DSM
-    lsm6dsm.readData(ax, ay, az, gx, gy, gz);
+    if (lsm6dsm.checkNewData()) {
+        lsm6dsm.readData(ax, ay, az, gx, gy, gz);
+    }
 
     // Read from LIS2MDL
     if (lis2mdl.checkNewData()) {
