@@ -116,6 +116,7 @@ void loop()
     if (em7180.gotAccelerometer()) {
         float ax, ay, az;
         em7180.readAccelerometer(ax, ay, az);
+        
         Serial.print("Accel: ");
         Serial.print(ax);
         Serial.print(", ");
@@ -127,6 +128,8 @@ void loop()
     if (em7180.gotGyrometer()) {
         float gx, gy, gz;
         em7180.readGyrometer(gx, gy, gz);
+
+        Serial.println(gx);
         Serial.print("Gyro: ");
         Serial.print(gx);
         Serial.print(", ");
@@ -136,8 +139,10 @@ void loop()
     }
 
     if (em7180.gotMagnetometer()) {
+        
         float mx, my, mz;
         em7180.readMagnetometer(mx, my, mz);
+
         Serial.print("Mag: ");
         Serial.print(mx);
         Serial.print(", ");
@@ -161,6 +166,7 @@ void loop()
 
         em7180.readBarometer(pressure, temperature);
 
+        /*
         Serial.println("Baro:");
         Serial.print("  Altimeter temperature = "); 
         Serial.print( temperature, 2); 
@@ -171,7 +177,7 @@ void loop()
         float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f;
         Serial.print("  Altitude = "); 
         Serial.print(altitude, 2); 
-        Serial.println(" m\n");
+        Serial.println(" m\n");*/
     }
 
     delay(100);

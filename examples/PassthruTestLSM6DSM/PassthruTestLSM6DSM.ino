@@ -157,7 +157,7 @@ void loop()
         lis2mdl.readData(mx, my, mz);
     }
 
-    // Read from LIS2MDL
+    // Read from LPS22HB
     if (lps22hb.checkNewData()) {
         pressure = lps22hb.readPressure();
         temperature = lps22hb.readTemperature();
