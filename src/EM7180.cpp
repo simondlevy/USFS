@@ -24,7 +24,7 @@
 */
 
 #include "EM7180.h"
-#include "CrossPlatformI2C_Core.h"
+#include <CrossPlatformI2C_Core.h>
 
 float EM7180::uint32_reg_to_float (uint8_t *buf)
 {
