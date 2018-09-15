@@ -27,7 +27,8 @@ EMSRC = ../../src
 
 CPSRC  = $(CPDB)/src
 CPEXT  = $(CPDB)/extras
-I2CSRC = $(CPDB)/extras/i2c/wiringpi/src
+CPCMN  = $(CPEXT)/common
+I2CSRC = $(CPEXT)/i2c/wiringpi/src
 
 all: $(ALL)
 
@@ -46,8 +47,8 @@ EM7180_Master.o: $(EMSRC)/EM7180_Master.cpp
 WiringPiI2C.o: $(I2CSRC)/WiringPiI2C.cpp 
 	g++ -std=c++11 -Wall -I$(CPSRC) -c $(I2CSRC)/WiringPiI2C.cpp
 
-main.o: $(CPEXT)/main.cpp 
-	g++ -std=c++11 -Wall -c $(CPEXT)/main.cpp
+main.o: $(CPCMN)/main.cpp 
+	g++ -std=c++11 -Wall -c $(CPCMN)/main.cpp
 
 run: GetInfo
 	./GetInfo
