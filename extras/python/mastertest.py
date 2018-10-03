@@ -62,6 +62,7 @@ while True:
     # more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
     # which has additional links.
 
+    '''
     if (em7180.gotQuaternion()):
 
         qw, qx, qy, qz = em7180.readQuaternion()
@@ -95,6 +96,7 @@ while True:
         mx,my,mz = em7180.readMagnetometer()
 
         print('Mag: %f %f %f' %(mx,my,mz))
+    '''
 
      #  Or define output variable according to the Android system, where
      #  heading (0 to 360) is defined by the angle between the y-axis and True
@@ -107,11 +109,11 @@ while True:
     
         temperature, pressure = em7180.readBarometer()
 
-        print('Baro:')
-        print('  Altimeter temperature = %2.2f C' % temperature) 
-        print('  Altimeter pressure = %2.2f mbar' % pressure) 
-        altitude = (1.0 - math.pow(pressure / 1013.25, 0.190295)) * 44330
-        print('  Altitude = %2.2f m\n' % altitude) 
+        #print('Baro:')
+        #print('  Altimeter temperature = %2.2f C' % temperature) 
+        #print('  Altimeter pressure = %2.2f mbar' % pressure) 
+        #altitude = (1.0 - math.pow(pressure / 1013.25, 0.190295)) * 44330
+        #print('  Altitude = %2.2f m\n' % altitude) 
 
     sys.stdout.flush()
     time.sleep(.01)
