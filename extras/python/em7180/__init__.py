@@ -461,10 +461,10 @@ class EM7180(object):
     
         rawData = self.readRegisters(self.QX, 16)       
 
-        qx = self.uint32_reg_to_float (rawData[0])
-        qy = self.uint32_reg_to_float (rawData[4])
-        qz = self.uint32_reg_to_float (rawData[8])
-        qw = self.uint32_reg_to_float (rawData[12]) 
+        qx = self.uint32_reg_to_float(rawData[0:4])
+        qy = self.uint32_reg_to_float(rawData[4:8])
+        qz = self.uint32_reg_to_float(rawData[8:12])
+        qw = self.uint32_reg_to_float(rawData[12:16]) 
 
         return qw, qx, qy, qz
     
@@ -653,15 +653,15 @@ class EM7180_Master(object):
 
     def readAccelerometer(self):
 
-        return self.readThreeAxis(self.AX, 0.000488)
+        return self.readThreeAxis(self.em7180.AX, 0.000488)
 
     def readGyrometer(self):
 
-        return self.readThreeAxis(self.GX, 0.153)
+        return self.readThreeAxis(self.em7180.GX, 0.153)
 
     def readMagnetometer(self):
 
-        return self.readThreeAxis(self.MX, 0.305176)
+        return self.readThreeAxis(self.em7180.MX, 0.305176)
 
     def readBarometer(self):
 
