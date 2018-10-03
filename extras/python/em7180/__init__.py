@@ -18,6 +18,9 @@
    along with EM7180.  If not, see <http:#www.gnu.org/licenses/>.
 '''
 
+import smbus
+import time
+
 class EM7180(object):
 
     def __init__(self):
@@ -106,6 +109,64 @@ class EM7180(object):
 
         self.ADDRESS            = 0x28   # Address of the EM7180 SENtral sensor hub
 
+        self.bus = None
+        self.errorStart = 0
+
+    def begin(self, bus=1):
+
+        self.bus = smbus.SMBus(bus)
+
+        self.errorStatus = 0
+
+        print(self.readRegister(self.SentralStatus))
+        exit(0)
+
+
+        # Check SENtral status, make sure EEPROM upload of firmware was accomplished
+        for attempts in range(10):
+            if (self.readRegister(self.SentralStatus) & 0x01):
+                if (self.readRegister(self.SentralStatus) & 0x01): continue
+                if (self.readRegister(self.SentralStatus) & 0x02): continue
+                if (self.readRegister(self.SentralStatus) & 0x04):
+                    self.errorStatus = 0xB0
+                    return False
+                
+                if (self.readRegister(self.SentralStatus) & 0x08): continue
+                if (self.readRegister(self.SentralStatus) & 0x10): 
+                    self.errorStatus = 0xB0
+                    return False
+                break
+            
+            self.writeRegister(self.ResetRequest, 0x01)
+            time.sleep(0.5)
+
+
+        if (self.readRegister(self.SentralStatus) & 0x04):
+            self.errorStatus = 0xB0
+            return False
+
+        return True
+
+    def getErrorString(self):
+
+        return ''
+
+    def readRegister(self, subAddress):
+
+        return self.readRegisters(subAddress, 1)[0]
+
+    def readRegisters(self, subAddress, count):
+
+        self.bus.write_byte(self.ADDRESS, subAddress)
+
+        result = []
+
+        for k in range(count):
+            result += [self.bus.read_byte(self.ADDRESS)]
+
+        return result
+
+
 class EM7180_Master(object):
 
     def __init__(self, magRate, accelRate, gyroRate, baroRate, qRateDivisor):
@@ -120,13 +181,17 @@ class EM7180_Master(object):
 
         self.em7180 = EM7180()
 
-    def begin(self):
+    def begin(self, bus=1):
+
+        # Fail immediately if unable to upload EEPROM
+        if not self.em7180.begin(bus):
+            return False
 
         return True
 
     def getErrorString(self):
 
-        return ''
+        return self.em7180.getErrorString()
 
     def checkEventStatus(self):
 
