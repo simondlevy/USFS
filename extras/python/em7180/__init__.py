@@ -442,14 +442,10 @@ class EM7180(object):
     def readBarometer(self):
     
         a,b = self.readRegisters(self.Baro, 2)  # Read the two raw data registers sequentially into data array
-        print('%x %x' % (a, b))
         pressure = struct.unpack('h', bytes([a,b]))[0] * .01 + 1013.25
 
-        # get BMP280 temperature
-        rawData = self.readRegisters(self.Temp, 2)  # Read the two raw data registers sequentially into data array
-        rawTemperature =  (rawData[1] << 8) | rawData[0]   # Turn the MSB and LSB into a signed 16-bit value
-
-        temperature = rawTemperature*0.01  # temperature in degrees C
+        a,b = self.readRegisters(self.Temp, 2)  # Read the two raw data registers sequentially into data array
+        temperature = struct.unpack('h', bytes([a,b]))[0] * 0.01  # temperature in degrees C
 
         return pressure, temperature
 
