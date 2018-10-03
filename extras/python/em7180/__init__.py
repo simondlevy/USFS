@@ -18,7 +18,13 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-class EM7180_Master:
+class EM7180(object):
+
+    def __init__(self):
+
+        return
+
+class EM7180_Master(object):
 
     def __init__(self, magRate, accelRate, gyroRate, baroRate, qRateDivisor):
 
@@ -27,6 +33,10 @@ class EM7180_Master:
         self.gyroRate = gyroRate 
         self.baroRate = baroRate
         self.qRateDivisor = qRateDivisor
+
+        self.eventStatus = 0
+
+        self.em7180 = EM7180()
 
     def begin(self):
 
