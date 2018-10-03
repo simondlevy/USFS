@@ -68,3 +68,11 @@ class EM7180_Master:
 
         return 0,0,0
 
+    def gotMagnetometer(self):
+
+        return True
+
+    def readMagnetometer(self):
+
+        return 0,0,0
+

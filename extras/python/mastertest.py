@@ -88,20 +88,13 @@ while True:
 
         print('Gyro: %f %f %f' % (gx,gy,gz))
     
-    '''
-    if (em7180.gotMagnetometer()) {
+    if em7180.gotMagnetometer():
         
-        float mx, my, mz
-        em7180.readMagnetometer(mx, my, mz)
+        mx,my,mz = em7180.readMagnetometer()
 
-        Serial.print('Mag: ')
-        Serial.print(mx)
-        Serial.print(', ')
-        Serial.print(my)
-        Serial.print(', ')
-        Serial.println(mz)
-    }
+        print('Mag: %f %f %f' %(mx,my,mz))
 
+        '''
      /*
        Or define output variable according to the Android system, where
        heading (0 to 360) is defined by the angle between the y-axis and True
@@ -118,17 +111,17 @@ while True:
         em7180.readBarometer(pressure, temperature)
 
         /*
-        Serial.println('Baro:')
-        Serial.print('  Altimeter temperature = ') 
-        Serial.print( temperature, 2) 
-        Serial.println(' C') 
-        Serial.print('  Altimeter pressure = ') 
-        Serial.print(pressure, 2)  
-        Serial.println(' mbar')
+        println('Baro:')
+        print('  Altimeter temperature = ') 
+        print( temperature, 2) 
+        println(' C') 
+        print('  Altimeter pressure = ') 
+        print(pressure, 2)  
+        println(' mbar')
         float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f
-        Serial.print('  Altitude = ') 
-        Serial.print(altitude, 2) 
-        Serial.println(' m\n')*/
+        print('  Altitude = ') 
+        print(altitude, 2) 
+        println(' m\n')*/
     }
 
     delay(100)
