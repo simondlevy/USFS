@@ -159,13 +159,7 @@ class EM7180(object):
 
         self.bus.write_byte(self.ADDRESS, subAddress)
 
-        result = []
-
-        for k in range(count):
-            result += [self.bus.read_byte(self.ADDRESS)]
-
-        return result
-
+        return [self.bus.read_byte(self.ADDRESS) for k in range(count)]
 
 class EM7180_Master(object):
 
