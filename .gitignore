@@ -3,3 +3,4 @@
 *.o
 *.so
 extras/*/MasterTest
+extras/python/em7180/__pycache__/
