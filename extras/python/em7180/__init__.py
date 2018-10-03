@@ -11,7 +11,7 @@
    (at your option) any later version.
 
    EM7180 is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   but WITHOUT ANY WARRANTY without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
@@ -20,6 +20,35 @@
 
 class EM7180_Master:
 
-    def __init__(self):
+    def __init__(self, magRate, accelRate, gyroRate, baroRate, qRateDivisor):
+
+        self.magRate = magRate
+        self.accelRate = accelRate
+        self.gyroRate = gyroRate 
+        self.baroRate = baroRate
+        self.qRateDivisor = qRateDivisor
+
+    def begin(self):
+
+        return True
+
+    def getErrorString(self):
+
+        return ''
+
+    def checkEventStatus(self):
 
         return
+
+    def gotError(self):
+
+        return False
+
+    def gotQuaternion(self):
+
+        return True
+
+    def readQuaternion(self):
+
+        return 0,0,0,0
+

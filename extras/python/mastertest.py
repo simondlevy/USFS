@@ -12,7 +12,7 @@
    (at your option) any later version.
 
    EM7180 is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   but WITHOUT ANY WARRANTY without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
@@ -21,124 +21,98 @@
 
 from em7180 import EM7180_Master
 
-'''
-static const uint8_t  MAG_RATE       = 100;  // Hz
-static const uint16_t ACCEL_RATE     = 200;  // Hz
-static const uint16_t GYRO_RATE      = 200;  // Hz
-static const uint8_t  BARO_RATE      = 50;   // Hz
-static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
- 
-EM7180_Master em7180 = EM7180_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+import math
 
-void setup()
-{
-#ifdef __MK20DX256__
-    Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
-#else
-    Wire.begin();
-#endif
+MAG_RATE       = 100  # Hz
+ACCEL_RATE     = 200  # Hz
+GYRO_RATE      = 200  # Hz
+BARO_RATE      = 50   # Hz
+Q_RATE_DIVISOR = 3    # 1/3 gyro rate
 
-    delay(100);
+em7180 = EM7180_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR)
 
-    Serial.begin(115200);
+# Start the EM7180 in master mode
+if not em7180.begin():
+    print(em7180.getErrorString())
+    exit(1)
 
-    // Start the EM7180 in master mode
-    if (!em7180.begin()) {
+while True:
 
-        while (true) {
-            Serial.println(em7180.getErrorString());
-        }
-    }
-}
+    em7180.checkEventStatus()
 
-void loop()
-{  
-    em7180.checkEventStatus();
+    if em7180.gotError():
+        print('ERROR: ' + em7180.getErrorString())
+        exit(1)
 
-    if (em7180.gotError()) {
-        Serial.print("ERROR: ");
-        Serial.println(em7180.getErrorString());
-        return;
-    }
+    # Define output variables from updated quaternion---these are Tait-Bryan
+    # angles, commonly used in aircraft orientation.  In this coordinate
+    # system, the positive z-axis is down toward Earth.  Yaw is the angle
+    # between Sensor x-axis and Earth magnetic North (or true North if
+    # corrected for local declination, looking down on the sensor positive
+    # yaw is counterclockwise.  Pitch is angle between sensor x-axis and
+    # Earth ground plane, toward the Earth is positive, up toward the sky is
+    #negative.  Roll is angle between sensor y-axis and Earth ground plane,
+    #y-axis up is positive roll.  These arise from the definition of the
+    # homogeneous rotation matrix constructed from q.  Tait-Bryan
+    # angles as well as Euler angles are non-commutative that is, the get
+    # the correct orientation the rotations must be applied in the correct
+    # order which for this configuration is yaw, pitch, and then roll.  For
+    # more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
+    # which has additional links.
 
-    /*
-       Define output variables from updated quaternion---these are Tait-Bryan
-       angles, commonly used in aircraft orientation.  In this coordinate
-       system, the positive z-axis is down toward Earth.  Yaw is the angle
-       between Sensor x-axis and Earth magnetic North (or true North if
-       corrected for local declination, looking down on the sensor positive
-       yaw is counterclockwise.  Pitch is angle between sensor x-axis and
-       Earth ground plane, toward the Earth is positive, up toward the sky is
-       negative.  Roll is angle between sensor y-axis and Earth ground plane,
-       y-axis up is positive roll.  These arise from the definition of the
-       homogeneous rotation matrix constructed from q.  Tait-Bryan
-       angles as well as Euler angles are non-commutative; that is, the get
-       the correct orientation the rotations must be applied in the correct
-       order which for this configuration is yaw, pitch, and then roll.  For
-       more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
-       which has additional links.
-     */
+    if (em7180.gotQuaternion()):
 
-    if (em7180.gotQuaternion()) {
+        qw, qx, qy, qz = em7180.readQuaternion()
 
-        float qw, qx, qy, qz;
+        roll  = math.atan2(2.0 * (qw * qx + qy * qz), qw * qw - qx * qx - qy * qy + qz * qz)
+        pitch = -math.asin(2.0 * (qx * qz - qw * qy))
+        yaw   = math.atan2(2.0 * (qx * qy + qw * qz), qw * qw + qx * qx - qy * qy - qz * qz)   
 
-        em7180.readQuaternion(qw, qx, qy, qz);
+        pitch *= 180.0 / math.pi
+        yaw   *= 180.0 / math.pi 
+        yaw   += 13.8 # Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
+        if yaw < 0: yaw   += 360.0  # Ensure yaw stays between 0 and 360
+        roll  *= 180.0 / math.pi
 
-        float roll  = atan2(2.0f * (qw * qx + qy * qz), qw * qw - qx * qx - qy * qy + qz * qz);
-        float pitch = -asin(2.0f * (qx * qz - qw * qy));
-        float yaw   = atan2(2.0f * (qx * qy + qw * qz), qw * qw + qx * qx - qy * qy - qz * qz);   
+        print('Quaternion Roll, Pitch, Yaw: %2.2f %2.2f %2.2f' % (roll, pitch, yaw))
 
-        pitch *= 180.0f / PI;
-        yaw   *= 180.0f / PI; 
-        yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-        if(yaw < 0) yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
-        roll  *= 180.0f / PI;
-
-        Serial.print("Quaternion Roll, Pitch, Yaw: ");
-        Serial.print(roll, 2);
-        Serial.print(", ");
-        Serial.print(pitch, 2);
-        Serial.print(", ");
-        Serial.println(yaw, 2);
-    }
-
+    '''
     if (em7180.gotAccelerometer()) {
-        float ax, ay, az;
-        em7180.readAccelerometer(ax, ay, az);
+        float ax, ay, az
+        em7180.readAccelerometer(ax, ay, az)
         
-        Serial.print("Accel: ");
-        Serial.print(ax);
-        Serial.print(", ");
-        Serial.print(ay);
-        Serial.print(", ");
-        Serial.println(az);
+        Serial.print('Accel: ')
+        Serial.print(ax)
+        Serial.print(', ')
+        Serial.print(ay)
+        Serial.print(', ')
+        Serial.println(az)
     }
 
     if (em7180.gotGyrometer()) {
-        float gx, gy, gz;
-        em7180.readGyrometer(gx, gy, gz);
+        float gx, gy, gz
+        em7180.readGyrometer(gx, gy, gz)
 
-        Serial.println(gx);
-        Serial.print("Gyro: ");
-        Serial.print(gx);
-        Serial.print(", ");
-        Serial.print(gy);
-        Serial.print(", ");
-        Serial.println(gz);
+        Serial.println(gx)
+        Serial.print('Gyro: ')
+        Serial.print(gx)
+        Serial.print(', ')
+        Serial.print(gy)
+        Serial.print(', ')
+        Serial.println(gz)
     }
 
     if (em7180.gotMagnetometer()) {
         
-        float mx, my, mz;
-        em7180.readMagnetometer(mx, my, mz);
+        float mx, my, mz
+        em7180.readMagnetometer(mx, my, mz)
 
-        Serial.print("Mag: ");
-        Serial.print(mx);
-        Serial.print(", ");
-        Serial.print(my);
-        Serial.print(", ");
-        Serial.println(mz);
+        Serial.print('Mag: ')
+        Serial.print(mx)
+        Serial.print(', ')
+        Serial.print(my)
+        Serial.print(', ')
+        Serial.println(mz)
     }
 
      /*
@@ -146,30 +120,30 @@ void loop()
        heading (0 to 360) is defined by the angle between the y-axis and True
        North, pitch is rotation about the x-axis (-180 to +180), and roll is
        rotation about the y-axis (-90 to +90) In this systen, the z-axis is
-       pointing away from Earth, the +y-axis is at the "top" of the device
+       pointing away from Earth, the +y-axis is at the 'top' of the device
        (cellphone) and the +x-axis points toward the right of the device.
      */ 
 
     if (em7180.gotBarometer()) 
     {
-        float temperature, pressure;
+        float temperature, pressure
 
-        em7180.readBarometer(pressure, temperature);
+        em7180.readBarometer(pressure, temperature)
 
         /*
-        Serial.println("Baro:");
-        Serial.print("  Altimeter temperature = "); 
-        Serial.print( temperature, 2); 
-        Serial.println(" C"); 
-        Serial.print("  Altimeter pressure = "); 
-        Serial.print(pressure, 2);  
-        Serial.println(" mbar");
-        float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f;
-        Serial.print("  Altitude = "); 
-        Serial.print(altitude, 2); 
-        Serial.println(" m\n");*/
+        Serial.println('Baro:')
+        Serial.print('  Altimeter temperature = ') 
+        Serial.print( temperature, 2) 
+        Serial.println(' C') 
+        Serial.print('  Altimeter pressure = ') 
+        Serial.print(pressure, 2)  
+        Serial.println(' mbar')
+        float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f
+        Serial.print('  Altitude = ') 
+        Serial.print(altitude, 2) 
+        Serial.println(' m\n')*/
     }
 
-    delay(100);
+    delay(100)
 }
 '''
