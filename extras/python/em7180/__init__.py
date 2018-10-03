@@ -164,33 +164,33 @@ class EM7180(object):
 
     def getProductId(self): 
     
-        return self.readRegsiter(self.ProductID)
+        return self.readRegister(self.ProductID)
     
 
     def getRevisionId(self): 
     
-        return self.readRegsiter(self.RevisionID)
+        return self.readRegister(self.RevisionID)
     
 
     def getRamVersion(self):
     
-        ram1 = self.readRegsiter(self.RAMVersion1)
-        ram2 = self.readRegsiter(self.RAMVersion2)
+        ram1 = self.readRegister(self.RAMVersion1)
+        ram2 = self.readRegister(self.RAMVersion2)
 
         return ram1 << 8 | ram2
     
 
     def getRomVersion(self):
     
-        rom1 = self.readRegsiter(self.ROMVersion1)
-        rom2 = self.readRegsiter(self.ROMVersion2)
+        rom1 = self.readRegister(self.ROMVersion1)
+        rom2 = self.readRegister(self.ROMVersion2)
 
         return rom1 << 8 | rom2
     
 
     def getSentralStatus(self):
     
-        return self.readRegsiter(self.SentralStatus) 
+        return self.readRegister(self.SentralStatus) 
     
 
     def requestReset(self):
@@ -223,7 +223,7 @@ class EM7180(object):
         
     def hasFeature(self, features):
     
-        return features & self.readRegsiter(self.FeatureFlags)
+        return features & self.readRegister(self.FeatureFlags)
     
     def setMasterMode(self):
     
@@ -293,47 +293,47 @@ class EM7180(object):
     
     def getParamAcknowledge(self):
     
-        return self.readRegsiter(self.ParamAcknowledge)
+        return self.readRegister(self.ParamAcknowledge)
 
     def readSavedParamByte0(self):
     
-        return self.readRegsiter(self.SavedParamByte0)
+        return self.readRegister(self.SavedParamByte0)
     
     def readSavedParamByte1(self):
     
-        return self.readRegsiter(self.SavedParamByte1)
+        return self.readRegister(self.SavedParamByte1)
     
     def readSavedParamByte2(self):
     
-        return self.readRegsiter(self.SavedParamByte2)
+        return self.readRegister(self.SavedParamByte2)
     
     def readSavedParamByte3(self):
     
-        return self.readRegsiter(self.SavedParamByte3)
+        return self.readRegister(self.SavedParamByte3)
     
     def getRunStatus(self):
     
-        return self.readRegsiter(self.RunStatus)
+        return self.readRegister(self.RunStatus)
 
     def getAlgorithmStatus(self):
     
-        return self.readRegsiter(self.AlgorithmStatus)
+        return self.readRegister(self.AlgorithmStatus)
 
     def getPassThruStatus(self):
     
-        return self.readRegsiter(self.PassThruStatus)
+        return self.readRegister(self.PassThruStatus)
 
     def getEventStatus(self):
     
-        return self.readRegsiter(self.EventStatus)
+        return self.readRegister(self.EventStatus)
 
     def getSensorStatus(self):
     
-        return self.readRegsiter(self.SensorStatus)
+        return self.readRegister(self.SensorStatus)
     
     def getErrorStatus(self):
     
-        return self.readRegsiter(self.ErrorRegister)
+        return self.readRegister(self.ErrorRegister)
     
     def setGyroFs(self, gyro_fs):
     
@@ -344,9 +344,9 @@ class EM7180(object):
         self.writeRegister(self.LoadParamByte3, bites[3]) #Unused
         self.writeRegister(self.ParamRequest, 0xCB) #Parameter 75 0xCB is 75 decimal with the MSB set high to indicate a paramter write processs
         self.writeRegister(self.AlgorithmControl, 0x80) #Request parameter transfer procedure
-        STAT = self.readRegsiter(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
+        STAT = self.readRegister(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
         while(not (STAT==0xCB)):
-            STAT = self.readRegsiter(self.ParamAcknowledge)
+            STAT = self.readRegister(self.ParamAcknowledge)
         
         self.writeRegister(self.ParamRequest, 0x00) #Parameter request = 0 to end parameter transfer process
         self.writeRegister(self.AlgorithmControl, 0x00) # Re-start algorithm
@@ -360,9 +360,9 @@ class EM7180(object):
         self.writeRegister(self.LoadParamByte3, bites[3]) #Acc MSB
         self.writeRegister(self.ParamRequest, 0xCA) #Parameter 74 0xCA is 74 decimal with the MSB set high to indicate a paramter write processs
         self.writeRegister(self.AlgorithmControl, 0x80) #Request parameter transfer procedure
-        STAT = self.readRegsiter(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
+        STAT = self.readRegister(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
         while(not (STAT==0xCA)):
-            STAT = self.readRegsiter(self.ParamAcknowledge)
+            STAT = self.readRegister(self.ParamAcknowledge)
         
         self.writeRegister(self.ParamRequest, 0x00) #Parameter request = 0 to end parameter transfer process
         self.writeRegister(self.AlgorithmControl, 0x00) # Re-start algorithm
@@ -478,9 +478,9 @@ class EM7180(object):
         self.writeRegister(self.LoadParamByte3, bites[3]) #Param MSB
         self.writeRegister(self.ParamRequest, param)
         self.writeRegister(self.AlgorithmControl, 0x80) #Request parameter transfer procedure
-        STAT = self.readRegsiter(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
+        STAT = self.readRegister(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
         while(not (STAT==param)):
-            STAT = self.readRegsiter(self.ParamAcknowledge)
+            STAT = self.readRegister(self.ParamAcknowledge)
         
         self.writeRegister(self.ParamRequest, 0x00) #Parameter request = 0 to end parameter transfer process
         self.writeRegister(self.AlgorithmControl, 0x00) # Re-start algorithm
@@ -491,27 +491,27 @@ class EM7180(object):
         # Read sensor new FS values from parameter space
         self.writeRegister(self.ParamRequest, 0x4A) # Request to read  parameter 74
         self.writeRegister(self.AlgorithmControl, 0x80) # Request parameter transfer process
-        param_xfer = self.readRegsiter(self.ParamAcknowledge)
+        param_xfer = self.readRegister(self.ParamAcknowledge)
         while(not (param_xfer==0x4A)):
-            param_xfer = self.readRegsiter(self.ParamAcknowledge)
+            param_xfer = self.readRegister(self.ParamAcknowledge)
         
         params = [
-                self.readRegsiter(self.SavedParamByte0),
-                self.readRegsiter(self.SavedParamByte1),
-                self.readRegsiter(self.SavedParamByte2),
-                self.readRegsiter(self.SavedParamByte3)]
+                self.readRegister(self.SavedParamByte0),
+                self.readRegister(self.SavedParamByte1),
+                self.readRegister(self.SavedParamByte2),
+                self.readRegister(self.SavedParamByte3)]
         magFs = (params[1]<<8) | params[0]
         accFs = (params[3]<<8) | params[2]
         self.writeRegister(self.ParamRequest, 0x4B) # Request to read  parameter 75
-        param_xfer = self.readRegsiter(self.ParamAcknowledge)
+        param_xfer = self.readRegister(self.ParamAcknowledge)
         while (not (param_xfer==0x4B)):
-            param_xfer = self.readRegsiter(self.ParamAcknowledge)
+            param_xfer = self.readRegister(self.ParamAcknowledge)
         
         params = [
-                self.readRegsiter(self.SavedParamByte0), 
-                self.readRegsiter(self.SavedParamByte1), 
-                self.readRegsiter(self.SavedParamByte2), 
-                self.readRegsiter(self.SavedParamByte3)]
+                self.readRegister(self.SavedParamByte0), 
+                self.readRegister(self.SavedParamByte1), 
+                self.readRegister(self.SavedParamByte2), 
+                self.readRegister(self.SavedParamByte3)]
         gyroFs = (params[1]<<8) | params[0]
         self.writeRegister(self.ParamRequest, 0x00) #End parameter transfer
         self.writeRegister(self.AlgorithmControl, 0x00) # re-enable algorithm
@@ -520,27 +520,27 @@ class EM7180(object):
     
     def getActualMagRate(self):
     
-        return self.readRegsiter(self.ActualMagRate)
+        return self.readRegister(self.ActualMagRate)
 
     def getActualAccelRate(self):
     
-        return self.readRegsiter(self.ActualAccelRate)
+        return self.readRegister(self.ActualAccelRate)
     
     def getActualGyroRate(self):
     
-        return self.readRegsiter(self.ActualGyroRate)
+        return self.readRegister(self.ActualGyroRate)
 
     def getActualBaroRate(self):
     
-        return self.readRegsiter(self.ActualBaroRate)
+        return self.readRegister(self.ActualBaroRate)
 
     def getActualTempRate(self):
     
-        return self.readRegsiter(self.ActualTempRate)
+        return self.readRegister(self.ActualTempRate)
 
     def writeRegister(self, subAddress, data):
     
-        self.bus.write_byte(subAddress, data)
+        self.bus.write_byte_data(self.ADDRESS, subAddress, data)
 
     def readRegister(self, subAddress):
 
@@ -555,6 +555,8 @@ class EM7180(object):
     def uint32_reg_to_float(self, buf):
 
         return struct.unpack('f', bytes(buf))[0]
+
+# =======================================================================================
 
 class EM7180_Master(object):
 
@@ -575,6 +577,8 @@ class EM7180_Master(object):
         # Fail immediately if unable to upload EEPROM
         if not self.em7180.begin(bus):
             return False
+
+        sleep(.1)
 
         # Enter EM7180 initialized state
         self.em7180.setRunDisable()# set SENtral in initialized state to configure registers
