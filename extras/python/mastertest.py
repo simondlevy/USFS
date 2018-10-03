@@ -76,19 +76,13 @@ while True:
 
         print('Quaternion Roll, Pitch, Yaw: %2.2f %2.2f %2.2f' % (roll, pitch, yaw))
 
-    '''
-    if (em7180.gotAccelerometer()) {
-        float ax, ay, az
-        em7180.readAccelerometer(ax, ay, az)
-        
-        Serial.print('Accel: ')
-        Serial.print(ax)
-        Serial.print(', ')
-        Serial.print(ay)
-        Serial.print(', ')
-        Serial.println(az)
-    }
+    if em7180.gotAccelerometer():
 
+        ax,ay,az = em7180.readAccelerometer()
+        
+        print('Accel: %f %f %f' % (ax,ay,az))
+
+    '''
     if (em7180.gotGyrometer()) {
         float gx, gy, gz
         em7180.readGyrometer(gx, gy, gz)

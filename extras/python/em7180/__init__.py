@@ -52,3 +52,11 @@ class EM7180_Master:
 
         return 0,0,0,0
 
+    def gotAccelerometer(self):
+
+        return True
+
+    def readAccelerometer(self):
+
+        return 0,0,0
+
