@@ -22,6 +22,7 @@
 from em7180 import EM7180_Master
 
 import math
+import time
 
 MAG_RATE       = 100  # Hz
 ACCEL_RATE     = 200  # Hz
@@ -51,8 +52,8 @@ while True:
     # corrected for local declination, looking down on the sensor positive
     # yaw is counterclockwise.  Pitch is angle between sensor x-axis and
     # Earth ground plane, toward the Earth is positive, up toward the sky is
-    #negative.  Roll is angle between sensor y-axis and Earth ground plane,
-    #y-axis up is positive roll.  These arise from the definition of the
+    # negative.  Roll is angle between sensor y-axis and Earth ground plane,
+    # y-axis up is positive roll.  These arise from the definition of the
     # homogeneous rotation matrix constructed from q.  Tait-Bryan
     # angles as well as Euler angles are non-commutative that is, the get
     # the correct orientation the rotations must be applied in the correct
@@ -94,36 +95,21 @@ while True:
 
         print('Mag: %f %f %f' %(mx,my,mz))
 
-        '''
-     /*
-       Or define output variable according to the Android system, where
-       heading (0 to 360) is defined by the angle between the y-axis and True
-       North, pitch is rotation about the x-axis (-180 to +180), and roll is
-       rotation about the y-axis (-90 to +90) In this systen, the z-axis is
-       pointing away from Earth, the +y-axis is at the 'top' of the device
-       (cellphone) and the +x-axis points toward the right of the device.
-     */ 
+     #  Or define output variable according to the Android system, where
+     #  heading (0 to 360) is defined by the angle between the y-axis and True
+     #  North, pitch is rotation about the x-axis (-180 to +180), and roll is
+     #  rotation about the y-axis (-90 to +90) In this systen, the z-axis is
+     #  pointing away from Earth, the +y-axis is at the 'top' of the device
+     #  (cellphone) and the +x-axis points toward the right of the device.
 
-    if (em7180.gotBarometer()) 
-    {
-        float temperature, pressure
+    if em7180.gotBarometer():
+    
+        temperature, pressure = em7180.readBarometer()
 
-        em7180.readBarometer(pressure, temperature)
+        print('Baro:')
+        print('  Altimeter temperature = %2.2f C' % temperature) 
+        print('  Altimeter pressure = %2.2f mbar' % pressure) 
+        altitude = (1.0 - math.pow(pressure / 1013.25, 0.190295)) * 44330
+        print('  Altitude = %2.2f m\n' % altitude) 
 
-        /*
-        println('Baro:')
-        print('  Altimeter temperature = ') 
-        print( temperature, 2) 
-        println(' C') 
-        print('  Altimeter pressure = ') 
-        print(pressure, 2)  
-        println(' mbar')
-        float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f
-        print('  Altitude = ') 
-        print(altitude, 2) 
-        println(' m\n')*/
-    }
-
-    delay(100)
-}
-'''
+    time.sleep(.01)

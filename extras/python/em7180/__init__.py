@@ -76,3 +76,12 @@ class EM7180_Master:
 
         return 0,0,0
 
+    def gotBarometer(self):
+
+        return True
+
+    def readBarometer(self):
+
+        return 0,0
+
+
