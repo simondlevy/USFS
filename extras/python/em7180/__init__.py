@@ -440,14 +440,9 @@ class EM7180(object):
         return self.readThreeAxis(self.GX)
     
     def readBarometer(self):
-    
-        a,b = self.readRegisters(self.Baro, 2)  # Read the two raw data registers sequentially into data array
-        pressure = struct.unpack('h', bytes([a,b]))[0] * .01 + 1013.25
 
-        a,b = self.readRegisters(self.Temp, 2)  # Read the two raw data registers sequentially into data array
-        temperature = struct.unpack('h', bytes([a,b]))[0] * 0.01  # temperature in degrees C
+        return self.readFloat(self.Baro, 1013.25), self.readFloat(self.Temp, 0)
 
-        return pressure, temperature
 
     def readMagnetometer(self):
     
@@ -551,6 +546,10 @@ class EM7180(object):
     def uint32_reg_to_float(self, buf):
 
         return struct.unpack('f', bytes(buf))[0]
+
+    def readFloat(self, reg, offset):
+    
+        return struct.unpack('h', bytes(self.readRegisters(reg, 2)))[0] * .01 + offset
 
 # =======================================================================================
 
