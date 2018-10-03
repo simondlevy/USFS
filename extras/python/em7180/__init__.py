@@ -19,7 +19,8 @@
 '''
 
 import smbus
-import time
+import struct
+from time import sleep
 
 class EM7180(object):
 
@@ -118,10 +119,6 @@ class EM7180(object):
 
         self.errorStatus = 0
 
-        print(self.readRegister(self.SentralStatus))
-        exit(0)
-
-
         # Check SENtral status, make sure EEPROM upload of firmware was accomplished
         for attempts in range(10):
             if (self.readRegister(self.SentralStatus) & 0x01):
@@ -138,7 +135,7 @@ class EM7180(object):
                 break
             
             self.writeRegister(self.ResetRequest, 0x01)
-            time.sleep(0.5)
+            sleep(0.5)
 
 
         if (self.readRegister(self.SentralStatus) & 0x04):
@@ -149,7 +146,401 @@ class EM7180(object):
 
     def getErrorString(self):
 
-        return ''
+        if (self.errorStatus & 0x01): return 'Magnetometer error'
+        if (self.errorStatus & 0x02): return 'Accelerometer error'
+        if (self.errorStatus & 0x04): return 'Gyro error'
+        if (self.errorStatus & 0x10): return 'Magnetometer ID not recognized'
+        if (self.errorStatus & 0x20): return 'Accelerometer ID not recognized'
+        if (self.errorStatus & 0x30): return 'Math error'
+        if (self.errorStatus & 0x40): return 'Gyro ID not recognized'
+        if (self.errorStatus & 0x80): return 'Invalid sample rate'
+
+        # Ad-hoc
+        if (self.errorStatus & 0x90): return 'Failed to put SENtral in pass-through mode'
+        if (self.errorStatus & 0xA0): return 'Unable to read from SENtral EEPROM'
+        if (self.errorStatus & 0xB0): return 'Unable to upload config to SENtral EEPROM'
+
+        return 'Unknown error'
+
+    def getProductId(self): 
+    
+        return self.readRegsiter(self.ProductID)
+    
+
+    def getRevisionId(self): 
+    
+        return self.readRegsiter(self.RevisionID)
+    
+
+    def getRamVersion(self):
+    
+        ram1 = self.readRegsiter(self.RAMVersion1)
+        ram2 = self.readRegsiter(self.RAMVersion2)
+
+        return ram1 << 8 | ram2
+    
+
+    def getRomVersion(self):
+    
+        rom1 = self.readRegsiter(self.ROMVersion1)
+        rom2 = self.readRegsiter(self.ROMVersion2)
+
+        return rom1 << 8 | rom2
+    
+
+    def getSentralStatus(self):
+    
+        return self.readRegsiter(self.SentralStatus) 
+    
+
+    def requestReset(self):
+    
+        self.writeRegister(self.ResetRequest, 0x01)
+    
+
+    def readThreeAxis(self, xreg):
+    
+        rawData = self.readRegisters(xreg, 6)  # Read the six raw data registers sequentially into data array
+
+        x = ((rawData[1] << 8) | rawData[0])   # Turn the MSB and LSB into a signed 16-bit value
+        y = ((rawData[3] << 8) | rawData[2])  
+        z = ((rawData[5] << 8) | rawData[4]) 
+
+        return x, y, z
+    
+
+    def setPassThroughMode(self):
+    
+        # First put SENtral in standby mode
+        self.writeRegister(self.AlgorithmControl, 0x01)
+        sleep(.005)
+
+        # Place SENtral in pass-through mode
+        self.writeRegister(self.PassThruControl, 0x01)
+        while True:
+            if (self.readRegister(self.PassThruStatus) & 0x01): break
+            sleep(.005)
+        
+    def hasFeature(self, features):
+    
+        return features & self.readRegsiter(self.FeatureFlags)
+    
+    def setMasterMode(self):
+    
+        # Cancel pass-through mode
+        self.writeRegister(self.PassThruControl, 0x00)
+        while True:
+            if (not (self.readRegister(self.PassThruStatus) & 0x01)): break
+            sleep(.005)
+
+        # Re-start algorithm
+        self.writeRegister(self.AlgorithmControl, 0x00)
+        while True:
+            if (not (self.readRegister(self.AlgorithmStatus) & 0x01)): break
+            sleep(.005)
+        
+    def setRunEnable(self):
+    
+        self.writeRegister(self.HostControl, 0x01) 
+    
+    def setRunDisable(self):
+    
+        self.writeRegister(self.HostControl, 0x00) 
+
+    def setAccelLpfBandwidth(self, bw):
+    
+        self.writeRegister(self.ACC_LPF_BW, bw) 
+    
+    def setGyroLpfBandwidth(self, bw):
+    
+        self.writeRegister(self.GYRO_LPF_BW, bw) 
+
+    def setQRateDivisor(self, divisor):
+    
+        self.writeRegister(self.QRateDivisor, divisor)
+
+    def setMagRate(self, rate):
+    
+        self.writeRegister(self.MagRate, rate)
+
+    def setAccelRate(self, rate):
+    
+        self.writeRegister(self.AccelRate, rate)
+
+    def setGyroRate(self, rate):
+    
+        self.writeRegister(self.GyroRate, rate)
+
+    def setBaroRate(self, rate):
+    
+        self.writeRegister(self.BaroRate, rate)
+
+    def algorithmControlRequestParameterTransfer(self):
+    
+        self.writeRegister(self.AlgorithmControl, 0x80)
+
+    def algorithmControlReset(self):
+    
+        self.writeRegister(self.AlgorithmControl, 0x00)
+    
+    def enableEvents(self, mask):
+    
+        self.writeRegister(self.EnableEvents, mask)
+
+    def requestParamRead(self, param):
+    
+        self.writeRegister(self.ParamRequest, param) 
+    
+    def getParamAcknowledge(self):
+    
+        return self.readRegsiter(self.ParamAcknowledge)
+
+    def readSavedParamByte0(self):
+    
+        return self.readRegsiter(self.SavedParamByte0)
+    
+    def readSavedParamByte1(self):
+    
+        return self.readRegsiter(self.SavedParamByte1)
+    
+    def readSavedParamByte2(self):
+    
+        return self.readRegsiter(self.SavedParamByte2)
+    
+    def readSavedParamByte3(self):
+    
+        return self.readRegsiter(self.SavedParamByte3)
+    
+    def getRunStatus(self):
+    
+        return self.readRegsiter(self.RunStatus)
+
+    def getAlgorithmStatus(self):
+    
+        return self.readRegsiter(self.AlgorithmStatus)
+
+    def getPassThruStatus(self):
+    
+        return self.readRegsiter(self.PassThruStatus)
+
+    def getEventStatus(self):
+    
+        return self.readRegsiter(self.EventStatus)
+
+    def getSensorStatus(self):
+    
+        return self.readRegsiter(self.SensorStatus)
+    
+    def getErrorStatus(self):
+    
+        return self.readRegsiter(self.ErrorRegister)
+    
+    def setGyroFs(self, gyro_fs):
+    
+        bites = [gyro_fs & (0xFF), (gyro_fs >> 8) & (0xFF), 0x00, 0x00]
+        self.writeRegister(self.LoadParamByte0, bites[0]) #Gyro LSB
+        self.writeRegister(self.LoadParamByte1, bites[1]) #Gyro MSB
+        self.writeRegister(self.LoadParamByte2, bites[2]) #Unused
+        self.writeRegister(self.LoadParamByte3, bites[3]) #Unused
+        self.writeRegister(self.ParamRequest, 0xCB) #Parameter 75 0xCB is 75 decimal with the MSB set high to indicate a paramter write processs
+        self.writeRegister(self.AlgorithmControl, 0x80) #Request parameter transfer procedure
+        STAT = self.readRegsiter(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
+        while(not (STAT==0xCB)):
+            STAT = self.readRegsiter(self.ParamAcknowledge)
+        
+        self.writeRegister(self.ParamRequest, 0x00) #Parameter request = 0 to end parameter transfer process
+        self.writeRegister(self.AlgorithmControl, 0x00) # Re-start algorithm
+    
+    def setMagAccFs(self, mag_fs, acc_fs):
+    
+        bites = [mag_fs & (0xFF), (mag_fs >> 8) & (0xFF),acc_fs & (0xFF), (acc_fs >> 8) & (0xFF)]
+        self.writeRegister(self.LoadParamByte0, bites[0]) #Mag LSB
+        self.writeRegister(self.LoadParamByte1, bites[1]) #Mag MSB
+        self.writeRegister(self.LoadParamByte2, bites[2]) #Acc LSB
+        self.writeRegister(self.LoadParamByte3, bites[3]) #Acc MSB
+        self.writeRegister(self.ParamRequest, 0xCA) #Parameter 74 0xCA is 74 decimal with the MSB set high to indicate a paramter write processs
+        self.writeRegister(self.AlgorithmControl, 0x80) #Request parameter transfer procedure
+        STAT = self.readRegsiter(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
+        while(not (STAT==0xCA)):
+            STAT = self.readRegsiter(self.ParamAcknowledge)
+        
+        self.writeRegister(self.ParamRequest, 0x00) #Parameter request = 0 to end parameter transfer process
+        self.writeRegister(self.AlgorithmControl, 0x00) # Re-start algorithm
+
+    def loadParamByte0(self, value):
+    
+        self.writeRegister(self.LoadParamByte0, value)
+
+    def loadParamByte1(self, value):
+    
+        self.writeRegister(self.LoadParamByte1, value)
+
+    def loadParamByte2(self, value):
+    
+        self.writeRegister(self.LoadParamByte2, value)
+
+    def loadParamByte3(self, value):
+    
+        self.writeRegister(self.LoadParamByte3, value)
+
+    def writeGp36(self, value):
+    
+        self.writeRegister(self.GP36, value)
+
+    def writeGp37(self, value):
+    
+        self.writeRegister(self.GP37, value)
+
+    def writeGp38(self, value):
+    
+        self.writeRegister(self.GP38, value)
+
+    def writeGp39(self, value):
+    
+        self.writeRegister(self.GP39, value)
+
+    def writeGp40(self, value):
+    
+        self.writeRegister(self.GP40, value)
+
+    def writeGp50(self, value):
+    
+        self.writeRegister(self.GP50, value)
+
+    def writeGp51(self, value):
+    
+        self.writeRegister(self.GP51, value)
+
+    def writeGp52(self, value):
+    
+        self.writeRegister(self.GP52, value)
+
+    def writeGp53(self, value):
+    
+        self.writeRegister(self.GP53, value)
+    
+    def writeGp54(self, value):
+    
+        self.writeRegister(self.GP54, value)
+    
+    def writeGp55(self, value):
+    
+        self.writeRegister(self.GP55, value)
+    
+    def writeGp56(self, value):
+    
+        self.writeRegister(self.GP56, value)
+    
+    def readAccelerometer(self):
+    
+        return self.readThreeAxis(self.AX)
+
+    def readGyrometer(self):
+    
+        return self.readThreeAxis(self.GX)
+    
+    def readBarometer(self):
+    
+        rawData = self.readRegisters(self.Baro, 2)  # Read the two raw data registers sequentially into data array
+        rawPressure =  (rawData[1] << 8) | rawData[0]   # Turn the MSB and LSB into a signed 16-bit value
+        pressure = rawPressure *.01 + 1013.25 # pressure in millibars
+
+        # get BMP280 temperature
+        rawData = self.readRegisters(self.Temp, 2)  # Read the two raw data registers sequentially into data array
+        rawTemperature =  (rawData[1] << 8) | rawData[0]   # Turn the MSB and LSB into a signed 16-bit value
+
+        temperature = rawTemperature*0.01  # temperature in degrees C
+
+        return pressure, temperature
+
+    def readMagnetometer(self):
+    
+        return self.readThreeAxis(self.MX)
+    
+    def readQuaternion(self):
+    
+        rawData = self.readRegisters(self.QX, 16)       
+
+        qx = self.uint32_reg_to_float (rawData[0])
+        qy = self.uint32_reg_to_float (rawData[4])
+        qz = self.uint32_reg_to_float (rawData[8])
+        qw = self.uint32_reg_to_float (rawData[12]) 
+
+        return qw, qx, qy, qz
+    
+    def setIntegerParam(self, param, param_val):
+    
+        bites = [param_val & (0xFF),(param_val >> 8) & (0xFF),(param_val >> 16) & (0xFF),(param_val >> 24) & (0xFF)]
+        param = param | 0x80 #Parameter is the decimal value with the MSB set high to indicate a paramter write processs
+        self.writeRegister(self.LoadParamByte0, bites[0]) #Param LSB
+        self.writeRegister(self.LoadParamByte1, bites[1])
+        self.writeRegister(self.LoadParamByte2, bites[2])
+        self.writeRegister(self.LoadParamByte3, bites[3]) #Param MSB
+        self.writeRegister(self.ParamRequest, param)
+        self.writeRegister(self.AlgorithmControl, 0x80) #Request parameter transfer procedure
+        STAT = self.readRegsiter(self.ParamAcknowledge) #Check the parameter acknowledge register and loop until the result matches parameter request byte
+        while(not (STAT==param)):
+            STAT = self.readRegsiter(self.ParamAcknowledge)
+        
+        self.writeRegister(self.ParamRequest, 0x00) #Parameter request = 0 to end parameter transfer process
+        self.writeRegister(self.AlgorithmControl, 0x00) # Re-start algorithm
+    
+
+    def getFullScaleRanges(self):
+    
+        # Read sensor new FS values from parameter space
+        self.writeRegister(self.ParamRequest, 0x4A) # Request to read  parameter 74
+        self.writeRegister(self.AlgorithmControl, 0x80) # Request parameter transfer process
+        param_xfer = self.readRegsiter(self.ParamAcknowledge)
+        while(not (param_xfer==0x4A)):
+            param_xfer = self.readRegsiter(self.ParamAcknowledge)
+        
+        params = [
+                self.readRegsiter(self.SavedParamByte0),
+                self.readRegsiter(self.SavedParamByte1),
+                self.readRegsiter(self.SavedParamByte2),
+                self.readRegsiter(self.SavedParamByte3)]
+        magFs = (params[1]<<8) | params[0]
+        accFs = (params[3]<<8) | params[2]
+        self.writeRegister(self.ParamRequest, 0x4B) # Request to read  parameter 75
+        param_xfer = self.readRegsiter(self.ParamAcknowledge)
+        while (not (param_xfer==0x4B)):
+            param_xfer = self.readRegsiter(self.ParamAcknowledge)
+        
+        params = [
+                self.readRegsiter(self.SavedParamByte0), 
+                self.readRegsiter(self.SavedParamByte1), 
+                self.readRegsiter(self.SavedParamByte2), 
+                self.readRegsiter(self.SavedParamByte3)]
+        gyroFs = (params[1]<<8) | params[0]
+        self.writeRegister(self.ParamRequest, 0x00) #End parameter transfer
+        self.writeRegister(self.AlgorithmControl, 0x00) # re-enable algorithm
+
+        return accFs, gyroFs, magFs
+    
+    def getActualMagRate(self):
+    
+        return self.readRegsiter(self.ActualMagRate)
+
+    def getActualAccelRate(self):
+    
+        return self.readRegsiter(self.ActualAccelRate)
+    
+    def getActualGyroRate(self):
+    
+        return self.readRegsiter(self.ActualGyroRate)
+
+    def getActualBaroRate(self):
+    
+        return self.readRegsiter(self.ActualBaroRate)
+
+    def getActualTempRate(self):
+    
+        return self.readRegsiter(self.ActualTempRate)
+
+    def writeRegister(self, subAddress, data):
+    
+        self.bus.write_byte(subAddress, data)
 
     def readRegister(self, subAddress):
 
@@ -160,6 +551,10 @@ class EM7180(object):
         self.bus.write_byte(self.ADDRESS, subAddress)
 
         return [self.bus.read_byte(self.ADDRESS) for k in range(count)]
+
+    def uint32_reg_to_float(self, buf):
+
+        return struct.unpack('f', bytes(buf))[0]
 
 class EM7180_Master(object):
 
@@ -181,7 +576,39 @@ class EM7180_Master(object):
         if not self.em7180.begin(bus):
             return False
 
-        return True
+        # Enter EM7180 initialized state
+        self.em7180.setRunDisable()# set SENtral in initialized state to configure registers
+        self.em7180.setMasterMode()
+        self.em7180.setRunEnable()
+        self.em7180.setRunDisable()# set SENtral in initialized state to configure registers
+
+        # Setup LPF bandwidth (BEFORE setting ODR's)
+        self.em7180.setAccelLpfBandwidth(0x03) # 41Hz
+        self.em7180.setGyroLpfBandwidth(0x03)  # 41Hz
+
+        # Set accel/gyro/mage desired ODR rates
+        self.em7180.setQRateDivisor(self.qRateDivisor-1)
+        self.em7180.setMagRate(self.magRate)
+        self.em7180.setAccelRate(self.accelRate//10)
+        self.em7180.setGyroRate(self.gyroRate//10)
+        self.em7180.setBaroRate(0x80 | self.baroRate) # 0x80 = enable bit
+
+        # Configure operating modeA
+        self.em7180.algorithmControlReset()# read scale sensor data
+
+        # Enable interrupt to host upon certain events:
+        # quaternions updated (0x04), an error occurs (0x02), or the SENtral needs to be reset(0x01)
+        self.em7180.enableEvents(0x07)
+
+        # Enable EM7180 run mode
+        self.em7180.setRunEnable()# set SENtral in normal run mode
+        sleep(0.1)
+
+        # Disable stillness mode
+        self.em7180.setIntegerParam (0x49, 0x00)
+
+        # Success
+        return not self.em7180.getSensorStatus()
 
     def getErrorString(self):
 
@@ -189,50 +616,57 @@ class EM7180_Master(object):
 
     def checkEventStatus(self):
 
-        return
+        # Check event status register, way to check data ready by checkEventStatusing rather than interrupt
+        self.eventStatus = self.em7180.getEventStatus() # reading clears the register
 
     def gotError(self):
 
-        return False
+        return self.eventStatus & 0x02
 
     def gotQuaternion(self):
 
-        return True
-
-    def readQuaternion(self):
-
-        return 0,0,0,0
+        return self.eventStatus & 0x04
 
     def gotAccelerometer(self):
 
-        return True
-
-    def readAccelerometer(self):
-
-        return 0,0,0
-
-    def gotGyrometer(self):
-
-        return True
-
-    def readGyrometer(self):
-
-        return 0,0,0
+        return self.eventStatus & 0x10
 
     def gotMagnetometer(self):
 
-        return True
+        return self.eventStatus & 0x08
 
-    def readMagnetometer(self):
+    def gotGyrometer(self):
 
-        return 0,0,0
+        return self.eventStatus & 0x20
 
     def gotBarometer(self):
 
-        return True
+        return self.eventStatus & 0x40
+
+    def readQuaternion(self):
+
+        return self.em7180.readQuaternion()
+
+    def readAccelerometer(self):
+
+        return self.readThreeAxis(self.AX, 0.000488)
+
+    def readGyrometer(self):
+
+        return self.readThreeAxis(self.GX, 0.153)
+
+    def readMagnetometer(self):
+
+        return self.readThreeAxis(self.MX, 0.305176)
 
     def readBarometer(self):
 
-        return 0,0
+        return self.em7180.readBarometer()
+
+    def readThreeAxis(self, regx, scale):
+
+        x,y,z = self.em7180.readThreeAxis(regx)
+
+        return x*scale, y*scale, z*scale
 
 
