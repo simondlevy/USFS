@@ -107,13 +107,13 @@ while True:
 
     if em7180.gotBarometer():
     
-        temperature, pressure = em7180.readBarometer()
+        pressure, temperature = em7180.readBarometer()
 
-        #print('Baro:')
-        #print('  Altimeter temperature = %2.2f C' % temperature) 
-        #print('  Altimeter pressure = %2.2f mbar' % pressure) 
-        #altitude = (1.0 - math.pow(pressure / 1013.25, 0.190295)) * 44330
-        #print('  Altitude = %2.2f m\n' % altitude) 
+        print('Baro:')
+        print('  Altimeter temperature = %2.2f C' % temperature) 
+        print('  Altimeter pressure = %2.2f mbar' % pressure) 
+        altitude = (1.0 - math.pow(pressure / 1013.25, 0.190295)) * 44330
+        print('  Altitude = %2.2f m\n' % altitude) 
 
     sys.stdout.flush()
     time.sleep(.01)
