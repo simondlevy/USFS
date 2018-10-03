@@ -60,3 +60,11 @@ class EM7180_Master:
 
         return 0,0,0
 
+    def gotGyrometer(self):
+
+        return True
+
+    def readGyrometer(self):
+
+        return 0,0,0
+

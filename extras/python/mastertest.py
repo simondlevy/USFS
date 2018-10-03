@@ -82,20 +82,13 @@ while True:
         
         print('Accel: %f %f %f' % (ax,ay,az))
 
+    if em7180.gotGyrometer():
+
+        gx,gy,gz = em7180.readGyrometer()
+
+        print('Gyro: %f %f %f' % (gx,gy,gz))
+    
     '''
-    if (em7180.gotGyrometer()) {
-        float gx, gy, gz
-        em7180.readGyrometer(gx, gy, gz)
-
-        Serial.println(gx)
-        Serial.print('Gyro: ')
-        Serial.print(gx)
-        Serial.print(', ')
-        Serial.print(gy)
-        Serial.print(', ')
-        Serial.println(gz)
-    }
-
     if (em7180.gotMagnetometer()) {
         
         float mx, my, mz
