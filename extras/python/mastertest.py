@@ -23,6 +23,7 @@ from em7180 import EM7180_Master
 
 import math
 import time
+import sys
 
 MAG_RATE       = 100  # Hz
 ACCEL_RATE     = 200  # Hz
@@ -112,4 +113,5 @@ while True:
         altitude = (1.0 - math.pow(pressure / 1013.25, 0.190295)) * 44330
         print('  Altitude = %2.2f m\n' % altitude) 
 
+    sys.stdout.flush()
     time.sleep(.01)
