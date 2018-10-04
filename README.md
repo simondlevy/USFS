@@ -33,6 +33,14 @@ examples were adapted from Kris Winer's [repository](https://github.com/kriswine
 We strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for
 a comprehensive overview of the EM7180 and other sensor-fusion solutions.
 
+## Python on Raspberry Pi
+
+To try the library out in Python, cd to the <b>extras/python</b> folder and do
+<tt>python3 mastertest.py</tt>.  To install the library for access from other
+directories, do.  <tt>sudo python3 setup.py install</tt>.
+
+## C++ on Raspberry Pi, NVIDIA Jetston
+
 RaspberryPi users should download and install [WiringPi](http://wiringpi.com/),
 then cd to <b>extras/wiringpi</b>, and run <b>make</b>
 to build the examples.  You may have to run the example as root: <tt>sudo ./MasterTest</tt>.

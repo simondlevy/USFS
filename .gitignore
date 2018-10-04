@@ -4,3 +4,6 @@
 *.so
 extras/*/MasterTest
 extras/python/em7180/__pycache__/
+extras/python/EM7180.egg-info/
+extras/python/build/
+extras/python/dist/

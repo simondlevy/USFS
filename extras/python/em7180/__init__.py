@@ -20,7 +20,7 @@
 
 import smbus
 import struct
-from time import sleep
+import time
 
 class EM7180(object):
 
@@ -135,7 +135,7 @@ class EM7180(object):
                 break
             
             self.writeRegister(self.ResetRequest, 0x01)
-            sleep(0.5)
+            time.sleep(0.5)
 
 
         if (self.readRegister(self.SentralStatus) & 0x04):
@@ -201,13 +201,13 @@ class EM7180(object):
     
         # First put SENtral in standby mode
         self.writeRegister(self.AlgorithmControl, 0x01)
-        sleep(.005)
+        time.sleep(.005)
 
         # Place SENtral in pass-through mode
         self.writeRegister(self.PassThruControl, 0x01)
         while True:
             if (self.readRegister(self.PassThruStatus) & 0x01): break
-            sleep(.005)
+            time.sleep(.005)
         
     def hasFeature(self, features):
     
@@ -219,13 +219,13 @@ class EM7180(object):
         self.writeRegister(self.PassThruControl, 0x00)
         while True:
             if (not (self.readRegister(self.PassThruStatus) & 0x01)): break
-            sleep(.005)
+            time.sleep(.005)
 
         # Re-start algorithm
         self.writeRegister(self.AlgorithmControl, 0x00)
         while True:
             if (not (self.readRegister(self.AlgorithmStatus) & 0x01)): break
-            sleep(.005)
+            time.sleep(.005)
         
     def setRunEnable(self):
     
@@ -561,7 +561,7 @@ class EM7180_Master(object):
         if not self.em7180.begin(bus):
             return False
 
-        sleep(.1)
+        time.sleep(.1)
 
         # Enter EM7180 initialized state
         self.em7180.setRunDisable()# set SENtral in initialized state to configure registers
@@ -589,7 +589,7 @@ class EM7180_Master(object):
 
         # Enable EM7180 run mode
         self.em7180.setRunEnable()# set SENtral in normal run mode
-        sleep(0.1)
+        time.sleep(0.1)
 
         # Disable stillness mode
         self.em7180.setIntegerParam (0x49, 0x00)
