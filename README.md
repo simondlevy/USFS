@@ -21,7 +21,7 @@ We have tested this EM7180 library on the following hardware:
 
 * NVIDIA Jetson TX1 (C++)
 
-The library provides two C++ classes for working with the EM7180 SENtral sensor hub on this board:
+The library provides two classes for working with the EM7180 SENtral sensor hub on this board:
 
 * An <b>EM7180</b> class providing a convenient API for the full functionality of the EM7180 unit
 
@@ -37,7 +37,7 @@ a comprehensive overview of the EM7180 and other sensor-fusion solutions.
 
 To try the library out in Python, cd to the <b>extras/python</b> folder and do
 <tt>python3 mastertest.py</tt>.  To install the library for access from other
-directories, do.  <tt>sudo python3 setup.py install</tt>.
+directories, do <tt>sudo python3 setup.py install</tt>.
 
 ## C++ on Raspberry Pi, NVIDIA Jetston
 
