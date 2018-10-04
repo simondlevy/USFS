@@ -62,7 +62,6 @@ while True:
     # more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
     # which has additional links.
 
-    '''
     if (em7180.gotQuaternion()):
 
         qw, qx, qy, qz = em7180.readQuaternion()
@@ -91,13 +90,6 @@ while True:
 
         print('Gyro: %f %f %f' % (gx,gy,gz))
     
-    if em7180.gotMagnetometer():
-        
-        mx,my,mz = em7180.readMagnetometer()
-
-        print('Mag: %f %f %f' %(mx,my,mz))
-    '''
-
      #  Or define output variable according to the Android system, where
      #  heading (0 to 360) is defined by the angle between the y-axis and True
      #  North, pitch is rotation about the x-axis (-180 to +180), and roll is

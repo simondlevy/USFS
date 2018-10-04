@@ -103,13 +103,13 @@ void loop()
     if (em7180.gotAccelerometer()) {
         float ax, ay, az;
         em7180.readAccelerometer(ax, ay, az);
-        printf("Accel: %+3.3f, %+3.3fd, %+3.3fd\n", ax, ay, az);
+        printf("Accel: %+3.3f, %+3.3fd, %+3.3f\n", ax, ay, az);
     }
 
     if (em7180.gotGyrometer()) {
         float gx, gy, gz;
         em7180.readGyrometer(gx, gy, gz);
-        printf("Gyro: %+3.3fd, %+3.3fd, %+3.3fd\n", gx, gy, gz);
+        printf("Gyro: %+3.3fd, %+3.3fd, %+3.3f\n", gx, gy, gz);
     }
 
     /*
