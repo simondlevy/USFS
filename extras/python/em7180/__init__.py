@@ -170,7 +170,6 @@ class EM7180(object):
     def getRevisionId(self): 
     
         return self.readRegister(self.RevisionID)
-    
 
     def getRamVersion(self):
     
@@ -178,7 +177,6 @@ class EM7180(object):
         ram2 = self.readRegister(self.RAMVersion2)
 
         return ram1 << 8 | ram2
-    
 
     def getRomVersion(self):
     
@@ -186,28 +184,18 @@ class EM7180(object):
         rom2 = self.readRegister(self.ROMVersion2)
 
         return rom1 << 8 | rom2
-    
 
     def getSentralStatus(self):
     
         return self.readRegister(self.SentralStatus) 
-    
 
     def requestReset(self):
     
         self.writeRegister(self.ResetRequest, 0x01)
-    
 
     def readThreeAxis(self, xreg):
-    
-        rawData = self.readRegisters(xreg, 6)  # Read the six raw data registers sequentially into data array
 
-        x = ((rawData[1] << 8) | rawData[0])   # Turn the MSB and LSB into a signed 16-bit value
-        y = ((rawData[3] << 8) | rawData[2])  
-        z = ((rawData[5] << 8) | rawData[4]) 
-
-        return x, y, z
-    
+        return struct.unpack('hhh', bytes(self.readRegisters(xreg, 6)))
 
     def setPassThroughMode(self):
     
@@ -667,5 +655,3 @@ class EM7180_Master(object):
         x,y,z = self.em7180.readThreeAxis(regx)
 
         return x*scale, y*scale, z*scale
-
-

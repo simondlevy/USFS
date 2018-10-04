@@ -23,7 +23,6 @@ from em7180 import EM7180_Master
 
 import math
 import time
-import sys
 
 MAG_RATE       = 100  # Hz
 ACCEL_RATE     = 200  # Hz
@@ -76,19 +75,19 @@ while True:
         if yaw < 0: yaw   += 360.0  # Ensure yaw stays between 0 and 360
         roll  *= 180.0 / math.pi
 
-        print('Quaternion Roll, Pitch, Yaw: %2.2f %2.2f %2.2f' % (roll, pitch, yaw))
+        print('Quaternion Roll, Pitch, Yaw: %+2.2f %+2.2f %+2.2f' % (roll, pitch, yaw))
 
     if em7180.gotAccelerometer():
 
         ax,ay,az = em7180.readAccelerometer()
         
-        print('Accel: %f %f %f' % (ax,ay,az))
+        print('Accel: %+3.3f %+3.3f %+3.3f' % (ax,ay,az))
 
     if em7180.gotGyrometer():
 
         gx,gy,gz = em7180.readGyrometer()
 
-        print('Gyro: %f %f %f' % (gx,gy,gz))
+        print('Gyro: %+3.3f %+3.3f %+3.3f' % (gx,gy,gz))
     
      #  Or define output variable according to the Android system, where
      #  heading (0 to 360) is defined by the angle between the y-axis and True
@@ -106,6 +105,5 @@ while True:
         print('  Altimeter pressure = %2.2f mbar' % pressure) 
         altitude = (1.0 - math.pow(pressure / 1013.25, 0.190295)) * 44330
         print('  Altitude = %2.2f m\n' % altitude) 
-
-    sys.stdout.flush()
-    time.sleep(.01)
+    
+    time.sleep(.05)
