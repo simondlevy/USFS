@@ -8,7 +8,7 @@ and the
 [LSM6DSM + LIS2MD version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-lsm6dsm--lis2md/))
 from Pesky Products. 
 
-To use this library you will also need our cross-platform support 
+To use this library with C++ you will also need our cross-platform support 
 [library](https://github.com/simondlevy/CrossPlatformDataBus).
 
 We have tested this EM7180 library on the following hardware:
@@ -17,9 +17,9 @@ We have tested this EM7180 library on the following hardware:
 
 * Teensy 3.2, 3.6
 
-* Raspberry Pi 3
+* Raspberry Pi 3 (C++, Python)
 
-* NVIDIA Jetson TX1
+* NVIDIA Jetson TX1 (C++)
 
 The library provides two C++ classes for working with the EM7180 SENtral sensor hub on this board:
 
