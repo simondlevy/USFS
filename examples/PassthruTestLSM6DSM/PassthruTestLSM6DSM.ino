@@ -93,6 +93,8 @@ void setup()
 
 #ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#elif defined(ESP8266)
+    Wire.begin(0,2); // SDA (0), SCL (2) on ESP8266 
 #else
     Wire.begin();
 #endif

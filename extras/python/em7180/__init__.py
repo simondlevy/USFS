@@ -120,7 +120,7 @@ class EM7180_Master(object):
 
         self.em7180 = EM7180()
 
-    def begin(self):
+    def begin(self, bus=1):
 
         return True
 

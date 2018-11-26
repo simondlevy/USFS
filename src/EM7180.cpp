@@ -432,6 +432,7 @@ void EM7180::readBarometer(float & pressure, float & temperature)
     uint8_t rawData[2];  // x/y/z gyro register data stored here
 
     readRegisters(Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
+
     int16_t rawPressure =  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
     pressure = (float)rawPressure *.01f + 1013.25f; // pressure in millibars
 

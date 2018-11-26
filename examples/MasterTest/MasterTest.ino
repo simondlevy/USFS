@@ -44,6 +44,8 @@ void setup()
 {
 #ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#elif defined(ESP8266)
+    Wire.begin(0,2); // SDA (0), SCL (2) on ESP8266 
 #else
     Wire.begin();
 #endif
@@ -166,7 +168,6 @@ void loop()
 
         em7180.readBarometer(pressure, temperature);
 
-        /*
         Serial.println("Baro:");
         Serial.print("  Altimeter temperature = "); 
         Serial.print( temperature, 2); 
@@ -177,7 +178,7 @@ void loop()
         float altitude = (1.0f - powf(pressure / 1013.25f, 0.190295f)) * 44330.0f;
         Serial.print("  Altitude = "); 
         Serial.print(altitude, 2); 
-        Serial.println(" m\n");*/
+        Serial.println(" m\n");
     }
 
     delay(100);
