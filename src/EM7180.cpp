@@ -458,7 +458,7 @@ void EM7180::readQuaternion(float & qw, float & qx, float & qy, float &qz)
     qx = uint32_reg_to_float (&rawData[0]);
     qy = uint32_reg_to_float (&rawData[4]);
     qz = uint32_reg_to_float (&rawData[8]);
-    qw = uint32_reg_to_float (&rawData[12]); 
+    qw = uint32_reg_to_float (&rawData[12]);
 }
 
 void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) 

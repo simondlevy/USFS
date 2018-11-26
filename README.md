@@ -8,7 +8,7 @@ and the
 [LSM6DSM + LIS2MD version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-lsm6dsm--lis2md/))
 from Pesky Products. 
 
-To use this library you will also need our cross-platform support 
+To use this library with C++ you will also need our cross-platform support 
 [library](https://github.com/simondlevy/CrossPlatformDataBus).
 
 We have tested this EM7180 library on the following hardware:
@@ -17,11 +17,11 @@ We have tested this EM7180 library on the following hardware:
 
 * Teensy 3.2, 3.6
 
-* Raspberry Pi 3
+* Raspberry Pi 3 (C++, Python)
 
-* NVIDIA Jetson TX1
+* NVIDIA Jetson TX1 (C++)
 
-The library provides two C++ classes for working with the EM7180 SENtral sensor hub on this board:
+The library provides two classes for working with the EM7180 SENtral sensor hub on this board:
 
 * An <b>EM7180</b> class providing a convenient API for the full functionality of the EM7180 unit
 
@@ -32,6 +32,14 @@ into your Arduino libraries folder to get started. The class library and
 examples were adapted from Kris Winer's [repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).
 We strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for
 a comprehensive overview of the EM7180 and other sensor-fusion solutions.
+
+## Python on Raspberry Pi
+
+To try the library out in Python, cd to the <b>extras/python</b> folder and do
+<tt>python3 mastertest.py</tt>.  To install the library for access from other
+directories, do <tt>sudo python3 setup.py install</tt>.
+
+## C++ on Raspberry Pi, NVIDIA Jetston
 
 RaspberryPi users should download and install [WiringPi](http://wiringpi.com/),
 then cd to <b>extras/wiringpi</b>, and run <b>make</b>

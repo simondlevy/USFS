@@ -52,23 +52,21 @@ void loop()
         return;
     }
 
-    /*
-       Define output variables from updated quaternion---these are Tait-Bryan
-       angles, commonly used in aircraft orientation.  In this coordinate
-       system, the positive z-axis is down toward Earth.  Yaw is the angle
-       between Sensor x-axis and Earth magnetic North (or true North if
-       corrected for local declination, looking down on the sensor positive
-       yaw is counterclockwise.  Pitch is angle between sensor x-axis and
-       Earth ground plane, toward the Earth is positive, up toward the sky is
-       negative.  Roll is angle between sensor y-axis and Earth ground plane,
-       y-axis up is positive roll.  These arise from the definition of the
-       homogeneous rotation matrix constructed from q.  Tait-Bryan
-       angles as well as Euler angles are non-commutative; that is, the get
-       the correct orientation the rotations must be applied in the correct
-       order which for this configuration is yaw, pitch, and then roll.  For
-       more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
-       which has additional links.
-     */
+    // Define output variables from updated quaternion---these are Tait-Bryan
+    // angles, commonly used in aircraft orientation.  In this coordinate
+    // system, the positive z-axis is down toward Earth.  Yaw is the angle
+    // between Sensor x-axis and Earth magnetic North (or true North if
+    // corrected for local declination, looking down on the sensor positive
+    // yaw is counterclockwise.  Pitch is angle between sensor x-axis and
+    // Earth ground plane, toward the Earth is positive, up toward the sky is
+    // negative.  Roll is angle between sensor y-axis and Earth ground plane,
+    // y-axis up is positive roll.  These arise from the definition of the
+    // homogeneous rotation matrix constructed from q.  Tait-Bryan
+    // angles as well as Euler angles are non-commutative; that is, the get
+    // the correct orientation the rotations must be applied in the correct
+    // order which for this configuration is yaw, pitch, and then roll.  For
+    // more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
+    // which has additional links.
 
     if (em7180.gotQuaternion()) {
 
@@ -86,7 +84,7 @@ void loop()
         if(yaw < 0) yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
         roll  *= 180.0f / M_PI;
 
-        printf("Quaternion Yaw, Pitch, Roll: %+2.2f, %+2.2f, %+2.2f\n", yaw, pitch, roll);
+        printf("Quaternion Roll, Pitch, Roll: %+2.2f, %+2.2f, %+2.2f\n", roll, pitch, yaw);
     }
 
     if (em7180.gotAccelerometer()) {
@@ -101,14 +99,12 @@ void loop()
         printf("Gyro: %+3.3f, %+3.3f, %+3.3f\n", gx, gy, gz);
     }
 
-    /*
-       Or define output variable according to the Android system, where
-       heading (0 to 360) is defined by the angle between the y-axis and True
-       North, pitch is rotation about the x-axis (-180 to +180), and roll is
-       rotation about the y-axis (-90 to +90) In this systen, the z-axis is
-       pointing away from Earth, the +y-axis is at the "top" of the device
-       (cellphone) and the +x-axis points toward the right of the device.
-     */ 
+    // Or define output variable according to the Android system, where
+    // heading (0 to 360) is defined by the angle between the y-axis and True
+    // North, pitch is rotation about the x-axis (-180 to +180), and roll is
+    // rotation about the y-axis (-90 to +90) In this systen, the z-axis is
+    // pointing away from Earth, the +y-axis is at the "top" of the device
+    // (cellphone) and the +x-axis points toward the right of the device.
 
     if (em7180.gotBarometer()) 
     {
