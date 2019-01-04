@@ -8,10 +8,10 @@ and the
 [LSM6DSM + LIS2MD version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-lsm6dsm--lis2md/))
 from Pesky Products. 
 
-To use this library with C++ you will also need our cross-platform support 
+To use this library with C++ you will also need my cross-platform support 
 [library](https://github.com/simondlevy/CrossPlatformDataBus).
 
-We have tested this EM7180 library on the following hardware:
+I have tested this EM7180 library on the following hardware:
 
 * Ladybug STM32L4 board from Tlera Corp
 
@@ -30,8 +30,13 @@ The library provides two classes for working with the EM7180 SENtral sensor hub 
 The <b>examples</b> directory contains sketches showing how to use these two classes. As usual, just clone the repo
 into your Arduino libraries folder to get started. The class library and
 examples were adapted from Kris Winer's [repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).
-We strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for
-a comprehensive overview of the EM7180 and other sensor-fusion solutions.
+I strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for
+a comprehensive overview of the EM7180 and other sensor-fusion solutions, and for instructions on how to 
+[calibrate](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki/F.--Magnetometer-and-Accelerometer-Calibration)
+the EM7180 before you start using it.  (You can use my 
+[version](https://github.com/simondlevy/EM7180/tree/master/examples/WarmStartAccCal)
+of the calibration sketch.)
+[sketch]() 
 
 ## Python on Raspberry Pi
 
