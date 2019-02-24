@@ -18,9 +18,37 @@
    along with EM7180.  If not, see <http:#www.gnu.org/licenses/>.
 '''
 
-import smbus
 import struct
 import time
+
+# Try MicroPython
+try:
+
+    from pyb import I2C
+
+    def _initBus(bus): 
+        return I2C(bus, I2C.MASTER)
+
+    def _writeRegister(bus, address, subAddress, data): 
+        bus.mem_write(data, address, subAddress)
+
+    def _readRegisters(bus, address, subAddress, count):
+        return bus.mem_read(count, address, subAddress)
+
+# Default to Raspberry Pi
+except:
+
+    import smbus
+
+    def _initBus(bus): 
+        return smbus.SMBus(bus)
+
+    def _writeRegister(bus, address, subAddress, data): 
+        bus.write_byte_data(address, subAddress, data)
+
+    def _readRegisters(bus, address, subAddress, count):
+        bus.write_byte(address, subAddress)
+        return [bus.read_byte(address) for k in range(count)]
 
 class EM7180(object):
 
@@ -115,7 +143,7 @@ class EM7180(object):
 
     def begin(self, bus=1):
 
-        self.bus = smbus.SMBus(bus)
+        self.bus = _initBus(bus)
 
         self.errorStatus = 0
 
@@ -519,7 +547,7 @@ class EM7180(object):
 
     def writeRegister(self, subAddress, data):
     
-        self.bus.write_byte_data(self.ADDRESS, subAddress, data)
+        _writeRegister(self.bus, self.ADDRESS, subAddress, data)
 
     def readRegister(self, subAddress):
 
@@ -527,9 +555,7 @@ class EM7180(object):
 
     def readRegisters(self, subAddress, count):
 
-        self.bus.write_byte(self.ADDRESS, subAddress)
-
-        return [self.bus.read_byte(self.ADDRESS) for k in range(count)]
+        return _readRegisters(self.bus, self.ADDRESS, subAddress, count)
 
     def uint32_reg_to_float(self, buf):
 
