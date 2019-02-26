@@ -1,6 +1,6 @@
 <a href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/"><img src="sentral2.png" width=700></a>
 
-This repository contains Arduino, Raspberry Pi (WiringPi), and Linux i2cdev
+This repository contains Arduino, Python (MicroPython, WiringPi), and Linux i2cdev
 libraries and examples for working with the incredible 
 EM7180 Ultimate Sensor Fusion Solution boards 
 (both the [MPU9250 version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-mpu9250/)
@@ -11,7 +11,7 @@ from Pesky Products.
 To use this library with C++ you will also need my cross-platform support 
 [library](https://github.com/simondlevy/CrossPlatformDataBus).
 
-I have tested this EM7180 library on the following hardware:
+The library has been tested on the following hardware:
 
 * Ladybug STM32L4 board from Tlera Corp
 
@@ -20,6 +20,8 @@ I have tested this EM7180 library on the following hardware:
 * Raspberry Pi 3 (C++, Python)
 
 * NVIDIA Jetson TX1 (C++)
+
+* PYBV1.0 : thanks to [https://github.com/JonHylands](Jon Hylands) for the MicroPython support
 
 The library provides two classes for working with the EM7180 SENtral sensor hub on this board:
 
