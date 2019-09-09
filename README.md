@@ -15,7 +15,7 @@ The library has been tested on the following hardware:
 
 * Ladybug STM32L4 board from Tlera Corp
 
-* Teensy 3.2, 3.6
+* Teensy 3.2, 3.6, 4.0
 
 * Raspberry Pi 3 (C++, Python)
 

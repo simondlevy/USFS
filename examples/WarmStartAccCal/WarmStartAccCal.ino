@@ -513,7 +513,8 @@ void setup()
 #endif
 
     delay(100);
-    Serial.begin(115200);
+    //Serial.begin(115200);
+    Serial.begin(9600);
     delay(1000);
 
     // Should detect SENtral at 0x28
@@ -536,8 +537,10 @@ void setup()
     Serial.print(em7180.getRevisionId(), HEX); 
     Serial.println(" Should be: 0x02");
 
+    Serial.flush();
+
     // Give some time to read the screen
-    delay(1000);
+    delay(4000);
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
     for (uint8_t k=0; k<10; ++k) {
