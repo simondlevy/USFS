@@ -38,7 +38,6 @@ a comprehensive overview of the EM7180 and other sensor-fusion solutions, and fo
 the EM7180 before you start using it.  (You can use my 
 [version](https://github.com/simondlevy/EM7180/tree/master/examples/WarmStartAccCal)
 of the calibration sketch.)
-[sketch]() 
 
 ## Python on Raspberry Pi
 
