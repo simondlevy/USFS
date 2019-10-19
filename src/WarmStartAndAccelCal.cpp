@@ -1,5 +1,5 @@
 /* 
-   WamStartAccAcall.ino: IMU calibration
+   IMU calibration sketch support
 
    Copyright (C) 2018 Simon D. Levy
 
@@ -24,7 +24,7 @@
 
 #include "EM7180.h"
 
-EM7180 em7180;
+static EM7180 em7180;
 
 static const uint8_t M24512DFM_DATA_ADDRESS   = 0x50;   // Address of the 500 page M24512DRC EEPROM data buffer, 1024 bits (128 8-bit bytes) per page
 
@@ -272,6 +272,20 @@ static void EM7180_acc_cal_upload()
     em7180.writeGp56(cal_num_byte[1]);
 }
 
+static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
+{  
+    Wire.beginTransmission(device_address);            // Initialize the Tx buffer
+    Wire.write(data_address1);                         // Put slave register address in Tx buffer
+    Wire.write(data_address2);                         // Put slave register address in Tx buffer
+    Wire.endTransmission(NOSTOP);                  // Send the Tx buffer, but send a restart to keep connection alive
+    uint8_t i = 0;
+    Wire.requestFrom(device_address, (size_t)count);  // Read bytes from slave register address 
+    while (Wire.available())
+    {
+        dest[i++] = Wire.read();
+    }                                                   // Put read results in the Rx buffer
+}
+
 static void readSenParams()
 {
     uint8_t data[140];
@@ -288,6 +302,25 @@ static void readSenParams()
     }
 }
 
+static void M24512DFMwriteBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
+{
+    if (count > 128)
+    {
+        count = 128;
+        Serial.print("Page count cannot be more than 128 bytes!");
+    }
+    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
+    Wire.write(data_address1);                // Put slave register address in Tx buffer
+    Wire.write(data_address2);                // Put slave register address in Tx buffer
+    for(uint8_t i=0; i < count; i++)
+    {
+        Wire.write(dest[i]);                    // Put data in Tx buffer
+    }
+    Wire.endTransmission();                   // Send the Tx buffer
+}
+
+
+
 static void writeSenParams()
 {
     uint8_t data[140];
@@ -302,6 +335,20 @@ static void writeSenParams()
     M24512DFMwriteBytes(M24512DFM_DATA_ADDRESS, 0x7f, 0x80, 12, &data[128]); // Page 255
     delay(100);
     M24512DFMwriteBytes(M24512DFM_DATA_ADDRESS, 0x7f, 0x00, 128, &data[0]); // Page 254
+}
+
+static void writeAccCal()
+{
+    uint8_t data[12];
+    uint8_t axis;
+    for (axis = 0; axis < 3; axis++)
+    {
+        data[2*axis] = (global_conf.accZero_max[axis] & 0xff);
+        data[(2*axis + 1)] = (global_conf.accZero_max[axis] >> 8);
+        data[(2*axis + 6)] = (global_conf.accZero_min[axis] & 0xff);
+        data[(2*axis + 7)] = (global_conf.accZero_min[axis] >> 8);
+    }
+    M24512DFMwriteBytes(M24512DFM_DATA_ADDRESS, 0x7f, 0x8c, 12, data); // Page 255
 }
 
 static void Accel_cal_check(int16_t accelCount[3])
@@ -351,7 +398,6 @@ static void Accel_cal_check(int16_t accelCount[3])
             // Store accelerometer calibration data to the M24512DFM I2C EEPROM
             writeAccCal();
 
-
             // Take Sentral out of pass-thru mode and re-start algorithm
             em7180.setMasterMode();
             accel_cal_saved++;
@@ -374,20 +420,6 @@ static void readAccelCal()
     }
 }
 
-static void writeAccCal()
-{
-    uint8_t data[12];
-    uint8_t axis;
-    for (axis = 0; axis < 3; axis++)
-    {
-        data[2*axis] = (global_conf.accZero_max[axis] & 0xff);
-        data[(2*axis + 1)] = (global_conf.accZero_max[axis] >> 8);
-        data[(2*axis + 6)] = (global_conf.accZero_min[axis] & 0xff);
-        data[(2*axis + 7)] = (global_conf.accZero_min[axis] >> 8);
-    }
-    M24512DFMwriteBytes(M24512DFM_DATA_ADDRESS, 0x7f, 0x8c, 12, data); // Page 255
-}
-
 //===================================================================================================================
 //====== I2C Communication Support Functions
 //===================================================================================================================
@@ -404,36 +436,6 @@ void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t d
     Wire.endTransmission();                   // Send the Tx buffer
 }
 
-static void M24512DFMwriteBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
-{
-    if (count > 128)
-    {
-        count = 128;
-        Serial.print("Page count cannot be more than 128 bytes!");
-    }
-    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
-    Wire.write(data_address1);                // Put slave register address in Tx buffer
-    Wire.write(data_address2);                // Put slave register address in Tx buffer
-    for(uint8_t i=0; i < count; i++)
-    {
-        Wire.write(dest[i]);                    // Put data in Tx buffer
-    }
-    Wire.endTransmission();                   // Send the Tx buffer
-}
-
-static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
-{  
-    Wire.beginTransmission(device_address);            // Initialize the Tx buffer
-    Wire.write(data_address1);                         // Put slave register address in Tx buffer
-    Wire.write(data_address2);                         // Put slave register address in Tx buffer
-    Wire.endTransmission(NOSTOP);                  // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    Wire.requestFrom(device_address, (size_t)count);  // Read bytes from slave register address 
-    while (Wire.available())
-    {
-        dest[i++] = Wire.read();
-    }                                                   // Put read results in the Rx buffer
-}
 
 // simple function to scan for I2C devices on the bus
 static void I2Cscan() 
@@ -501,7 +503,7 @@ static void readParams(uint8_t paramId, uint8_t param[4])
 
 // ======================================================================================
 
-void setup()
+void warm_start_and_accel_cal_setup(void)
 {  
     // Support both Teensy and traditional Arduino
 #ifdef __MK20DX256__
@@ -741,7 +743,7 @@ void setup()
     delay(1000);
 }
 
-void loop()
+void warm_start_and_accel_cal_loop(void)
 {  
     static bool warm_start_saved;
 
