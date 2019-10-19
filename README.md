@@ -36,7 +36,7 @@ I strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_
 a comprehensive overview of the EM7180 and other sensor-fusion solutions, and for instructions on how to 
 [calibrate](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki/F.--Magnetometer-and-Accelerometer-Calibration)
 the EM7180 before you start using it.  (You can use my 
-[version](https://github.com/simondlevy/EM7180/tree/master/examples/WarmStartAccCal)
+[version](https://github.com/simondlevy/EM7180/tree/master/examples/WarmStartAndAccelCal)
 of the calibration sketch.)
 
 ## Python on Raspberry Pi
