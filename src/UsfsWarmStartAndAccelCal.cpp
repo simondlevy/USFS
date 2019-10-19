@@ -460,8 +460,7 @@ void usfs_warm_start_and_accel_cal_setup(void)
 
     delay(100);
 
-    //Serial.begin(115200);
-    Serial.begin(9600);
+    Serial.begin(115200);
     delay(1000);
 
     // Start EM7180 interaction
