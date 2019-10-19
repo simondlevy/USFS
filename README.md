@@ -21,7 +21,7 @@ The library has been tested on the following hardware:
 
 * NVIDIA Jetson TX1 (C++)
 
-* PYBV1.0 : thanks to [https://github.com/JonHylands](Jon Hylands) for the MicroPython support
+* PYBV1.0 : thanks to [https://github.com/simondlevy](Jon Hylands) for the MicroPython support
 
 The library provides two classes for working with the EM7180 SENtral sensor hub on this board:
 
