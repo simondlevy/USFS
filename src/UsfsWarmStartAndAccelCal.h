@@ -20,6 +20,6 @@
 
 #pragma once
 
-void warm_start_and_accel_cal_setup(void);
+void usfs_warm_start_and_accel_cal_setup(void);
 
-void warm_start_and_accel_cal_loop(void);
+void usfs_warm_start_and_accel_cal_loop(void);

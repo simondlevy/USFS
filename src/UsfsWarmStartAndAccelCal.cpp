@@ -503,7 +503,7 @@ static void readParams(uint8_t paramId, uint8_t param[4])
 
 // ======================================================================================
 
-void warm_start_and_accel_cal_setup(void)
+void usfs_warm_start_and_accel_cal_setup(void)
 {  
     // Support both Teensy and traditional Arduino
 #ifdef __MK20DX256__
@@ -743,7 +743,7 @@ void warm_start_and_accel_cal_setup(void)
     delay(1000);
 }
 
-void warm_start_and_accel_cal_loop(void)
+void usfs_warm_start_and_accel_cal_loop(void)
 {  
     static bool warm_start_saved;
 

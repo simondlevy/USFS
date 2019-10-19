@@ -18,16 +18,16 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WarmStartAndAccelCal.h"
+#include "UsfsWarmStartAndAccelCal.h"
 
 void setup(void)
 {
-    warm_start_and_accel_cal_setup();
+    usfs_warm_start_and_accel_cal_setup();
 }
 
 void loop(void)
 {
-    warm_start_and_accel_cal_loop();
+    usfs_warm_start_and_accel_cal_loop();
 }
 
 
