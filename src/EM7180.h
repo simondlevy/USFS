@@ -25,7 +25,6 @@
 // One ifdef needed to support delay() cross-platform
 #if defined(ARDUINO)
 #include <Arduino.h>
-
 #elif defined(__arm__) 
 #if defined(STM32F303)  || defined(STM32F405xx)
 extern "C" { void delay(uint32_t msec); }

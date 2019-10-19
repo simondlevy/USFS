@@ -1,5 +1,5 @@
 /* 
-   IMU calibration sketch for USFS
+   IMU calibration sketch for USFS on Teensy boards
 
    Copyright (C) 2019 Simon D. Levy
 
@@ -18,10 +18,14 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <i2c_t3.h>
+
 #include "UsfsWarmStartAndAccelCal.h"
 
 void setup(void)
 {
+    Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+
     usfs_warm_start_and_accel_cal_setup();
 }
 

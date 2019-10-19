@@ -22,6 +22,13 @@
    along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Support Teensy
+#ifdef __MK20DX256__
+#include <i2c_t3.h>
+#else
+#include <Wire.h>
+#endif
+
 #include "EM7180.h"
 
 static EM7180 em7180;
@@ -59,14 +66,6 @@ static int16_t            accel_cal_saved;
 static uint16_t           calibratingA;
 static acc_cal            global_conf;
 static Sentral_WS_params  WS_params;
-
-#ifdef __MK20DX256__
-#include <i2c_t3.h>
-#define NOSTOP I2C_NOSTOP
-#else
-#include <Wire.h>
-#define NOSTOP false
-#endif
 
 //===================================================================================================================
 //====== Sentral parameter management functions
@@ -277,7 +276,7 @@ static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, ui
     Wire.beginTransmission(device_address);            // Initialize the Tx buffer
     Wire.write(data_address1);                         // Put slave register address in Tx buffer
     Wire.write(data_address2);                         // Put slave register address in Tx buffer
-    Wire.endTransmission(NOSTOP);                  // Send the Tx buffer, but send a restart to keep connection alive
+    Wire.endTransmission(false);                       // Send the Tx buffer, but send a restart to keep connection alive
     uint8_t i = 0;
     Wire.requestFrom(device_address, (size_t)count);  // Read bytes from slave register address 
     while (Wire.available())
@@ -318,8 +317,6 @@ static void M24512DFMwriteBytes(uint8_t device_address, uint8_t data_address1, u
     }
     Wire.endTransmission();                   // Send the Tx buffer
 }
-
-
 
 static void writeSenParams()
 {
@@ -436,51 +433,6 @@ void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t d
     Wire.endTransmission();                   // Send the Tx buffer
 }
 
-
-// simple function to scan for I2C devices on the bus
-static void I2Cscan() 
-{
-    // scan for i2c devices
-    byte error, address;
-    int nDevices;
-
-    Serial.println("Scanning...");
-
-    nDevices = 0;
-    for(address = 1; address < 127; address++ ) 
-    {
-        // Force serial output
-        Serial.flush();
-
-        // The i2c_scanner uses the return value of
-        // the Write.endTransmisstion to see if
-        // a device did acknowledge to the address.
-        Wire.beginTransmission(address);
-        error = Wire.endTransmission();
-
-        if (error == 0)
-        {
-            Serial.print("I2C device found at address 0x");
-            if (address<16) 
-                Serial.print("0");
-            Serial.print(address,HEX);
-            Serial.println("  !");
-            nDevices++;
-        }
-        else if (error==4) 
-        {
-            Serial.print("Unknow error at address 0x");
-            if (address<16) 
-                Serial.print("0");
-            Serial.println(address,HEX);
-        }    
-    }
-    if (nDevices == 0)
-        Serial.println("No I2C devices found\n");
-    else
-        Serial.println("done\n");
-}
-
 static void sensorError(const char * errmsg)
 {
     Serial.println(errmsg);
@@ -505,22 +457,12 @@ static void readParams(uint8_t paramId, uint8_t param[4])
 
 void usfs_warm_start_and_accel_cal_setup(void)
 {  
-    // Support both Teensy and traditional Arduino
-#ifdef __MK20DX256__
-    Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
-#elif defined(ESP8266)
-    Wire.begin(0,2); // SDA (0), SCL (2) on ESP8266 
-#else
-    Wire.begin();
-#endif
 
     delay(100);
+
     //Serial.begin(115200);
     Serial.begin(9600);
     delay(1000);
-
-    // Should detect SENtral at 0x28
-    I2Cscan();
 
     // Start EM7180 interaction
     em7180.begin();
