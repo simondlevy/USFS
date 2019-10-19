@@ -1,5 +1,5 @@
 /* 
-   Header file for IMU calibration sketches
+   Header file for USFS calibration sketches
 
    Copyright (C) 2019 Simon D. Levy
 

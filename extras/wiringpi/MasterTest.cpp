@@ -1,24 +1,24 @@
 /* 
-   MasterTest.cpp: Example sketch for running EM7180 SENtral sensor hub in master mode 
+   MasterTest.cpp: Example sketch for running USFS SENtral sensor hub in master mode 
 
    Copyright (c) 2018 Simon D. Levy
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EM7180_Master.h"
+#include "USFS_Master.h"
 
 #include <wiringPi.h>
 #include <stdio.h>
@@ -33,7 +33,7 @@ static const uint16_t GYRO_RATE      = 200;  // Hz
 static const uint8_t  BARO_RATE      = 50;   // Hz
 static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
-EM7180_Master em7180 = EM7180_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+USFS_Master usfs = USFS_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
 void setup()
 {
@@ -45,21 +45,21 @@ void setup()
 
     delay(100);
 
-    // Start the EM7180 in master mode
-    if (!em7180.begin()) {
+    // Start the USFS in master mode
+    if (!usfs.begin()) {
 
         while (true) {
-            fprintf(stderr, "%s\n", em7180.getErrorString());
+            fprintf(stderr, "%s\n", usfs.getErrorString());
         }
     }
 }
 
 void loop()
 {  
-    em7180.checkEventStatus();
+    usfs.checkEventStatus();
 
-    if (em7180.gotError()) {
-        fprintf(stderr, "ERROR: %s\n", em7180.getErrorString());
+    if (usfs.gotError()) {
+        fprintf(stderr, "ERROR: %s\n", usfs.getErrorString());
         return;
     }
 
@@ -79,11 +79,11 @@ void loop()
     //  more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
     //  which has additional links.
 
-    if (em7180.gotQuaternion()) {
+    if (usfs.gotQuaternion()) {
 
         float qw, qx, qy, qz;
 
-        em7180.readQuaternion(qw, qx, qy, qz);
+        usfs.readQuaternion(qw, qx, qy, qz);
 
         float roll  = atan2(2.0f * (qw * qx + qy * qz), qw * qw - qx * qx - qy * qy + qz * qz);
         float pitch = -asin(2.0f * (qx * qz - qw * qy));
@@ -98,15 +98,15 @@ void loop()
         printf("Quaternion Roll, Pitch, Yaw: %+2.2f, %+2.2f, %+2.2f\n", roll, pitch, yaw);
     }
 
-    if (em7180.gotAccelerometer()) {
+    if (usfs.gotAccelerometer()) {
         float ax, ay, az;
-        em7180.readAccelerometer(ax, ay, az);
+        usfs.readAccelerometer(ax, ay, az);
         printf("Accel: %+3.3f, %+3.3f, %+3.3f\n", ax, ay, az);
     }
 
-    if (em7180.gotGyrometer()) {
+    if (usfs.gotGyrometer()) {
         float gx, gy, gz;
-        em7180.readGyrometer(gx, gy, gz);
+        usfs.readGyrometer(gx, gy, gz);
         printf("Gyro: %+3.3f, %+3.3f, %+3.3f\n", gx, gy, gz);
     }
 
@@ -117,11 +117,11 @@ void loop()
     // pointing away from Earth, the +y-axis is at the "top" of the device
     // (cellphone) and the +x-axis points toward the right of the device.
 
-    if (em7180.gotBarometer()) 
+    if (usfs.gotBarometer()) 
     {
         float temperature, pressure;
 
-        em7180.readBarometer(pressure, temperature);
+        usfs.readBarometer(pressure, temperature);
 
         printf("Baro:\n");
         printf("  Altimeter temperature = %2.2f C\n", temperature); 

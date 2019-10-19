@@ -1,21 +1,21 @@
 '''
-   Python classes for EM7180 SENtral Sensor
+   Python classes for Ultimate Sensor Fusion Solution
 
    Copyright (C) 2018 Simon D. Levy
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http:#www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http:#www.gnu.org/licenses/>.
 '''
 
 import struct
@@ -50,12 +50,12 @@ except:
         bus.write_byte(address, subAddress)
         return [bus.read_byte(address) for k in range(count)]
 
-class EM7180(object):
+class USFS(object):
 
     def __init__(self):
 
-        #EM7180 SENtral register map
-        #see http:#www.emdeveloper.com/downloads/7180/EMSentral_EM7180_Register_Map_v1_3.pdf
+        #USFS SENtral register map
+        #see http:#www.emdeveloper.com/downloads/7180/EMSentral_USFS_Register_Map_v1_3.pdf
         self.QX                 = 0x00  # this is a 32-bit normalized floating point number read from registers = 0x00-03
         self.QY                 = 0x04  # this is a 32-bit normalized floating point number read from registers = 0x04-07
         self.QZ                 = 0x08  # this is a 32-bit normalized floating point number read from registers = 0x08-0B
@@ -136,7 +136,7 @@ class EM7180(object):
         self.GP55               = 0x6E
         self.GP56               = 0x6F
 
-        self.ADDRESS            = 0x28   # Address of the EM7180 SENtral sensor hub
+        self.ADDRESS            = 0x28   # Address of the USFS SENtral sensor hub
 
         self.bus = None
         self.errorStart = 0
@@ -567,7 +567,7 @@ class EM7180(object):
 
 # =======================================================================================
 
-class EM7180_Master(object):
+class USFS_Master(object):
 
     def __init__(self, magRate, accelRate, gyroRate, baroRate, qRateDivisor):
 
@@ -579,58 +579,58 @@ class EM7180_Master(object):
 
         self.eventStatus = 0
 
-        self.em7180 = EM7180()
+        self.usfs = USFS()
 
     def begin(self, bus=1):
 
         # Fail immediately if unable to upload EEPROM
-        if not self.em7180.begin(bus):
+        if not self.usfs.begin(bus):
             return False
 
         time.sleep(.1)
 
-        # Enter EM7180 initialized state
-        self.em7180.setRunDisable()# set SENtral in initialized state to configure registers
-        self.em7180.setMasterMode()
-        self.em7180.setRunEnable()
-        self.em7180.setRunDisable()# set SENtral in initialized state to configure registers
+        # Enter USFS initialized state
+        self.usfs.setRunDisable()# set SENtral in initialized state to configure registers
+        self.usfs.setMasterMode()
+        self.usfs.setRunEnable()
+        self.usfs.setRunDisable()# set SENtral in initialized state to configure registers
 
         # Setup LPF bandwidth (BEFORE setting ODR's)
-        self.em7180.setAccelLpfBandwidth(0x03) # 41Hz
-        self.em7180.setGyroLpfBandwidth(0x03)  # 41Hz
+        self.usfs.setAccelLpfBandwidth(0x03) # 41Hz
+        self.usfs.setGyroLpfBandwidth(0x03)  # 41Hz
 
         # Set accel/gyro/mage desired ODR rates
-        self.em7180.setQRateDivisor(self.qRateDivisor-1)
-        self.em7180.setMagRate(self.magRate)
-        self.em7180.setAccelRate(self.accelRate//10)
-        self.em7180.setGyroRate(self.gyroRate//10)
-        self.em7180.setBaroRate(0x80 | self.baroRate) # 0x80 = enable bit
+        self.usfs.setQRateDivisor(self.qRateDivisor-1)
+        self.usfs.setMagRate(self.magRate)
+        self.usfs.setAccelRate(self.accelRate//10)
+        self.usfs.setGyroRate(self.gyroRate//10)
+        self.usfs.setBaroRate(0x80 | self.baroRate) # 0x80 = enable bit
 
         # Configure operating modeA
-        self.em7180.algorithmControlReset()# read scale sensor data
+        self.usfs.algorithmControlReset()# read scale sensor data
 
         # Enable interrupt to host upon certain events:
         # quaternions updated (0x04), an error occurs (0x02), or the SENtral needs to be reset(0x01)
-        self.em7180.enableEvents(0x07)
+        self.usfs.enableEvents(0x07)
 
-        # Enable EM7180 run mode
-        self.em7180.setRunEnable()# set SENtral in normal run mode
+        # Enable USFS run mode
+        self.usfs.setRunEnable()# set SENtral in normal run mode
         time.sleep(0.1)
 
         # Disable stillness mode
-        self.em7180.setIntegerParam (0x49, 0x00)
+        self.usfs.setIntegerParam (0x49, 0x00)
 
         # Success
-        return not self.em7180.getSensorStatus()
+        return not self.usfs.getSensorStatus()
 
     def getErrorString(self):
 
-        return self.em7180.getErrorString()
+        return self.usfs.getErrorString()
 
     def checkEventStatus(self):
 
         # Check event status register, way to check data ready by checkEventStatusing rather than interrupt
-        self.eventStatus = self.em7180.getEventStatus() # reading clears the register
+        self.eventStatus = self.usfs.getEventStatus() # reading clears the register
 
     def gotError(self):
 
@@ -658,26 +658,26 @@ class EM7180_Master(object):
 
     def readQuaternion(self):
 
-        return self.em7180.readQuaternion()
+        return self.usfs.readQuaternion()
 
     def readAccelerometer(self):
 
-        return self.readThreeAxis(self.em7180.AX, 0.000488)
+        return self.readThreeAxis(self.usfs.AX, 0.000488)
 
     def readGyrometer(self):
 
-        return self.readThreeAxis(self.em7180.GX, 0.153)
+        return self.readThreeAxis(self.usfs.GX, 0.153)
 
     def readMagnetometer(self):
 
-        return self.readThreeAxis(self.em7180.MX, 0.305176)
+        return self.readThreeAxis(self.usfs.MX, 0.305176)
 
     def readBarometer(self):
 
-        return self.em7180.readBarometer()
+        return self.usfs.readBarometer()
 
     def readThreeAxis(self, regx, scale):
 
-        x,y,z = self.em7180.readThreeAxis(regx)
+        x,y,z = self.usfs.readThreeAxis(regx)
 
         return x*scale, y*scale, z*scale

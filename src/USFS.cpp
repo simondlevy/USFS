@@ -1,6 +1,6 @@
 /* 
 
-   EM7180.cpp: Class implementation for EM7180 SENtral Sensor
+   : Class implementation for USFS 
 
    Copyright (C) 2018 Simon D. Levy
 
@@ -8,25 +8,25 @@
 
      https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/MPU9250_BMP280
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "EM7180.h"
+#include "USFS.h"
 #include <CrossPlatformI2C_Core.h>
 
-float EM7180::uint32_reg_to_float (uint8_t *buf)
+float USFS::uint32_reg_to_float (uint8_t *buf)
 {
     union {
         uint32_t ui32;
@@ -40,7 +40,7 @@ float EM7180::uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-bool EM7180::begin(uint8_t bus)
+bool USFS::begin(uint8_t bus)
 {
     _i2c = cpi2c_open(ADDRESS, bus);
 
@@ -75,7 +75,7 @@ bool EM7180::begin(uint8_t bus)
     return true;
 }
 
-const char * EM7180::getErrorString(void)
+const char * USFS::getErrorString(void)
 {
     if (errorStatus & 0x01) return "Magnetometer error";
     if (errorStatus & 0x02) return "Accelerometer error";
@@ -94,17 +94,17 @@ const char * EM7180::getErrorString(void)
     return "Unknown error";
 }
 
-uint8_t EM7180::getProductId(void) 
+uint8_t USFS::getProductId(void) 
 {
     return readRegister(ProductID);
 }
 
-uint8_t EM7180::getRevisionId(void) 
+uint8_t USFS::getRevisionId(void) 
 {
     return readRegister(RevisionID);
 }
 
-uint16_t EM7180::getRamVersion(void)
+uint16_t USFS::getRamVersion(void)
 {
     uint16_t ram1 = readRegister(RAMVersion1);
     uint16_t ram2 = readRegister(RAMVersion2);
@@ -112,7 +112,7 @@ uint16_t EM7180::getRamVersion(void)
     return ram1 << 8 | ram2;
 }
 
-uint16_t EM7180::getRomVersion(void)
+uint16_t USFS::getRomVersion(void)
 {
     uint16_t rom1 = readRegister(ROMVersion1);
     uint16_t rom2 = readRegister(ROMVersion2);
@@ -120,17 +120,17 @@ uint16_t EM7180::getRomVersion(void)
     return rom1 << 8 | rom2;
 }
 
-uint8_t EM7180::getSentralStatus(void)
+uint8_t USFS::getSentralStatus(void)
 {
     return readRegister(SentralStatus); 
 }
 
-void EM7180::requestReset(void)
+void USFS::requestReset(void)
 {
     writeRegister(ResetRequest, 0x01);
 }
 
-void EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
+void USFS::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
 {
     uint8_t rawData[6];  // x/y/z register data stored here
     readRegisters(xreg, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -139,7 +139,7 @@ void EM7180::readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
     z = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void EM7180::setPassThroughMode()
+void USFS::setPassThroughMode()
 {
     // First put SENtral in standby mode
     writeRegister(AlgorithmControl, 0x01);
@@ -153,12 +153,12 @@ void EM7180::setPassThroughMode()
     }
 }
 
-bool EM7180::hasFeature(uint8_t features)
+bool USFS::hasFeature(uint8_t features)
 {
     return features & readRegister(FeatureFlags);
 }
 
-void EM7180::setMasterMode()
+void USFS::setMasterMode()
 {
     // Cancel pass-through mode
     writeRegister(PassThruControl, 0x00);
@@ -175,127 +175,127 @@ void EM7180::setMasterMode()
     }
 }
 
-void EM7180::setRunEnable(void)
+void USFS::setRunEnable(void)
 {
     writeRegister(HostControl, 0x01); 
 }
 
-void EM7180::setRunDisable(void)
+void USFS::setRunDisable(void)
 {
     writeRegister(HostControl, 0x00); 
 }
 
-void EM7180::setAccelLpfBandwidth(uint8_t bw)
+void USFS::setAccelLpfBandwidth(uint8_t bw)
 {
     writeRegister(ACC_LPF_BW, bw); 
 }
 
-void EM7180::setGyroLpfBandwidth(uint8_t bw)
+void USFS::setGyroLpfBandwidth(uint8_t bw)
 {
     writeRegister(GYRO_LPF_BW, bw); 
 }
 
-void EM7180::setQRateDivisor(uint8_t divisor)
+void USFS::setQRateDivisor(uint8_t divisor)
 {
     writeRegister(QRateDivisor, divisor);
 }
 
-void EM7180::setMagRate(uint8_t rate)
+void USFS::setMagRate(uint8_t rate)
 {
     writeRegister(MagRate, rate);
 }
 
-void EM7180::setAccelRate(uint8_t rate)
+void USFS::setAccelRate(uint8_t rate)
 {
     writeRegister(AccelRate, rate);
 }
 
-void EM7180::setGyroRate(uint8_t rate)
+void USFS::setGyroRate(uint8_t rate)
 {
     writeRegister(GyroRate, rate);
 }
 
-void EM7180::setBaroRate(uint8_t rate)
+void USFS::setBaroRate(uint8_t rate)
 {
     writeRegister(BaroRate, rate);
 }
 
-void EM7180::algorithmControlRequestParameterTransfer(void)
+void USFS::algorithmControlRequestParameterTransfer(void)
 {
     writeRegister(AlgorithmControl, 0x80);
 }
 
-void EM7180::algorithmControlReset(void)
+void USFS::algorithmControlReset(void)
 {
     writeRegister(AlgorithmControl, 0x00);
 }
 
-void EM7180::enableEvents(uint8_t mask)
+void USFS::enableEvents(uint8_t mask)
 {
     writeRegister(EnableEvents, mask);
 }
 
-void EM7180::requestParamRead(uint8_t param)
+void USFS::requestParamRead(uint8_t param)
 {
     writeRegister(ParamRequest, param); 
 }
 
-uint8_t EM7180::getParamAcknowledge(void)
+uint8_t USFS::getParamAcknowledge(void)
 {
     return readRegister(ParamAcknowledge);
 }
 
-uint8_t EM7180::readSavedParamByte0(void)
+uint8_t USFS::readSavedParamByte0(void)
 {
     return readRegister(SavedParamByte0);
 }
 
-uint8_t EM7180::readSavedParamByte1(void)
+uint8_t USFS::readSavedParamByte1(void)
 {
     return readRegister(SavedParamByte1);
 }
 
-uint8_t EM7180::readSavedParamByte2(void)
+uint8_t USFS::readSavedParamByte2(void)
 {
     return readRegister(SavedParamByte2);
 }
 
-uint8_t EM7180::readSavedParamByte3(void)
+uint8_t USFS::readSavedParamByte3(void)
 {
     return readRegister(SavedParamByte3);
 }
 
-uint8_t EM7180::getRunStatus(void)
+uint8_t USFS::getRunStatus(void)
 {
     return readRegister(RunStatus);
 }
 
-uint8_t EM7180::getAlgorithmStatus(void)
+uint8_t USFS::getAlgorithmStatus(void)
 {
     return readRegister(AlgorithmStatus);
 }
 
-uint8_t EM7180::getPassThruStatus(void)
+uint8_t USFS::getPassThruStatus(void)
 {
     return readRegister(PassThruStatus);
 }
 
-uint8_t EM7180::getEventStatus(void)
+uint8_t USFS::getEventStatus(void)
 {
     return readRegister(EventStatus);
 }
 
-uint8_t EM7180::getSensorStatus(void)
+uint8_t USFS::getSensorStatus(void)
 {
     return readRegister(SensorStatus);
 }
 
-uint8_t EM7180::getErrorStatus(void)
+uint8_t USFS::getErrorStatus(void)
 {
     return readRegister(ErrorRegister);
 }
 
-void EM7180::setGyroFs(uint16_t gyro_fs) 
+void USFS::setGyroFs(uint16_t gyro_fs) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
@@ -316,7 +316,7 @@ void EM7180::setGyroFs(uint16_t gyro_fs)
     writeRegister(AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
+void USFS::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
@@ -337,97 +337,97 @@ void EM7180::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     writeRegister(AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180::loadParamByte0(uint8_t value)
+void USFS::loadParamByte0(uint8_t value)
 {
     writeRegister(LoadParamByte0, value);
 }
 
-void EM7180::loadParamByte1(uint8_t value)
+void USFS::loadParamByte1(uint8_t value)
 {
     writeRegister(LoadParamByte1, value);
 }
 
-void EM7180::loadParamByte2(uint8_t value)
+void USFS::loadParamByte2(uint8_t value)
 {
     writeRegister(LoadParamByte2, value);
 }
 
-void EM7180::loadParamByte3(uint8_t value)
+void USFS::loadParamByte3(uint8_t value)
 {
     writeRegister(LoadParamByte3, value);
 }
 
-void EM7180::writeGp36(uint8_t value)
+void USFS::writeGp36(uint8_t value)
 {
     writeRegister(GP36, value);
 }
 
-void EM7180::writeGp37(uint8_t value)
+void USFS::writeGp37(uint8_t value)
 {
     writeRegister(GP37, value);
 }
 
-void EM7180::writeGp38(uint8_t value)
+void USFS::writeGp38(uint8_t value)
 {
     writeRegister(GP38, value);
 }
 
-void EM7180::writeGp39(uint8_t value)
+void USFS::writeGp39(uint8_t value)
 {
     writeRegister(GP39, value);
 }
 
-void EM7180::writeGp40(uint8_t value)
+void USFS::writeGp40(uint8_t value)
 {
     writeRegister(GP40, value);
 }
 
-void EM7180::writeGp50(uint8_t value)
+void USFS::writeGp50(uint8_t value)
 {
     writeRegister(GP50, value);
 }
 
-void EM7180::writeGp51(uint8_t value)
+void USFS::writeGp51(uint8_t value)
 {
     writeRegister(GP51, value);
 }
 
-void EM7180::writeGp52(uint8_t value)
+void USFS::writeGp52(uint8_t value)
 {
     writeRegister(GP52, value);
 }
 
-void EM7180::writeGp53(uint8_t value)
+void USFS::writeGp53(uint8_t value)
 {
     writeRegister(GP53, value);
 }
 
-void EM7180::writeGp54(uint8_t value)
+void USFS::writeGp54(uint8_t value)
 {
     writeRegister(GP54, value);
 }
 
-void EM7180::writeGp55(uint8_t value)
+void USFS::writeGp55(uint8_t value)
 {
     writeRegister(GP55, value);
 }
 
-void EM7180::writeGp56(uint8_t value)
+void USFS::writeGp56(uint8_t value)
 {
     writeRegister(GP56, value);
 }
 
-void EM7180::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
+void USFS::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
 {
     readThreeAxis(AX, ax, ay, az);
 }
 
-void EM7180::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
+void USFS::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
 {
     readThreeAxis(GX, gx, gy, gz);
 }
 
-void EM7180::readBarometer(float & pressure, float & temperature)
+void USFS::readBarometer(float & pressure, float & temperature)
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
 
@@ -444,12 +444,12 @@ void EM7180::readBarometer(float & pressure, float & temperature)
 }
 
 
-void EM7180::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
+void USFS::readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz)
 {
     readThreeAxis(MX, mx, my, mz);
 }
 
-void EM7180::readQuaternion(float & qw, float & qx, float & qy, float &qz)
+void USFS::readQuaternion(float & qw, float & qx, float & qy, float &qz)
 {
     uint8_t rawData[16];  // x/y/z/w quaternion register data stored here (note unusual order!)
 
@@ -461,7 +461,7 @@ void EM7180::readQuaternion(float & qw, float & qx, float & qy, float &qz)
     qw = uint32_reg_to_float (&rawData[12]);
 }
 
-void EM7180::setIntegerParam(uint8_t param, uint32_t param_val) 
+void USFS::setIntegerParam(uint8_t param, uint32_t param_val) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = param_val & (0xFF);
@@ -483,7 +483,7 @@ void EM7180::setIntegerParam(uint8_t param, uint32_t param_val)
     writeRegister(AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
+void USFS::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs)
 {
     uint8_t param[4];
 
@@ -514,44 +514,44 @@ void EM7180::getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magF
     writeRegister(AlgorithmControl, 0x00); // re-enable algorithm
 }
 
-uint8_t EM7180::getActualMagRate()
+uint8_t USFS::getActualMagRate()
 {
     return readRegister(ActualMagRate);
 }
 
-uint16_t EM7180::getActualAccelRate()
+uint16_t USFS::getActualAccelRate()
 {
     return readRegister(ActualAccelRate);
 }
 
-uint16_t EM7180::getActualGyroRate()
+uint16_t USFS::getActualGyroRate()
 {
     return readRegister(ActualGyroRate);
 }
 
-uint8_t EM7180::getActualBaroRate()
+uint8_t USFS::getActualBaroRate()
 {
     return readRegister(ActualBaroRate);
 }
 
-uint8_t EM7180::getActualTempRate()
+uint8_t USFS::getActualTempRate()
 {
     return readRegister(ActualTempRate);
 }
 
-uint8_t EM7180::readRegister(uint8_t subAddress)
+uint8_t USFS::readRegister(uint8_t subAddress)
 {
     uint8_t data;
     readRegisters(subAddress, 1, &data);
     return data;                       
 }
 
-void EM7180::writeRegister(uint8_t subAddress, uint8_t data)
+void USFS::writeRegister(uint8_t subAddress, uint8_t data)
 {
     cpi2c_writeRegister(_i2c, subAddress, data);
 }
 
-void EM7180::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
+void USFS::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     cpi2c_readRegisters(_i2c, subAddress, count, dest);
 }

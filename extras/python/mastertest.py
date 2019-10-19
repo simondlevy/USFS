@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 '''
-   mastertest.py: Example Python script for running EM7180 SENtral sensor hub in master mode.
+   mastertest.py: Example Python script for running USFS SENtral sensor hub in master mode.
 
    Copyright (C) 2018 Simon D. Levy
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from em7180 import EM7180_Master
+from usfs import USFS_Master
 
 import math
 import time
@@ -30,19 +30,19 @@ GYRO_RATE      = 200  # Hz
 BARO_RATE      = 50   # Hz
 Q_RATE_DIVISOR = 3    # 1/3 gyro rate
 
-em7180 = EM7180_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR)
+usfs = USFS_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR)
 
-# Start the EM7180 in master mode
-if not em7180.begin():
-    print(em7180.getErrorString())
+# Start the USFS in master mode
+if not usfs.begin():
+    print(usfs.getErrorString())
     exit(1)
 
 while True:
 
-    em7180.checkEventStatus()
+    usfs.checkEventStatus()
 
-    if em7180.gotError():
-        print('ERROR: ' + em7180.getErrorString())
+    if usfs.gotError():
+        print('ERROR: ' + usfs.getErrorString())
         exit(1)
 
     # Define output variables from updated quaternion---these are Tait-Bryan
@@ -61,9 +61,9 @@ while True:
     # more see http://en.wikipedia.org/wiki/Conversion_between_q_and_Euler_angles 
     # which has additional links.
 
-    if (em7180.gotQuaternion()):
+    if (usfs.gotQuaternion()):
 
-        qw, qx, qy, qz = em7180.readQuaternion()
+        qw, qx, qy, qz = usfs.readQuaternion()
 
         roll  = math.atan2(2.0 * (qw * qx + qy * qz), qw * qw - qx * qx - qy * qy + qz * qz)
         pitch = -math.asin(2.0 * (qx * qz - qw * qy))
@@ -77,15 +77,15 @@ while True:
 
         print('Quaternion Roll, Pitch, Yaw: %+2.2f %+2.2f %+2.2f' % (roll, pitch, yaw))
 
-    if em7180.gotAccelerometer():
+    if usfs.gotAccelerometer():
 
-        ax,ay,az = em7180.readAccelerometer()
+        ax,ay,az = usfs.readAccelerometer()
         
         print('Accel: %+3.3f %+3.3f %+3.3f' % (ax,ay,az))
 
-    if em7180.gotGyrometer():
+    if usfs.gotGyrometer():
 
-        gx,gy,gz = em7180.readGyrometer()
+        gx,gy,gz = usfs.readGyrometer()
 
         print('Gyro: %+3.3f %+3.3f %+3.3f' % (gx,gy,gz))
     
@@ -96,9 +96,9 @@ while True:
      #  pointing away from Earth, the +y-axis is at the 'top' of the device
      #  (cellphone) and the +x-axis points toward the right of the device.
 
-    if em7180.gotBarometer():
+    if usfs.gotBarometer():
     
-        pressure, temperature = em7180.readBarometer()
+        pressure, temperature = usfs.readBarometer()
 
         print('Baro:')
         print('  Altimeter temperature = %2.2f C' % temperature) 

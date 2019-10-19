@@ -1,28 +1,28 @@
 /* 
-   MasterTest.ino: Example sketch for running EM7180 SENtral sensor hub in master mode.
+   Example sketch for running USFS in master mode.
 
    Copyright (C) 2018 Simon D. Levy
 
    Adapted from
 
-     https://github.com/kriswiner/EM7180_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
+     https://github.com/kriswiner/USFS_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EM7180_Master.h"
+#include "USFS_Master.h"
 
 #ifdef __MK20DX256__
 #include <i2c_t3.h>
@@ -38,7 +38,7 @@ static const uint16_t GYRO_RATE      = 200;  // Hz
 static const uint8_t  BARO_RATE      = 50;   // Hz
 static const uint8_t  Q_RATE_DIVISOR = 3;    // 1/3 gyro rate
  
-EM7180_Master em7180 = EM7180_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
+USFS_Master usfs = USFS_Master(MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, Q_RATE_DIVISOR);
 
 void setup()
 {
@@ -54,22 +54,22 @@ void setup()
 
     Serial.begin(115200);
 
-    // Start the EM7180 in master mode
-    if (!em7180.begin()) {
+    // Start the USFS in master mode
+    if (!usfs.begin()) {
 
         while (true) {
-            Serial.println(em7180.getErrorString());
+            Serial.println(usfs.getErrorString());
         }
     }
 }
 
 void loop()
 {  
-    em7180.checkEventStatus();
+    usfs.checkEventStatus();
 
-    if (em7180.gotError()) {
+    if (usfs.gotError()) {
         Serial.print("ERROR: ");
-        Serial.println(em7180.getErrorString());
+        Serial.println(usfs.getErrorString());
         return;
     }
 
@@ -91,11 +91,11 @@ void loop()
        which has additional links.
      */
 
-    if (em7180.gotQuaternion()) {
+    if (usfs.gotQuaternion()) {
 
         float qw, qx, qy, qz;
 
-        em7180.readQuaternion(qw, qx, qy, qz);
+        usfs.readQuaternion(qw, qx, qy, qz);
 
         float roll  = atan2(2.0f * (qw * qx + qy * qz), qw * qw - qx * qx - qy * qy + qz * qz);
         float pitch = -asin(2.0f * (qx * qz - qw * qy));
@@ -115,9 +115,9 @@ void loop()
         Serial.println(yaw, 2);
     }
 
-    if (em7180.gotAccelerometer()) {
+    if (usfs.gotAccelerometer()) {
         float ax, ay, az;
-        em7180.readAccelerometer(ax, ay, az);
+        usfs.readAccelerometer(ax, ay, az);
         
         Serial.print("Accel: ");
         Serial.print(ax);
@@ -127,9 +127,9 @@ void loop()
         Serial.println(az);
     }
 
-    if (em7180.gotGyrometer()) {
+    if (usfs.gotGyrometer()) {
         float gx, gy, gz;
-        em7180.readGyrometer(gx, gy, gz);
+        usfs.readGyrometer(gx, gy, gz);
 
         Serial.println(gx);
         Serial.print("Gyro: ");
@@ -140,10 +140,10 @@ void loop()
         Serial.println(gz);
     }
 
-    if (em7180.gotMagnetometer()) {
+    if (usfs.gotMagnetometer()) {
         
         float mx, my, mz;
-        em7180.readMagnetometer(mx, my, mz);
+        usfs.readMagnetometer(mx, my, mz);
 
         Serial.print("Mag: ");
         Serial.print(mx);
@@ -162,11 +162,11 @@ void loop()
        (cellphone) and the +x-axis points toward the right of the device.
      */ 
 
-    if (em7180.gotBarometer()) 
+    if (usfs.gotBarometer()) 
     {
         float temperature, pressure;
 
-        em7180.readBarometer(pressure, temperature);
+        usfs.readBarometer(pressure, temperature);
 
         Serial.println("Baro:");
         Serial.print("  Altimeter temperature = "); 

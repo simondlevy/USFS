@@ -1,32 +1,32 @@
 /* 
-   EM7180_Master.h: Class header for EM7180 SENtral Sensor in master mode
+   Class header for USFS in master mode
 
    Copyright (C) 2018 Simon D. Levy
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include "EM7180.h"
+#include "USFS.h"
 
-class EM7180_Master {
+class USFS_Master {
 
     private:
 
-        EM7180 _em7180;
+        USFS _usfs;
 
         uint8_t _eventStatus;
 
@@ -40,7 +40,7 @@ class EM7180_Master {
 
     public:
 
-        EM7180_Master(uint8_t  magRate, uint16_t accelRate, uint16_t gyroRate, uint8_t  baroRate, uint8_t qRateDivisor); 
+        USFS_Master(uint8_t  magRate, uint16_t accelRate, uint16_t gyroRate, uint8_t  baroRate, uint8_t qRateDivisor); 
 
         const char * getErrorString(void);
 

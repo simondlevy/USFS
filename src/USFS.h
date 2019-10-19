@@ -1,21 +1,21 @@
 /* 
-   EM7180.h: Class header for EM7180 SENtral Sensor
+   Class header for USFS
 
    Copyright (C) 2018 Simon D. Levy
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -36,14 +36,14 @@ extern "C" { void delay(uint32_t msec); }
 void delay(uint32_t msec);
 #endif
 
-class EM7180 {
+class USFS {
 
-    friend class EM7180_Master;
+    friend class USFS_Master;
 
     protected:
 
-        // EM7180 SENtral register map
-        // see http://www.emdeveloper.com/downloads/7180/EMSentral_EM7180_Register_Map_v1_3.pdf
+        // SENtral register map
+        // see http://www.emdeveloper.com/downloads/7180/EMSentral_USFS_Register_Map_v1_3.pdf
         static const uint8_t QX                 = 0x00;  // this is a 32-bit normalized floating point number read from registers = 0x00-03
         static const uint8_t QY                 = 0x04;  // this is a 32-bit normalized floating point number read from registers = 0x04-07
         static const uint8_t QZ                 = 0x08;  // this is a 32-bit normalized floating point number read from registers = 0x08-0B
@@ -124,7 +124,7 @@ class EM7180 {
         static const uint8_t GP55               = 0x6E;
         static const uint8_t GP56               = 0x6F;
 
-        static const uint8_t ADDRESS           = 0x28;   // Address of the EM7180 SENtral sensor hub
+        static const uint8_t ADDRESS           = 0x28;   // Address of the USFS SENtral sensor hub
 
 
         bool hasFeature(uint8_t features);
@@ -230,4 +230,4 @@ class EM7180 {
 
         static float uint32_reg_to_float (uint8_t *buf);
 
-}; // class EM7180
+}; // class USFS

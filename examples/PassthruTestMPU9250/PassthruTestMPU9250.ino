@@ -1,6 +1,5 @@
 /* 
-   PassthruTestMPU9250.ino: Example sketch for running EM7180 SENtral 
-   sensor hub in pass-through mode to talk directly to MPU9250
+   Example sketch for running USFS in pass-through mode to talk directly to MPU9250
 
    Copyright (C) 2018 Simon D. Levy
 
@@ -10,22 +9,22 @@
 
        https://github.com/simondlevy/CrossPlatformDataBus
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EM7180.h"
+#include "USFS.h"
 
 #include <MPU9250_Master_I2C.h>
 
@@ -37,7 +36,7 @@
 #define NOSTOP false
 #endif
 
-EM7180 em7180;
+USFS usfs;
 
 static const MPUIMU::Ascale_t  ASCALE              = MPUIMU::AFS_2G;
 static const MPUIMU::Gscale_t  GSCALE              = MPUIMU::GFS_250DPS;
@@ -93,16 +92,16 @@ void setup()
 
     delay(100);
 
-    // Start the EM7180
-    if (!em7180.begin()) {
+    // Start the USFS
+    if (!usfs.begin()) {
 
         while (true) {
-            Serial.println(em7180.getErrorString());
+            Serial.println(usfs.getErrorString());
         }
     }    
 
-    // Put the EM7180 into pass-through mode
-    em7180.setPassThroughMode();
+    // Put the USFS into pass-through mode
+    usfs.setPassThroughMode();
 
     // Start the MPU9250 in master mode
     switch (mpu9250.begin()) {

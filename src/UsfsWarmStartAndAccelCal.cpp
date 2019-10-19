@@ -1,25 +1,25 @@
 /* 
-   IMU calibration sketch support
+   Calibration sketch support for USFS
 
    Copyright (C) 2018 Simon D. Levy
 
    Adapted from
 
-     https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/EM7180_MPU9250_BMP280
+     https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/USFS_MPU9250_BMP280
 
-   This file is part of EM7180.
+   This file is part of USFS.
 
-   EM7180 is free software: you can redistribute it and/or modify
+   USFS is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
 
-   EM7180 is distributed in the hope that it will be useful,
+   USFS is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with EM7180.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Support Teensy
@@ -29,9 +29,9 @@
 #include <Wire.h>
 #endif
 
-#include "EM7180.h"
+#include "USFS.h"
 
-static EM7180 em7180;
+static USFS usfs;
 
 static const uint8_t M24512DFM_DATA_ADDRESS   = 0x50;   // Address of the 500 page M24512DRC EEPROM data buffer, 1024 bits (128 8-bit bytes) per page
 
@@ -71,7 +71,7 @@ static Sentral_WS_params  WS_params;
 //====== Sentral parameter management functions
 //===================================================================================================================
 
-static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
+static void USFS_set_integer_param (uint8_t param, uint32_t param_val)
 {
     uint8_t bytes[4];
     bytes[0] = param_val & (0xFF);
@@ -81,115 +81,115 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
 
     // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
     param = param | 0x80;
-    em7180.loadParamByte0(bytes[0]); //Param LSB
-    em7180.loadParamByte1(bytes[1]);
-    em7180.loadParamByte2(bytes[2]);
-    em7180.loadParamByte3(bytes[3]); //Param MSB
-    em7180.requestParamRead(param);
+    usfs.loadParamByte0(bytes[0]); //Param LSB
+    usfs.loadParamByte1(bytes[1]);
+    usfs.loadParamByte2(bytes[2]);
+    usfs.loadParamByte3(bytes[3]); //Param MSB
+    usfs.requestParamRead(param);
 
     // Request parameter transfer procedure
-    em7180.algorithmControlRequestParameterTransfer();
+    usfs.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     while (true) {
-        if (em7180.getParamAcknowledge() == param) break;
+        if (usfs.getParamAcknowledge() == param) break;
     }
 
     // Parameter request = 0 to end parameter transfer process
-    em7180.requestParamRead(0x00);
-    em7180.algorithmControlReset(); // Re-start algorithm
+    usfs.requestParamRead(0x00);
+    usfs.algorithmControlReset(); // Re-start algorithm
 }
 
-static void EM7180_set_WS_params()
+static void USFS_set_WS_params()
 {
     uint8_t param = 1;
     uint8_t stat;
 
     // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
     param = param | 0x80;
-    em7180.loadParamByte0(WS_params.Sen_param[0][0]);
-    em7180.loadParamByte1(WS_params.Sen_param[0][1]);
-    em7180.loadParamByte2(WS_params.Sen_param[0][2]);
-    em7180.loadParamByte3(WS_params.Sen_param[0][3]);
-    em7180.requestParamRead(param);
+    usfs.loadParamByte0(WS_params.Sen_param[0][0]);
+    usfs.loadParamByte1(WS_params.Sen_param[0][1]);
+    usfs.loadParamByte2(WS_params.Sen_param[0][2]);
+    usfs.loadParamByte3(WS_params.Sen_param[0][3]);
+    usfs.requestParamRead(param);
 
     // Request parameter transfer procedure
-    em7180.algorithmControlRequestParameterTransfer();
+    usfs.algorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = em7180.getParamAcknowledge();
+    stat = usfs.getParamAcknowledge();
     while(!(stat==param)) {
-        stat = em7180.getParamAcknowledge();
+        stat = usfs.getParamAcknowledge();
     }
     for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
-        em7180.loadParamByte0(WS_params.Sen_param[i][0]);
-        em7180.loadParamByte1(WS_params.Sen_param[i][1]);
-        em7180.loadParamByte2(WS_params.Sen_param[i][2]);
-        em7180.loadParamByte3(WS_params.Sen_param[i][3]);
-        em7180.requestParamRead(param);
+        usfs.loadParamByte0(WS_params.Sen_param[i][0]);
+        usfs.loadParamByte1(WS_params.Sen_param[i][1]);
+        usfs.loadParamByte2(WS_params.Sen_param[i][2]);
+        usfs.loadParamByte3(WS_params.Sen_param[i][3]);
+        usfs.requestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = em7180.getParamAcknowledge();
+        stat = usfs.getParamAcknowledge();
         while(!(stat==param))
         {
-            stat = em7180.getParamAcknowledge();
+            stat = usfs.getParamAcknowledge();
         }
     }
     // Parameter request = 0 to end parameter transfer process
-    em7180.requestParamRead(0x00);
+    usfs.requestParamRead(0x00);
 }
 
-static void EM7180_get_WS_params()
+static void USFS_get_WS_params()
 {
     uint8_t param = 1;
     uint8_t stat;
 
-    em7180.requestParamRead(param);
+    usfs.requestParamRead(param);
     delay(10);
 
     // Request parameter transfer procedure
-    em7180.algorithmControlRequestParameterTransfer();
+    usfs.algorithmControlRequestParameterTransfer();
     delay(10);
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = em7180.getParamAcknowledge();
+    stat = usfs.getParamAcknowledge();
     while(!(stat==param))
     {
-        stat = em7180.getParamAcknowledge();
+        stat = usfs.getParamAcknowledge();
     }
 
     // Parameter is the decimal value with the MSB set low (default) to indicate a paramter read processs
-    WS_params.Sen_param[0][0] = em7180.readSavedParamByte0();
-    WS_params.Sen_param[0][1] = em7180.readSavedParamByte1();
-    WS_params.Sen_param[0][2] = em7180.readSavedParamByte2();
-    WS_params.Sen_param[0][3] = em7180.readSavedParamByte3();
+    WS_params.Sen_param[0][0] = usfs.readSavedParamByte0();
+    WS_params.Sen_param[0][1] = usfs.readSavedParamByte1();
+    WS_params.Sen_param[0][2] = usfs.readSavedParamByte2();
+    WS_params.Sen_param[0][3] = usfs.readSavedParamByte3();
 
     for(uint8_t i=1; i<35; i++)
     {
         param = (i+1);
-        em7180.requestParamRead(param);
+        usfs.requestParamRead(param);
         delay(10);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = em7180.getParamAcknowledge();
+        stat = usfs.getParamAcknowledge();
         while(!(stat==param))
         {
-            stat = em7180.getParamAcknowledge();
+            stat = usfs.getParamAcknowledge();
         }
-        WS_params.Sen_param[i][0] = em7180.readSavedParamByte0();
-        WS_params.Sen_param[i][1] = em7180.readSavedParamByte1();
-        WS_params.Sen_param[i][2] = em7180.readSavedParamByte2();
-        WS_params.Sen_param[i][3] = em7180.readSavedParamByte3();
+        WS_params.Sen_param[i][0] = usfs.readSavedParamByte0();
+        WS_params.Sen_param[i][1] = usfs.readSavedParamByte1();
+        WS_params.Sen_param[i][2] = usfs.readSavedParamByte2();
+        WS_params.Sen_param[i][3] = usfs.readSavedParamByte3();
     }
     // Parameter request = 0 to end parameter transfer process
-    em7180.requestParamRead(0x00);
+    usfs.requestParamRead(0x00);
 
     // Re-start algorithm
-    em7180.algorithmControlReset();
+    usfs.algorithmControlReset();
 }
 
-static void EM7180_acc_cal_upload()
+static void USFS_acc_cal_upload()
 {
     int64_t big_cal_num;
     union
@@ -207,8 +207,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (4096000000/(global_conf.accZero_max[0] - global_conf.accZero_min[0])) - 1000000;
         cal_num = (int16_t)big_cal_num;
     }
-    em7180.writeGp36(cal_num_byte[0]);
-    em7180.writeGp37(cal_num_byte[1]);
+    usfs.writeGp36(cal_num_byte[0]);
+    usfs.writeGp37(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -219,8 +219,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (4096000000/(global_conf.accZero_max[1] - global_conf.accZero_min[1])) - 1000000;
         cal_num = (int16_t)big_cal_num;
     }
-    em7180.writeGp38(cal_num_byte[0]);
-    em7180.writeGp39(cal_num_byte[1]);  
+    usfs.writeGp38(cal_num_byte[0]);
+    usfs.writeGp39(cal_num_byte[1]);  
 
     if (!accel_cal)
     {
@@ -231,8 +231,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (4096000000/(global_conf.accZero_max[2] - global_conf.accZero_min[2])) - 1000000;
         cal_num = (int16_t)big_cal_num;
     }
-    em7180.writeGp40(cal_num_byte[0]);
-    em7180.writeGp50(cal_num_byte[1]);
+    usfs.writeGp40(cal_num_byte[0]);
+    usfs.writeGp50(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -243,8 +243,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 - global_conf.accZero_min[0]))*100000)/4096;
         cal_num = (int16_t)big_cal_num;
     }
-    em7180.writeGp51(cal_num_byte[0]);
-    em7180.writeGp52(cal_num_byte[1]);
+    usfs.writeGp51(cal_num_byte[0]);
+    usfs.writeGp52(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -255,8 +255,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 - global_conf.accZero_min[1]))*100000)/4096;
         cal_num = (int16_t)big_cal_num;
     }
-    em7180.writeGp53(cal_num_byte[0]);
-    em7180.writeGp54(cal_num_byte[1]);
+    usfs.writeGp53(cal_num_byte[0]);
+    usfs.writeGp54(cal_num_byte[1]);
 
     if (!accel_cal)
     {
@@ -267,8 +267,8 @@ static void EM7180_acc_cal_upload()
         big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 - global_conf.accZero_min[2]))*100000)/4096;
         cal_num = -(int16_t)big_cal_num;
     }
-    em7180.writeGp55(cal_num_byte[0]);
-    em7180.writeGp56(cal_num_byte[1]);
+    usfs.writeGp55(cal_num_byte[0]);
+    usfs.writeGp56(cal_num_byte[1]);
 }
 
 static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
@@ -390,13 +390,13 @@ static void Accel_cal_check(int16_t accelCount[3])
             delay(100);
 
             // Put the Sentral in pass-thru mode
-            em7180.setPassThroughMode();
+            usfs.setPassThroughMode();
 
             // Store accelerometer calibration data to the M24512DFM I2C EEPROM
             writeAccCal();
 
             // Take Sentral out of pass-thru mode and re-start algorithm
-            em7180.setMasterMode();
+            usfs.setMasterMode();
             accel_cal_saved++;
             if (accel_cal_saved > 6) accel_cal_saved = 0;
         }
@@ -442,15 +442,15 @@ static void sensorError(const char * errmsg)
 
 static void readParams(uint8_t paramId, uint8_t param[4])
 {
-    em7180.requestParamRead(paramId); // Request to read parameter 74
-    em7180.algorithmControlRequestParameterTransfer(); // Request parameter transfer process
+    usfs.requestParamRead(paramId); // Request to read parameter 74
+    usfs.algorithmControlRequestParameterTransfer(); // Request parameter transfer process
     while (true) {
-        if (em7180.getParamAcknowledge() == paramId) break;
+        if (usfs.getParamAcknowledge() == paramId) break;
     }
-    param[0] = em7180.readSavedParamByte0();
-    param[1] = em7180.readSavedParamByte1();
-    param[2] = em7180.readSavedParamByte2();
-    param[3] = em7180.readSavedParamByte3();
+    param[0] = usfs.readSavedParamByte0();
+    param[1] = usfs.readSavedParamByte1();
+    param[2] = usfs.readSavedParamByte2();
+    param[3] = usfs.readSavedParamByte3();
 }
 
 // ======================================================================================
@@ -463,21 +463,21 @@ void usfs_warm_start_and_accel_cal_setup(void)
     Serial.begin(115200);
     delay(1000);
 
-    // Start EM7180 interaction
-    em7180.begin();
+    // Start USFS interaction
+    usfs.begin();
 
     // Read SENtral device information
-    Serial.print("EM7180 ROM Version: 0x");
-    Serial.print(em7180.getRomVersion(), HEX);
+    Serial.print("USFS ROM Version: 0x");
+    Serial.print(usfs.getRomVersion(), HEX);
     Serial.println(" (should be: 0xE609)");
-    Serial.print("EM7180 RAM Version: 0x"); 
-    Serial.println(em7180.getRamVersion());
+    Serial.print("USFS RAM Version: 0x"); 
+    Serial.println(usfs.getRamVersion());
 
-    Serial.print("EM7180 ProductID: 0x"); 
-    Serial.print(em7180.getProductId(), HEX);
+    Serial.print("USFS ProductID: 0x"); 
+    Serial.print(usfs.getProductId(), HEX);
     Serial.println(" Should be: 0x80");
-    Serial.print("EM7180 RevisionID: 0x"); 
-    Serial.print(em7180.getRevisionId(), HEX); 
+    Serial.print("USFS RevisionID: 0x"); 
+    Serial.print(usfs.getRevisionId(), HEX); 
     Serial.println(" Should be: 0x02");
 
     Serial.flush();
@@ -488,22 +488,22 @@ void usfs_warm_start_and_accel_cal_setup(void)
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
     for (uint8_t k=0; k<10; ++k) {
 
-        uint8_t stat = em7180.getSentralStatus() & 0x01;
+        uint8_t stat = usfs.getSentralStatus() & 0x01;
 
         if (stat & 0x01) Serial.println("EEPROM detected on the sensor bus!");
         if (stat & 0x02) Serial.println("EEPROM uploaded config file!");
         if (stat & 0x04) Serial.println("EEPROM CRC incorrect!");
-        if (stat & 0x08) Serial.println("EM7180 in initialized state!");
+        if (stat & 0x08) Serial.println("USFS in initialized state!");
         if (stat & 0x10) Serial.println("No EEPROM detected!");
 
         if (stat) break;
 
-        em7180.requestReset();
+        usfs.requestReset();
 
         delay(500);  
     }
 
-    if (!(em7180.getSentralStatus() & 0x04))  Serial.println("EEPROM upload successful!");
+    if (!(usfs.getSentralStatus() & 0x04))  Serial.println("EEPROM upload successful!");
 
     // Take user input to choose Warm Start or not...
     Serial.println("Send '1' for Warm Start, '0' for no Warm Start");
@@ -521,13 +521,13 @@ void usfs_warm_start_and_accel_cal_setup(void)
         Serial.println("!!!Warm Start active!!!");
 
         // Put the Sentral in pass-thru mode
-        em7180.setPassThroughMode();
+        usfs.setPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        em7180.setMasterMode();
+        usfs.setMasterMode();
     } else
     {
         Serial.println("***No Warm Start***");
@@ -554,7 +554,7 @@ void usfs_warm_start_and_accel_cal_setup(void)
         Serial.println("!!!Accel Cal Active!!!");
 
         // Put the Sentral in pass-thru mode
-        em7180.setPassThroughMode();
+        usfs.setPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readAccelCal();
@@ -566,7 +566,7 @@ void usfs_warm_start_and_accel_cal_setup(void)
         Serial.print("Z-acc min: "); Serial.println(global_conf.accZero_min[2]);
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        em7180.setMasterMode();
+        usfs.setMasterMode();
     } else
     {
         Serial.println("***No Accel Cal***");
@@ -575,104 +575,104 @@ void usfs_warm_start_and_accel_cal_setup(void)
     delay(1000);
 
     // Set SENtral in initialized state to configure registers
-    em7180.setRunDisable();
+    usfs.setRunDisable();
 
     // Load Accel Cal
     if (accel_cal)
     {
-        EM7180_acc_cal_upload();
+        USFS_acc_cal_upload();
     }
 
     // Force initialize
-    em7180.setRunEnable();
+    usfs.setRunEnable();
 
     // Load Warm Start parameters
     if (warm_start)
     {
-        EM7180_set_WS_params();
+        USFS_set_WS_params();
     }
 
     // Set SENtral in initialized state to configure registers
-    em7180.setRunDisable();
+    usfs.setRunDisable();
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
-    em7180.setAccelLpfBandwidth(0x03); // 41Hz
-    em7180.setGyroLpfBandwidth(0x01); // 184Hz
+    usfs.setAccelLpfBandwidth(0x03); // 41Hz
+    usfs.setGyroLpfBandwidth(0x01); // 184Hz
 
     // Set accel/gyro/mage desired ODR rates
-    em7180.setQRateDivisor(0x02); // 100 Hz
-    em7180.setMagRate(0x64); // 100 Hz
-    em7180.setAccelRate(0x14); // 200/10 Hz
-    em7180.setGyroRate(0x14); // 200/10 Hz
-    em7180.setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
+    usfs.setQRateDivisor(0x02); // 100 Hz
+    usfs.setMagRate(0x64); // 100 Hz
+    usfs.setAccelRate(0x14); // 200/10 Hz
+    usfs.setGyroRate(0x14); // 200/10 Hz
+    usfs.setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
 
     // Configure operating mode
-    em7180.algorithmControlReset(); // read scale sensor data
+    usfs.algorithmControlReset(); // read scale sensor data
 
     // Enable interrupt to host upon certain events
     // choose host interrupts when any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
     // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02), or the SENtral needs to be reset(0x01)
-    em7180.enableEvents(0x07);
+    usfs.enableEvents(0x07);
 
-    // Enable EM7180 run mode
-    em7180.setRunEnable();
+    // Enable USFS run mode
+    usfs.setRunEnable();
     delay(100);
 
-    // EM7180 parameter adjustments
+    // USFS parameter adjustments
     Serial.println("Beginning Parameter Adjustments");
 
     // Read sensor default FS values from parameter space
     uint8_t param[4];
     readParams(0x4A, param);
 
-    uint16_t EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
-    uint16_t EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
-    Serial.print("Magnetometer Default Full Scale Range: +/-"); Serial.print(EM7180_mag_fs); Serial.println("uT");
-    Serial.print("Accelerometer Default Full Scale Range: +/-"); Serial.print(EM7180_acc_fs); Serial.println("g");
+    uint16_t USFS_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
+    uint16_t USFS_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+    Serial.print("Magnetometer Default Full Scale Range: +/-"); Serial.print(USFS_mag_fs); Serial.println("uT");
+    Serial.print("Accelerometer Default Full Scale Range: +/-"); Serial.print(USFS_acc_fs); Serial.println("g");
     readParams(0x4B, param); // Request to read  parameter 75
-    uint16_t EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope Default Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
-    em7180.requestParamRead(0x00);//End parameter transfer
-    em7180.algorithmControlReset(); // re-enable algorithm
+    uint16_t USFS_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+    Serial.print("Gyroscope Default Full Scale Range: +/-"); Serial.print(USFS_gyro_fs); Serial.println("dps");
+    usfs.requestParamRead(0x00);//End parameter transfer
+    usfs.algorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
-    EM7180_set_integer_param (0x49, 0x00);
+    USFS_set_integer_param (0x49, 0x00);
 
-    // Write desired sensor full scale ranges to the EM7180
-    em7180.setMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
-    em7180.setGyroFs(0x7D0); // 2000 dps
+    // Write desired sensor full scale ranges to the USFS
+    usfs.setMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
+    usfs.setGyroFs(0x7D0); // 2000 dps
 
     // Read sensor new FS values from parameter space
     readParams(0x4A, param);// Request to read  parameter 74
-    EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
-    EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
-    Serial.print("Magnetometer New Full Scale Range: +/-"); Serial.print(EM7180_mag_fs); Serial.println("uT");
-    Serial.print("Accelerometer New Full Scale Range: +/-"); Serial.print(EM7180_acc_fs); Serial.println("g");
+    USFS_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
+    USFS_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+    Serial.print("Magnetometer New Full Scale Range: +/-"); Serial.print(USFS_mag_fs); Serial.println("uT");
+    Serial.print("Accelerometer New Full Scale Range: +/-"); Serial.print(USFS_acc_fs); Serial.println("g");
     readParams(0x4B, param);// Request to read  parameter 75
-    EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope New Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
-    em7180.requestParamRead(0x00);//End parameter transfer
-    em7180.algorithmControlReset(); // re-enable algorithm
+    USFS_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+    Serial.print("Gyroscope New Full Scale Range: +/-"); Serial.print(USFS_gyro_fs); Serial.println("dps");
+    usfs.requestParamRead(0x00);//End parameter transfer
+    usfs.algorithmControlReset(); // re-enable algorithm
 
-    // Read EM7180 status
-    if (em7180.getRunStatus() & 0x01) Serial.println(" EM7180 run status = normal mode");
-    uint8_t algoStatus = em7180.getAlgorithmStatus();
-    if (algoStatus & 0x01) Serial.println(" EM7180 standby status");
-    if (algoStatus & 0x02) Serial.println(" EM7180 algorithm slow");
-    if (algoStatus & 0x04) Serial.println(" EM7180 in stillness mode");
-    if (algoStatus & 0x08) Serial.println(" EM7180 mag calibration completed");
-    if (algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
-    if (algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
-    if (em7180.getPassThruStatus() & 0x01) Serial.print(" EM7180 in passthru mode!");
-    uint8_t eventStatus = em7180.getEventStatus();
-    if (eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
-    if (eventStatus & 0x02) Serial.println(" EM7180 Error");
+    // Read USFS status
+    if (usfs.getRunStatus() & 0x01) Serial.println(" USFS run status = normal mode");
+    uint8_t algoStatus = usfs.getAlgorithmStatus();
+    if (algoStatus & 0x01) Serial.println(" USFS standby status");
+    if (algoStatus & 0x02) Serial.println(" USFS algorithm slow");
+    if (algoStatus & 0x04) Serial.println(" USFS in stillness mode");
+    if (algoStatus & 0x08) Serial.println(" USFS mag calibration completed");
+    if (algoStatus & 0x10) Serial.println(" USFS magnetic anomaly detected");
+    if (algoStatus & 0x20) Serial.println(" USFS unreliable sensor data");
+    if (usfs.getPassThruStatus() & 0x01) Serial.print(" USFS in passthru mode!");
+    uint8_t eventStatus = usfs.getEventStatus();
+    if (eventStatus & 0x01) Serial.println(" USFS CPU reset");
+    if (eventStatus & 0x02) Serial.println(" USFS Error");
 
     // Give some time to read the screen
     delay(1000);
 
     // Check sensor status
-    uint8_t sensorStatus = em7180.getSensorStatus();
+    uint8_t sensorStatus = usfs.getSensorStatus();
     if (sensorStatus & 0x01) sensorError("Magnetometer not acknowledging!");
     if (sensorStatus & 0x02) sensorError("Accelerometer not acknowledging!");
     if (sensorStatus & 0x04) sensorError("Gyro not acknowledging!");
@@ -703,16 +703,16 @@ void usfs_warm_start_and_accel_cal_loop(void)
     if (serial_input == '1') {
 
         delay(100);
-        EM7180_get_WS_params();
+        USFS_get_WS_params();
 
         // Put the Sentral in pass-thru mode
-        em7180.setPassThroughMode();
+        usfs.setPassThroughMode();
 
         // Store WarmStart data to the M24512DFM I2C EEPROM
         writeSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        em7180.setMasterMode();
+        usfs.setMasterMode();
         warm_start_saved = true;
     }
 
@@ -721,16 +721,16 @@ void usfs_warm_start_and_accel_cal_loop(void)
     }
 
     // Check event status register, way to check data ready by polling rather than interrupt
-    uint8_t eventStatus = em7180.getEventStatus(); // reading clears the register
+    uint8_t eventStatus = usfs.getEventStatus(); // reading clears the register
 
     // Check for errors
     // Error detected, what is it?
     if (eventStatus & 0x02) { 
 
-        uint8_t errorStatus = em7180.getErrorStatus();
+        uint8_t errorStatus = usfs.getErrorStatus();
         if (!errorStatus)
         {
-            Serial.print(" EM7180 sensor status = "); Serial.println(errorStatus);
+            Serial.print(" USFS status = "); Serial.println(errorStatus);
             if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
             if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
             if (errorStatus == 0x14) Serial.print("Gyro failure!");
@@ -749,7 +749,7 @@ void usfs_warm_start_and_accel_cal_loop(void)
 
         int16_t accelCount[3];
 
-        em7180.readAccelerometer(accelCount[0], accelCount[1], accelCount[2]);
+        usfs.readAccelerometer(accelCount[0], accelCount[1], accelCount[2]);
 
         // Now we'll calculate the accleration value into actual g's
         ax = (float)accelCount[0]*0.000488;  // get actual g value
@@ -761,7 +761,7 @@ void usfs_warm_start_and_accel_cal_loop(void)
     }
 
     if (eventStatus & 0x04) {
-        em7180.readQuaternion(Quat[0], Quat[1], Quat[2], Quat[3]);
+        usfs.readQuaternion(Quat[0], Quat[1], Quat[2], Quat[3]);
     }
 
     // Serial print and/or display at 0.5 s rate independent of data rates
