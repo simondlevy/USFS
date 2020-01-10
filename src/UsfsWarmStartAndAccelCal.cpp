@@ -763,7 +763,7 @@ void usfs_warm_start_and_accel_cal_loop(void)
     // update LCD once per half-second independent of read rate
     if (delt_t > 500) { 
 
-        float Yaw  = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
+        float Yaw  = atan2(2.0f * (Quat[1] * Quat[2] + Quat[0] * Quat[3]), Quat[0] * Quat[0] + Quat[1] * Quat[1] - Quat[2] * Quat[2] - Quat[3] * Quat[3]);
         Yaw   *= 180.0f / PI; 
         Yaw   += MAGNETIC_DECLINATION;
         if (Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
