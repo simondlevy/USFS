@@ -25,9 +25,9 @@ The library has been tested on the following hardware:
 
 The library provides two classes for working with the EM7180 SENtral sensor hub on this board:
 
-* An <b>EM7180</b> class providing a convenient API for the full functionality of the EM7180 unit
+* A <b>USFS</b> class providing a convenient API for the full functionality of the EM7180 unit
 
-* An <b>EM7180_Master</b> class that runs the EM7180 in master mode, for simple access to the sensor-fusion features
+* A <b>USFS_Master</b> class that runs the EM7180 in master mode, for simple access to the sensor-fusion features
 
 The <b>examples</b> directory contains sketches showing how to use these two classes. As usual, just clone the repo
 into your Arduino libraries folder to get started. The class library and
