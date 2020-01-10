@@ -20,6 +20,16 @@
 
 #pragma once
 
+// Support Teensy
+#ifdef __MK20DX256__
+#include <i2c_t3.h>
+#else
+#include <Wire.h>
+#endif
+
+#include "USFS.h"
+
+
 void usfs_warm_start_and_accel_cal_setup(void);
 
 void usfs_warm_start_and_accel_cal_loop(void);

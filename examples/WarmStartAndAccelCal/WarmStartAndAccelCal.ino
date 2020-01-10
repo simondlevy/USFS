@@ -18,13 +18,15 @@
    along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <i2c_t3.h>
-
 #include "UsfsWarmStartAndAccelCal.h"
 
 void setup(void)
 {
+#ifdef __MK20DX256__
     Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+#else
+    Wire.begin();
+#endif
 
     usfs_warm_start_and_accel_cal_setup();
 }

@@ -22,14 +22,7 @@
    along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Support Teensy
-#ifdef __MK20DX256__
-#include <i2c_t3.h>
-#else
-#include <Wire.h>
-#endif
-
-#include "USFS.h"
+#include "UsfsWarmStartAndAccelCal.h"
 
 static USFS usfs;
 
