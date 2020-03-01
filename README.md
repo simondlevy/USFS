@@ -13,6 +13,8 @@ To use this library with C++ you will also need my cross-platform support
 
 The library has been tested on the following hardware:
 
+* TinyPICO ESP32 development board
+
 * Ladybug and Butterfly STM32L4 boards from Tlera Corp
 
 * Teensy 3.2, 3.6, 4.0
