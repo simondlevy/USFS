@@ -41,11 +41,11 @@ class USFS_Master {
     public:
 
         USFS_Master(
-                uint8_t  magRate=100,   // Hz
-                uint16_t accelRate=200, // Hz
-                uint16_t gyroRate=200,  // Hz
-                uint8_t  baroRate=50,   // Hz
-                uint8_t qRateDivisor=3  // 1/3 gyro rate
+                const uint8_t  magRate=100,   // Hz
+                const uint16_t accelRate=330, // Hz
+                const uint16_t gyroRate=330,  // Hz
+                const uint8_t  baroRate=50,   // Hz
+                const uint8_t qRateDivisor=5  // 1/5 gyro rate
                 ); 
 
         const char * getErrorString(void);
