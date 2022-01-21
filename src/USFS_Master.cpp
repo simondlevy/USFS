@@ -149,6 +149,11 @@ void USFS_Master::readGyrometer(float & gx, float & gy, float & gz)
     readThreeAxis(USFS::GX, gx, gy, gz, 0.153);
 }
 
+void USFS_Master::readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz)
+{
+    _usfs.readGyrometer(gx, gy, gz);
+}
+
 void USFS_Master::readMagnetometer(float & mx, float & my, float & mz)
 {
     readThreeAxis(USFS::MX, mx, my, mz, 0.305176);

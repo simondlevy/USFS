@@ -71,6 +71,7 @@ class USFS_Master {
         void readAccelerometer(float & ax, float & ay, float & az);
 
         void readGyrometer(float & gx, float & gy, float & gz);
+        void readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz);
 
         void readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
