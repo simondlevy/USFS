@@ -797,54 +797,6 @@ unsigned char MS5637checkCRC(uint16_t * n_prom)  // calculate checksum from PROM
     return (n_rem ^ 0x00);
 }
 
-
-
-
-
-
-// simple function to scan for I2C devices on the bus
-void I2Cscan() 
-{
-    // scan for i2c devices
-    byte error, address;
-    int nDevices;
-
-    Serial.println("Scanning...");
-
-    nDevices = 0;
-    for(address = 1; address < 127; address++ ) 
-    {
-        // The i2c_scanner uses the return value of
-        // the Write.endTransmisstion to see if
-        // a device did acknowledge to the address.
-        Wire.beginTransmission(address);
-        error = Wire.endTransmission();
-
-        if (error == 0)
-        {
-            Serial.print("I2C device found at address 0x");
-            if (address<16) 
-                Serial.print("0");
-            Serial.print(address,HEX);
-            Serial.println("  !");
-
-            nDevices++;
-        }
-        else if (error==4) 
-        {
-            Serial.print("Unknow error at address 0x");
-            if (address<16) 
-                Serial.print("0");
-            Serial.println(address,HEX);
-        }    
-    }
-    if (nDevices == 0)
-        Serial.println("No I2C devices found\n");
-    else
-        Serial.println("done\n");
-}
-
-
 // I2C read/write functions for the MPU9250 and AK8963 sensors
 
 void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
@@ -893,8 +845,6 @@ void setup()
     digitalWrite(LED_PIN, HIGH);
 
     delay(1000);
-
-    I2Cscan(); // should detect SENtral at 0x28
 
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
