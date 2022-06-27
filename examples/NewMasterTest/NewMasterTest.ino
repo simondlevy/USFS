@@ -5,10 +5,11 @@
 #define SerialDebug true  // set to true to get Serial output for debugging
 
 // Specify sensor full scale
-static uint8_t Gscale = GFS_250DPS;
-static uint8_t Ascale = AFS_2G;
-static uint8_t Mscale = MFS_16BITS; // Choose either 14-bit or 16-bit magnetometer resolution
-static uint8_t Mmode = 0x02;        // 2 for 8 Hz, 6 for 100 Hz continuous magnetometer data read
+static const uint8_t Gscale = GFS_250DPS;
+static const uint8_t Ascale = AFS_2G;
+static const uint8_t Mscale = MFS_16BITS;
+static const uint8_t Mmode = MMODE_8HZ;
+
 static float aRes, gRes, mRes;      // scale resolutions per LSB for the sensors
 
 // Pin definitions
@@ -1230,12 +1231,12 @@ void loop()
             Serial.print(" mz = "); Serial.print( (int)mz); Serial.println(" mG");
 
             Serial.println("Software quaternions:"); 
-            Serial.print("q0 = "); Serial.print(q[0]);
+            Serial.print("qw = "); Serial.print(q[0]);
             Serial.print(" qx = "); Serial.print(q[1]); 
             Serial.print(" qy = "); Serial.print(q[2]); 
             Serial.print(" qz = "); Serial.println(q[3]); 
             Serial.println("Hardware quaternions:"); 
-            Serial.print("Q0 = "); Serial.print(Quat[0]);
+            Serial.print("Qw = "); Serial.print(Quat[0]);
             Serial.print(" Qx = "); Serial.print(Quat[1]); 
             Serial.print(" Qy = "); Serial.print(Quat[2]); 
             Serial.print(" Qz = "); Serial.println(Quat[3]); 

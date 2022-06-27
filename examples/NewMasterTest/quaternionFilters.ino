@@ -1,16 +1,15 @@
 // global constants for 9 DoF fusion and AHRS (Attitude and Heading Reference System)
-static float GyroMeasError = PI * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
-static float GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
-// There is a tradeoff in the beta parameter between accuracy and response speed.
-// In the original Madgwick study, beta of 0.041 (corresponding to GyroMeasError of 2.7 degrees/s) was found to give optimal accuracy.
+static const float GyroMeasError = PI * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
+static const float GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
+// There is a tradeoff in the Beta parameter between accuracy and response speed.
+// In the original Madgwick study, Beta of 0.041 (corresponding to GyroMeasError of 2.7 degrees/s) was found to give optimal accuracy.
 // However, with this value, the LSM9SD0 response time is about 10 seconds to a stable initial quaternion.
 // Subsequent changes also require a longish lag time to a stable output, not fast enough for a quadcopter or robot car!
-// By increasing beta (GyroMeasError) by about a factor of fifteen, the response time constant is reduced to ~2 sec
+// By increasing Beta (GyroMeasError) by about a factor of fifteen, the response time constant is reduced to ~2 sec
 // I haven't noticed any reduction in solution accuracy. This is essentially the I coefficient in a PID control sense; 
 // the bigger the feedback coefficient, the faster the solution converges, usually at the expense of accuracy. 
 // In any case, this is the free parameter in the Madgwick filtering and fusion scheme.
-static float beta = sqrt(3.0f / 4.0f) * GyroMeasError;   // compute beta
-static float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
+static const float Beta = sqrt(3.0f / 4.0f) * GyroMeasError;   // compute Beta
 
 
 // Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
@@ -92,10 +91,10 @@ void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, 
     s4 *= norm;
 
     // Compute rate of change of quaternion
-    qDot1 = 0.5f * (-q2 * gx - q3 * gy - q4 * gz) - beta * s1;
-    qDot2 = 0.5f * (q1 * gx + q3 * gz - q4 * gy) - beta * s2;
-    qDot3 = 0.5f * (q1 * gy - q2 * gz + q4 * gx) - beta * s3;
-    qDot4 = 0.5f * (q1 * gz + q2 * gy - q3 * gx) - beta * s4;
+    qDot1 = 0.5f * (-q2 * gx - q3 * gy - q4 * gz) - Beta * s1;
+    qDot2 = 0.5f * (q1 * gx + q3 * gz - q4 * gy) - Beta * s2;
+    qDot3 = 0.5f * (q1 * gy - q2 * gz + q4 * gx) - Beta * s3;
+    qDot4 = 0.5f * (q1 * gz + q2 * gy - q3 * gx) - Beta * s4;
 
     // Integrate to yield quaternion
     q1 += qDot1 * deltat;
