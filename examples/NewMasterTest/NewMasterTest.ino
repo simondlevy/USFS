@@ -11,8 +11,6 @@ static const uint8_t Ascale = AFS_2G;
 static const uint8_t Mscale = MFS_16BITS;
 static const uint8_t Mmode = MMODE_8HZ;
 
-static float aRes, gRes, mRes;      // scale resolutions per LSB for the sensors
-
 // Pin definitions
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
@@ -213,63 +211,6 @@ void readSENtralMagData(int16_t * destination)
     destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
-
-void getMres() {
-    switch (Mscale)
-    {
-        // Possible magnetometer scales (and their register bit settings) are:
-        // 14 bit resolution (0) and 16 bit resolution (1)
-        case MFS_14BITS:
-            mRes = 10.*4912./8190.; // Proper scale to return milliGauss
-            break;
-        case MFS_16BITS:
-            mRes = 10.*4912./32760.0; // Proper scale to return milliGauss
-            break;
-    }
-}
-
-void getGres() {
-    switch (Gscale)
-    {
-        // Possible gyro scales (and their register bit settings) are:
-        // 250 DPS (00), 500 DPS (01), 1000 DPS (10), and 2000 DPS  (11). 
-        // Here's a bit of an algorith to calculate DPS/(ADC tick) based on that 2-bit value:
-        case GFS_250DPS:
-            gRes = 250.0/32768.0;
-            break;
-        case GFS_500DPS:
-            gRes = 500.0/32768.0;
-            break;
-        case GFS_1000DPS:
-            gRes = 1000.0/32768.0;
-            break;
-        case GFS_2000DPS:
-            gRes = 2000.0/32768.0;
-            break;
-    }
-}
-
-void getAres() {
-    switch (Ascale)
-    {
-        // Possible accelerometer scales (and their register bit settings) are:
-        // 2 Gs (00), 4 Gs (01), 8 Gs (10), and 16 Gs  (11). 
-        // Here's a bit of an algorith to calculate DPS/(ADC tick) based on that 2-bit value:
-        case AFS_2G:
-            aRes = 2.0/32768.0;
-            break;
-        case AFS_4G:
-            aRes = 4.0/32768.0;
-            break;
-        case AFS_8G:
-            aRes = 8.0/32768.0;
-            break;
-        case AFS_16G:
-            aRes = 16.0/32768.0;
-            break;
-    }
-}
-
 
 void readAccelData(int16_t * destination)
 {
@@ -548,7 +489,7 @@ int16_t readSENtralBaroData()
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-int16_t readSENtralTempData()
+static int16_t readSENtralTempData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
