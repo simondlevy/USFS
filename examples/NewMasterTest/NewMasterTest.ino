@@ -660,31 +660,6 @@ int16_t readSENtralTempData()
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-
-void SENtralPassThroughMode()
-{
-    // First put SENtral in standby mode
-    uint8_t c = readByte(EM7180_ADDRESS, EM7180_AlgorithmControl);
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, c | 0x01);
-    //  c = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
-    //  Serial.print("c = "); Serial.println(c);
-    // Verify standby status
-    // if(readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus) & 0x01) {
-    Serial.println("SENtral in standby mode"); 
-    // Place SENtral in pass-through mode
-    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x01); 
-    if(readByte(EM7180_ADDRESS, EM7180_PassThruStatus) & 0x01) {
-        Serial.println("SENtral in pass-through mode");
-    }
-    else {
-        Serial.println("ERROR! SENtral not in pass-through mode!");
-    }
-
-
-}
-
-
-
 // I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
 // since the address is defined by two bytes
 
