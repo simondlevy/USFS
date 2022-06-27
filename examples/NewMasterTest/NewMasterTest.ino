@@ -592,9 +592,6 @@ void magcalMPU9250(float * dest1, float * dest2)
     Serial.println("Mag Calibration done!");
 }
 
-
-
-
 // Accelerometer and gyroscope self test; check calibration wrt factory settings
 void MPU9250SelfTest(float * destination) // Should return percent deviation from factory trim values, +/- 14 or less deviation is a pass
 {
@@ -695,66 +692,6 @@ int16_t readSENtralTempData()
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-/*
-
-// I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
-// since the address is defined by two bytes
-
-void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t  data)
-{
-    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
-    Wire.write(data_address1);                // Put slave register address in Tx buffer
-    Wire.write(data_address2);                // Put slave register address in Tx buffer
-    Wire.write(data);                         // Put data in Tx buffer
-    Wire.endTransmission();                   // Send the Tx buffer
-}
-
-
-void M24512DFMwriteBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
-{
-    if(count > 128) {
-        count = 128;
-        Serial.print("Page count cannot be more than 128 bytes!");
-    }
-
-    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
-    Wire.write(data_address1);                // Put slave register address in Tx buffer
-    Wire.write(data_address2);                // Put slave register address in Tx buffer
-    for(uint8_t i=0; i < count; i++) {
-        Wire.write(dest[i]);                      // Put data in Tx buffer
-    }
-    Wire.endTransmission();                   // Send the Tx buffer
-}
-
-
-uint8_t M24512DFMreadByte(uint8_t device_address, uint8_t data_address1, uint8_t data_address2)
-{
-    uint8_t data; // `data` will store the register data	 
-    Wire.beginTransmission(device_address);         // Initialize the Tx buffer
-    Wire.write(data_address1);                // Put slave register address in Tx buffer
-    Wire.write(data_address2);                // Put slave register address in Tx buffer
-    Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
-    //	Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
-    //	Wire.requestFrom(address, 1);  // Read one byte from slave register address 
-    Wire.requestFrom(device_address, (size_t) 1);   // Read one byte from slave register address 
-    data = Wire.read();                      // Fill Rx buffer with result
-    return data;                             // Return data read from slave register
-}
-
-void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
-{  
-    Wire.beginTransmission(device_address);   // Initialize the Tx buffer
-    Wire.write(data_address1);                     // Put slave register address in Tx buffer
-    Wire.write(data_address2);                     // Put slave register address in Tx buffer
-    Wire.endTransmission(false);         // Send the Tx buffer, but send a restart to keep connection alive
-    //	Wire.endTransmission(false);              // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    //        Wire.requestFrom(address, count);       // Read bytes from slave register address 
-    Wire.requestFrom(device_address, (size_t) count);  // Read bytes from slave register address 
-    while (Wire.available()) {
-        dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
-}
-*/
 void setup()
 {
     Wire.begin();
