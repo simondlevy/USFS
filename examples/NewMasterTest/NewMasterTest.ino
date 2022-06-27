@@ -17,9 +17,6 @@ static const uint8_t INT_PIN = 12;
 static const uint8_t LED_PIN = 18;  
 
 // MPU9250 variables
-static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
-static int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
-static int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
 static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
 static float magCalibration[3] = {0, 0, 0};  // Factory mag calibration and mag bias
 static int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
@@ -1150,6 +1147,9 @@ void loop()
 
     // if no errors, see if new data is ready
     if(eventStatus & 0x10) { // new acceleration data available
+
+        int16_t accelCount[3] = {};
+
         readSENtralAccelData(accelCount);
 
         // Now we'll calculate the accleration value into actual g's
@@ -1159,6 +1159,9 @@ void loop()
     }
 
     if(eventStatus & 0x20) { // new gyro data available
+
+        int16_t gyroCount[3] = {};
+
         readSENtralGyroData(gyroCount);
 
         // Now we'll calculate the gyro value into actual dps's
@@ -1168,6 +1171,9 @@ void loop()
     }
 
     if(eventStatus & 0x08) { // new mag data available
+
+        int16_t magCount[3] = {};
+
         readSENtralMagData(magCount);
 
         // Now we'll calculate the mag value into actual G's
