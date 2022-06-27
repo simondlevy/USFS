@@ -695,6 +695,8 @@ int16_t readSENtralTempData()
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
+/*
+
 // I2C communication with the M24512DFM EEPROM is a little different from I2C communication with the usual motion sensor
 // since the address is defined by two bytes
 
@@ -752,7 +754,7 @@ void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t d
     while (Wire.available()) {
         dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
 }
-
+*/
 void setup()
 {
     Wire.begin();
