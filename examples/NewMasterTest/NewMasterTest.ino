@@ -754,6 +754,7 @@ void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t d
 }
 
 
+/*
 
 // I2C communication with the MS5637 is a little different from that with the MPU9250 and most other sensors
 // For the MS5637, we write commands, and the MS5637 sends data in response, rather than directly reading
@@ -807,6 +808,7 @@ uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  // temperature data read
         data[i++] = Wire.read(); }               // Put read results in the Rx buffer
     return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); // construct PROM data for return to main program
 }
+*/
 
 void setup()
 {
