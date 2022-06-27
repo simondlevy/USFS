@@ -5,66 +5,35 @@
 #define SerialDebug true  // set to true to get Serial output for debugging
 
 // Specify sensor full scale
-uint8_t Gscale = GFS_250DPS;
-uint8_t Ascale = AFS_2G;
-uint8_t Mscale = MFS_16BITS; // Choose either 14-bit or 16-bit magnetometer resolution
-uint8_t Mmode = 0x02;        // 2 for 8 Hz, 6 for 100 Hz continuous magnetometer data read
-float aRes, gRes, mRes;      // scale resolutions per LSB for the sensors
+static uint8_t Gscale = GFS_250DPS;
+static uint8_t Ascale = AFS_2G;
+static uint8_t Mscale = MFS_16BITS; // Choose either 14-bit or 16-bit magnetometer resolution
+static uint8_t Mmode = 0x02;        // 2 for 8 Hz, 6 for 100 Hz continuous magnetometer data read
+static float aRes, gRes, mRes;      // scale resolutions per LSB for the sensors
 
 // Pin definitions
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
-// MS5637 definitions
-uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
-unsigned char nCRC;       // calculated check sum to ensure PROM integrity
-uint32_t D1 = 0, D2 = 0;  // raw MS5637 pressure and temperature data
-double dT, OFFSET, SENS, T2, OFFSET2, SENS2;  // First order and second order corrections for raw S5637 temperature and pressure data
-
 // MPU9250 variables
-int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
-int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
-int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-float Quat[4] = {0, 0, 0, 0}; // quaternion data register
-float magCalibration[3] = {0, 0, 0};  // Factory mag calibration and mag bias
-float gyroBias[3] = {0, 0, 0}, accelBias[3] = {0, 0, 0}, magBias[3] = {0, 0, 0}, magScale[3]  = {0, 0, 0};  // Bias corrections for gyro, accelerometer, mag
-int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
-double Temperature, Pressure; // stores MS5637 pressures sensor pressure and temperature
-int32_t rawPress, rawTemp;   // pressure and temperature raw count output for MS5637
-float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
-float SelfTest[6];            // holds results of gyro and accelerometer self test
+static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
+static int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
+static int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
+static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
+static float magCalibration[3] = {0, 0, 0};  // Factory mag calibration and mag bias
+static int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
+static float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
 
-// global constants for 9 DoF fusion and AHRS (Attitude and Heading Reference System)
-float GyroMeasError = PI * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
-float GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
-// There is a tradeoff in the beta parameter between accuracy and response speed.
-// In the original Madgwick study, beta of 0.041 (corresponding to GyroMeasError of 2.7 degrees/s) was found to give optimal accuracy.
-// However, with this value, the LSM9SD0 response time is about 10 seconds to a stable initial quaternion.
-// Subsequent changes also require a longish lag time to a stable output, not fast enough for a quadcopter or robot car!
-// By increasing beta (GyroMeasError) by about a factor of fifteen, the response time constant is reduced to ~2 sec
-// I haven't noticed any reduction in solution accuracy. This is essentially the I coefficient in a PID control sense; 
-// the bigger the feedback coefficient, the faster the solution converges, usually at the expense of accuracy. 
-// In any case, this is the free parameter in the Madgwick filtering and fusion scheme.
-float beta = sqrt(3.0f / 4.0f) * GyroMeasError;   // compute beta
-float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
-#define Kp 2.0f * 5.0f // these are the free parameters in the Mahony filter and fusion scheme, Kp for proportional feedback, Ki for integral
-#define Ki 0.0f
+static uint32_t delt_t = 0, count = 0, sumCount = 0;  // used to control  output rate
+static float pitch, yaw, roll, Yaw, Pitch, Roll;
+static float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
+static uint32_t lastUpdate = 0; // used to calculate integration interval
+static uint32_t Now = 0;                         // used to calculate integration interval
+static uint8_t param[4];                         // used for param transfer
+static uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
 
-uint32_t delt_t = 0, count = 0, sumCount = 0;  // used to control  output rate
-float pitch, yaw, roll, Yaw, Pitch, Roll;
-float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
-uint32_t lastUpdate = 0, firstUpdate = 0; // used to calculate integration interval
-uint32_t Now = 0;                         // used to calculate integration interval
-uint8_t param[4];                         // used for param transfer
-uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
-
-float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
-float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
-float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
-
-//===================================================================================================================
-//====== Set of useful function to access acceleration. gyroscope, magnetometer, and temperature data
-//===================================================================================================================
+static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
+static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 
 float uint32_reg_to_float (uint8_t *buf)
 {
