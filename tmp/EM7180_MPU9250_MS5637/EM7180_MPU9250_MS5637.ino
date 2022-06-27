@@ -1481,15 +1481,19 @@ void loop()
     sum += deltat; // sum for averaging filter update rate
     sumCount++;
 
-    // Sensors x (y)-axis of the accelerometer/gyro is aligned with the y (x)-axis of the magnetometer;
-    // the magnetometer z-axis (+ down) is misaligned with z-axis (+ up) of accelerometer and gyro!
-    // We have to make some allowance for this orientation mismatch in feeding the output to the quaternion filter.
-    // We will assume that +y accel/gyro is North, then x accel/gyro is East. So if we want te quaternions properly aligned
-    // we need to feed into the madgwick function Ay, Ax, -Az, Gy, Gx, -Gz, Mx, My, and Mz. But because gravity is by convention
-    // positive down, we need to invert the accel data, so we pass -Ay, -Ax, Az, Gy, Gx, -Gz, Mx, My, and Mz into the Madgwick
-    // function to get North along the accel +y-axis, East along the accel +x-axis, and Down along the accel -z-axis.
-    // This orientation choice can be modified to allow any convenient (non-NED) orientation convention.
-    // This is ok by aircraft orientation standards!  
+    // Sensors x (y)-axis of the accelerometer/gyro is aligned with the y
+    // (x)-axis of the magnetometer; the magnetometer z-axis (+ down) is
+    // misaligned with z-axis (+ up) of accelerometer and gyro!  We have to
+    // make some allowance for this orientation mismatch in feeding the output
+    // to the quaternion filter.  We will assume that +y accel/gyro is North,
+    // then x accel/gyro is East. So if we want te quaternions properly aligned
+    // we need to feed into the madgwick function Ay, Ax, -Az, Gy, Gx, -Gz, Mx,
+    // My, and Mz. But because gravity is by convention positive down, we need
+    // to invert the accel data, so we pass -Ay, -Ax, Az, Gy, Gx, -Gz, Mx, My,
+    // and Mz into the Madgwick function to get North along the accel +y-axis,
+    // East along the accel +x-axis, and Down along the accel -z-axis.  This
+    // orientation choice can be modified to allow any convenient (non-NED)
+    // orientation convention.  This is ok by aircraft orientation standards!
     // Pass gyro rate as rad/s
     MadgwickQuaternionUpdate(-ay, -ax, az, gy*PI/180.0f, gx*PI/180.0f, -gz*PI/180.0f,  mx,  my, mz);
 
@@ -1519,6 +1523,64 @@ void loop()
             Serial.print(" Qy = "); Serial.print(Quat[2]); 
             Serial.print(" Qz = "); Serial.println(Quat[3]); 
         }               
+
+        tempCount = readTempData();  // Read the gyro adc values
+        temperature = ((float) tempCount) / 512.0 + 23.0; // Gyro chip temperature in degrees Centigrade
+        // Print temperature in degrees Centigrade      
+        Serial.print("Gyro temperature is ");  Serial.print(temperature, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
+
+
+        // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
+        // In this coordinate system, the positive z-axis is down toward Earth. 
+        // Yaw is the angle between Sensor x-axis and Earth magnetic North (or true North if corrected for local declination, looking down on the sensor positive yaw is counterclockwise.
+        // Pitch is angle between sensor x-axis and Earth ground plane, toward the Earth is positive, up toward the sky is negative.
+        // Roll is angle between sensor y-axis and Earth ground plane, y-axis up is positive roll.
+        // These arise from the definition of the homogeneous rotation matrix constructed from quaternions.
+        // Tait-Bryan angles as well as Euler angles are non-commutative; that is, the get the correct orientation the rotations must be
+        // applied in the correct order which for this configuration is yaw, pitch, and then roll.
+        // For more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles which has additional links.
+        //Software AHRS:
+        yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
+        pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
+        roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
+        pitch *= 180.0f / PI;
+        yaw   *= 180.0f / PI; 
+        yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
+        if(yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
+        roll  *= 180.0f / PI;
+        //Hardware AHRS:
+        Yaw   = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
+        Pitch = -asin(2.0f * (Quat[0] * Quat[2] - Quat[3] * Quat[1]));
+        Roll  = atan2(2.0f * (Quat[3] * Quat[0] + Quat[1] * Quat[2]), Quat[3] * Quat[3] - Quat[0] * Quat[0] - Quat[1] * Quat[1] + Quat[2] * Quat[2]);
+        Pitch *= 180.0f / PI;
+        Yaw   *= 180.0f / PI; 
+        Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
+        if(Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
+        Roll  *= 180.0f / PI;
+
+        // Or define output variable according to the Android system, where heading (0 to 260) is defined by the angle between the y-axis 
+        // and True North, pitch is rotation about the x-axis (-180 to +180), and roll is rotation about the y-axis (-90 to +90)
+        // In this systen, the z-axis is pointing away from Earth, the +y-axis is at the "top" of the device (cellphone) and the +x-axis
+        // points toward the right of the device.
+        //
+
+        if(SerialDebug) {
+            Serial.print("Software yaw, pitch, roll: ");
+            Serial.print(yaw, 2);
+            Serial.print(", ");
+            Serial.print(pitch, 2);
+            Serial.print(", ");
+            Serial.println(roll, 2);
+
+            Serial.print("Hardware Yaw, Pitch, Roll: ");
+            Serial.print(Yaw, 2);
+            Serial.print(", ");
+            Serial.print(Pitch, 2);
+            Serial.print(", ");
+            Serial.println(Roll, 2);
+
+            Serial.print("rate = "); Serial.print((float)sumCount/sum, 2); Serial.println(" Hz");
+        }
 
 
         digitalWrite(LED_PIN, !digitalRead(LED_PIN));
