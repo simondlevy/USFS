@@ -15,9 +15,8 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
-// MPU9250 variables
-static int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
-static float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
+static int16_t rawPressure, rawTemperature;    
+static float   temperature, pressure, altitude; 
 
 static uint32_t delt_t = 0, count = 0, sumCount = 0;  // used to control  output rate
 static float pitch, yaw, roll, Yaw, Pitch, Roll;
@@ -28,8 +27,6 @@ static uint8_t param[4];                         // used for param transfer
 static uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
 
 static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
-
-// I2C read/write functions for the MPU9250 and AK8963 sensors
 
 static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
@@ -78,23 +75,7 @@ float uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-
-void float_to_bytes (float param_val, uint8_t *buf) {
-    union {
-        float f;
-        uint8_t comp[sizeof(float)];
-    } u;
-    u.f = param_val;
-    for (uint8_t i=0; i < sizeof(float); i++) {
-        buf[i] = u.comp[i];
-    }
-    //Convert to LITTLE ENDIAN
-    for (uint8_t i=0; i < sizeof(float); i++) {
-        buf[i] = buf[(sizeof(float)-1) - i];
-    }
-}
-
-void EM7180_set_gyro_FS (uint16_t gyro_fs) {
+static void EM7180_set_gyro_FS (uint16_t gyro_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
     bytes[1] = (gyro_fs >> 8) & (0xFF);
@@ -114,7 +95,7 @@ void EM7180_set_gyro_FS (uint16_t gyro_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
+static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
     bytes[1] = (mag_fs >> 8) & (0xFF);
@@ -134,7 +115,7 @@ void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
+static void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
     uint8_t bytes[4], STAT;
     bytes[0] = param_val & (0xFF);
     bytes[1] = (param_val >> 8) & (0xFF);
@@ -154,25 +135,6 @@ void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
-
-void EM7180_set_float_param (uint8_t param, float param_val) {
-    uint8_t bytes[4], STAT;
-    float_to_bytes (param_val, &bytes[0]);
-    param = param | 0x80; //Parameter is the decimal value with the MSB set high to indicate a paramter write processs
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); //Param LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); //Param MSB
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); //Request parameter transfer procedure
-    STAT = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
-    while(!(STAT==param)) {
-        STAT = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
-    }
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
-}
-
 
 static void readSENtralQuatData(float * destination)
 {
