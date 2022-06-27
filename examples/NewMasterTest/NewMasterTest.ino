@@ -212,33 +212,6 @@ void readSENtralMagData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readAccelData(int16_t * destination)
-{
-    uint8_t rawData[6];  // x/y/z accel register data stored here
-    readBytes(MPU9250_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
-    destination[0] = ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a signed 16-bit value
-    destination[1] = ((int16_t)rawData[2] << 8) | rawData[3] ;  
-    destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
-}
-
-
-void readGyroData(int16_t * destination)
-{
-    uint8_t rawData[6];  // x/y/z gyro register data stored here
-    readBytes(MPU9250_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
-    destination[0] = ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a signed 16-bit value
-    destination[1] = ((int16_t)rawData[2] << 8) | rawData[3] ;  
-    destination[2] = ((int16_t)rawData[4] << 8) | rawData[5] ; 
-}
-
-// XXX problems if we make this static
-int16_t readTempData()
-{
-    uint8_t rawData[2];  // x/y/z gyro register data stored here
-    readBytes(MPU9250_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array 
-    return ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a 16-bit value
-}
-
 static int16_t readSENtralBaroData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
@@ -592,12 +565,6 @@ void loop()
             Serial.print(" Qy = "); Serial.print(Quat[2]); 
             Serial.print(" Qz = "); Serial.println(Quat[3]); 
         }               
-
-        tempCount = readTempData();  // Read the gyro adc values
-        temperature = ((float) tempCount) / 512.0 + 23.0; // Gyro chip temperature in degrees Centigrade
-        // Print temperature in degrees Centigrade      
-        Serial.print("Gyro temperature is ");  Serial.print(temperature, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
-
 
         // Define output variables from updated quaternion---these are
         // Tait-Bryan angles, commonly used in aircraft orientation.  In this
