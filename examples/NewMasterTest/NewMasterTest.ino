@@ -482,7 +482,7 @@ void accelgyrocalMPU9250(float * dest1, float * dest2)
     dest2[2] = (float)accel_bias[2]/(float)accelsensitivity;
 }
 
-int16_t readSENtralBaroData()
+static int16_t readSENtralBaroData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
