@@ -276,8 +276,8 @@ uint8_t Mmode = 0x02;        // 2 for 8 Hz, 6 for 100 Hz continuous magnetometer
 float aRes, gRes, mRes;      // scale resolutions per LSB for the sensors
 
 // Pin definitions
-int intPin = 8;  // These can be changed, 2 and 3 are the Arduinos ext int pins
-int myLed     = 13;  // LED on the Teensy 3.1
+static const uint8_t INT_PIN = 8;  
+static const uint8_t LED_PIN   = 18;  
 
 // MS5637 definitions
 uint16_t Pcal[8];         // calibration constants from MS5637 PROM registers
@@ -328,21 +328,16 @@ float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for M
 
 bool passThru = false;
 
-;
-
 void setup()
 {
-    //  Wire.begin();
-    //  TWBR = 12;  // 400 kbit/sec I2C speed for Pro Mini
-    // Setup for Master mode, pins 18/19, external pullups, 400kHz for Teensy 3.1
     Wire.begin();
     delay(5000);
     Serial.begin(38400);
 
     // Set up the interrupt pin, its set as active high, push-pull
-    pinMode(intPin, INPUT);
-    pinMode(myLed, OUTPUT);
-    digitalWrite(myLed, HIGH);
+    pinMode(INT_PIN, INPUT);
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, HIGH);
 
     delay(1000);
 
@@ -556,8 +551,8 @@ void setup()
         }
 
         // Set up the interrupt pin, its set as active high, push-pull
-        pinMode(myLed, OUTPUT);
-        digitalWrite(myLed, HIGH);
+        pinMode(LED_PIN, OUTPUT);
+        digitalWrite(LED_PIN, HIGH);
 
         // Read the WHO_AM_I register, this is a good test of communication
         Serial.println("MPU9250 9-axis motion sensor...");
@@ -645,6 +640,15 @@ void setup()
             while(1) ; // Loop forever if communication doesn't happen
         }
     }
+
+    Serial.println("Enter '1' to proceed...");
+
+    while (true) {
+        if (Serial.read() == '1') {
+            break;
+        }
+        delay(10);
+    }
 }
 
 
@@ -693,55 +697,50 @@ void loop()
             gy = (float)gyroCount[1]*0.153;    
             gz = (float)gyroCount[2]*0.153;  
         }
-}
+    }
 
-if(passThru) {
-    // If intPin goes high, all data registers have new data
-    //  if (digitalRead(intACC2)) {  // On interrupt, read data
-    readAccelData(accelCount);  // Read the x/y/z adc values
+    if(passThru) {
+        // If INT_PIN goes high, all data registers have new data
+        //  if (digitalRead(intACC2)) {  // On interrupt, read data
+        readAccelData(accelCount);  // Read the x/y/z adc values
 
-    // Now we'll calculate the acceleration value into actual g's
-    ax = (float)accelCount[0]*aRes - accelBias[0];  // get actual g value, this depends on scale being set
-    ay = (float)accelCount[1]*aRes - accelBias[1];   
-    az = (float)accelCount[2]*aRes - accelBias[2]; 
-    // } 
-    //  if (digitalRead(intGYRO2)) {  // On interrupt, read data
-    readGyroData(gyroCount);  // Read the x/y/z adc values
+        // Now we'll calculate the acceleration value into actual g's
+        ax = (float)accelCount[0]*aRes - accelBias[0];  // get actual g value, this depends on scale being set
+        ay = (float)accelCount[1]*aRes - accelBias[1];   
+        az = (float)accelCount[2]*aRes - accelBias[2]; 
+        // } 
+        //  if (digitalRead(intGYRO2)) {  // On interrupt, read data
+        readGyroData(gyroCount);  // Read the x/y/z adc values
 
-    // Calculate the gyro value into actual degrees per second
-    gx = (float)gyroCount[0]*gRes;  // get actual gyro value, this depends on scale being set
-    gy = (float)gyroCount[1]*gRes;  
-    gz = (float)gyroCount[2]*gRes;   
-    // }
-    //  if (digitalRead(intDRDYM)) {  // On interrupt, read data
-    readMagData(magCount);  // Read the x/y/z adc values
+        // Calculate the gyro value into actual degrees per second
+        gx = (float)gyroCount[0]*gRes;  // get actual gyro value, this depends on scale being set
+        gy = (float)gyroCount[1]*gRes;  
+        gz = (float)gyroCount[2]*gRes;   
+        // }
+        //  if (digitalRead(intDRDYM)) {  // On interrupt, read data
+        readMagData(magCount);  // Read the x/y/z adc values
 
-    // Calculate the magnetometer values in milliGauss
-    mx = (float)magCount[0]*mRes*magCalibration[0] - magBias[0];  // get actual magnetometer value, this depends on scale being set
-    my = (float)magCount[1]*mRes*magCalibration[1] - magBias[1];  
-    mz = (float)magCount[2]*mRes*magCalibration[2] - magBias[2];  
-    //    mx *= magScale[0];
-    //    my *= magScale[1];
-    //    mz *= magScale[2]; 
-    //   }
-} 
+        mx = (float)magCount[0]*mRes*magCalibration[0] - magBias[0];  // get actual magnetometer value, this depends on scale being set
+        my = (float)magCount[1]*mRes*magCalibration[1] - magBias[1];  
+        mz = (float)magCount[2]*mRes*magCalibration[2] - magBias[2];  
+    } 
 
 
-// keep track of rates
-Now = micros();
-deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
-lastUpdate = Now;
+    // keep track of rates
+    Now = micros();
+    deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
+    lastUpdate = Now;
 
-sum += deltat; // sum for averaging filter update rate
-sumCount++;
+    sum += deltat; // sum for averaging filter update rate
+    sumCount++;
 
-// Sensors x (y)-axis of the accelerometer/gyro is aligned with the y (x)-axis of the magnetometer;
-// the magnetometer z-axis (+ down) is misaligned with z-axis (+ up) of accelerometer and gyro!
-// We have to make some allowance for this orientation mismatch in feeding the output to the quaternion filter.
-// We will assume that +y accel/gyro is North, then x accel/gyro is East. So if we want te quaternions properly aligned
-// we need to feed into the madgwick function Ay, Ax, -Az, Gy, Gx, -Gz, Mx, My, and Mz. But because gravity is by convention
-// positive down, we need to invert the accel data, so we pass -Ay, -Ax, Az, Gy, Gx, -Gz, Mx, My, and Mz into the Madgwick
-// function to get North along the accel +y-axis, East along the accel +x-axis, and Down along the accel -z-axis.
+    // Sensors x (y)-axis of the accelerometer/gyro is aligned with the y (x)-axis of the magnetometer;
+    // the magnetometer z-axis (+ down) is misaligned with z-axis (+ up) of accelerometer and gyro!
+    // We have to make some allowance for this orientation mismatch in feeding the output to the quaternion filter.
+    // We will assume that +y accel/gyro is North, then x accel/gyro is East. So if we want te quaternions properly aligned
+    // we need to feed into the madgwick function Ay, Ax, -Az, Gy, Gx, -Gz, Mx, My, and Mz. But because gravity is by convention
+    // positive down, we need to invert the accel data, so we pass -Ay, -Ax, Az, Gy, Gx, -Gz, Mx, My, and Mz into the Madgwick
+    // function to get North along the accel +y-axis, East along the accel +x-axis, and Down along the accel -z-axis.
 // This orientation choice can be modified to allow any convenient (non-NED) orientation convention.
 // This is ok by aircraft orientation standards!  
 // Pass gyro rate as rad/s
@@ -869,7 +868,7 @@ if (delt_t > 500) { // update LCD once per half-second independent of read rate
         Serial.print("rate = "); Serial.print((float)sumCount/sum, 2); Serial.println(" Hz");
     }
 
-    digitalWrite(myLed, !digitalRead(myLed));
+    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
     count = millis(); 
     sumCount = 0;
     sum = 0;    
