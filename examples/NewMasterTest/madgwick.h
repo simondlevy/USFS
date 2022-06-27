@@ -1,25 +1,35 @@
 // global constants for 9 DoF fusion and AHRS (Attitude and Heading Reference System)
 static const float GyroMeasError = PI * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
 static const float GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
-// There is a tradeoff in the Beta parameter between accuracy and response speed.
-// In the original Madgwick study, Beta of 0.041 (corresponding to GyroMeasError of 2.7 degrees/s) was found to give optimal accuracy.
-// However, with this value, the LSM9SD0 response time is about 10 seconds to a stable initial quaternion.
-// Subsequent changes also require a longish lag time to a stable output, not fast enough for a quadcopter or robot car!
-// By increasing Beta (GyroMeasError) by about a factor of fifteen, the response time constant is reduced to ~2 sec
-// I haven't noticed any reduction in solution accuracy. This is essentially the I coefficient in a PID control sense; 
-// the bigger the feedback coefficient, the faster the solution converges, usually at the expense of accuracy. 
-// In any case, this is the free parameter in the Madgwick filtering and fusion scheme.
+
+// There is a tradeoff in the Beta parameter between accuracy and response
+// speed.  In the original Madgwick study, Beta of 0.041 (corresponding to
+// GyroMeasError of 2.7 degrees/s) was found to give optimal accuracy.
+// However, with this value, the LSM9SD0 response time is about 10 seconds to a
+// stable initial quaternion.  Subsequent changes also require a longish lag
+// time to a stable output, not fast enough for a quadcopter or robot car!  By
+// increasing Beta (GyroMeasError) by about a factor of fifteen, the response
+// time constant is reduced to ~2 sec I haven't noticed any reduction in
+// solution accuracy. This is essentially the I coefficient in a PID control
+// sense; the bigger the feedback coefficient, the faster the solution
+// converges, usually at the expense of accuracy.  In any case, this is the
+// free parameter in the Madgwick filtering and fusion scheme.
 static const float Beta = sqrt(3.0f / 4.0f) * GyroMeasError;   // compute Beta
 
 
-// Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
-// (see http://www.x-io.co.uk/category/open-source/ for examples and more details)
-// which fuses acceleration, rotation rate, and magnetic moments to produce a quaternion-based estimate of absolute
-// device orientation -- which can be converted to yaw, pitch, and roll. Useful for stabilizing quadcopters, etc.
-// The performance of the orientation filter is at least as good as conventional Kalman-based filtering algorithms
-// but is much less computationally intensive---it can be performed on a 3.3 V Pro Mini operating at 8 MHz!
-void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz)
-{
+// Implementation of Sebastian Madgwick's "...efficient orientation filter
+// for... inertial/magnetic sensor arrays" (see
+// http://www.x-io.co.uk/category/open-source/ for examples and more details)
+// which fuses acceleration, rotation rate, and magnetic moments to produce a
+// quaternion-based estimate of absolute device orientation -- which can be
+// converted to yaw, pitch, and roll. Useful for stabilizing quadcopters, etc.
+// The performance of the orientation filter is at least as good as
+// conventional Kalman-based filtering algorithms but is much less
+// computationally intensive---it can be performed on a 3.3 V Pro Mini
+// operating at 8 MHz!
+static void MadgwickQuaternionUpdate(float deltat, float ax, float ay, float
+        az, float gx, float gy, float gz, float mx, float my, float mz, float
+        q[4]) {
     float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
     float norm;
     float hx, hy, _2bx, _2bz;
