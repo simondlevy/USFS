@@ -753,63 +753,6 @@ void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t d
         dest[i++] = Wire.read(); }                // Put read results in the Rx buffer
 }
 
-
-/*
-
-// I2C communication with the MS5637 is a little different from that with the MPU9250 and most other sensors
-// For the MS5637, we write commands, and the MS5637 sends data in response, rather than directly reading
-// MS5637 registers
-
-void MS5637Reset()
-{
-    Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-    Wire.write(MS5637_RESET);                // Put reset command in Tx buffer
-    Wire.endTransmission();                  // Send the Tx buffer
-}
-
-void MS5637PromRead(uint16_t * destination)
-{
-    uint8_t data[2] = {0,0};
-    for (uint8_t ii = 0; ii < 7; ii++) {
-        Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-        Wire.write(0xA0 | ii << 1);              // Put PROM address in Tx buffer
-        Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
-        uint8_t i = 0;
-        Wire.requestFrom(MS5637_ADDRESS, 2);   // Read two bytes from slave PROM address 
-        while (Wire.available()) {
-            data[i++] = Wire.read(); }               // Put read results in the Rx buffer
-        destination[ii] = (uint16_t) (((uint16_t) data[0] << 8) | data[1]); // construct PROM data for return to main program
-    }
-}
-
-uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  // temperature data read
-{
-    uint8_t data[3] = {0,0,0};
-    Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-    Wire.write(CMD | OSR);                  // Put pressure conversion command in Tx buffer
-    Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
-
-    switch (OSR)
-    {
-        case ADC_256: delay(1); break;  // delay for conversion to complete
-        case ADC_512: delay(3); break;
-        case ADC_1024: delay(4); break;
-        case ADC_2048: delay(6); break;
-        case ADC_4096: delay(10); break;
-        case ADC_8192: delay(20); break;
-    }
-
-    Wire.beginTransmission(MS5637_ADDRESS);  // Initialize the Tx buffer
-    Wire.write(0x00);                        // Put ADC read command in Tx buffer
-    Wire.endTransmission(false);        // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-    Wire.requestFrom(MS5637_ADDRESS, 3);     // Read three bytes from slave PROM address 
-    while (Wire.available()) {
-        data[i++] = Wire.read(); }               // Put read results in the Rx buffer
-    return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); // construct PROM data for return to main program
-}
-*/
-
 void setup()
 {
     Wire.begin();
