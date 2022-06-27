@@ -18,7 +18,6 @@ static const uint8_t INT_PIN = 12;
 static const uint8_t LED_PIN = 18;  
 
 // MPU9250 variables
-static float magCalibration[3] = {0, 0, 0};  // Factory mag calibration and mag bias
 static int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
 static float   temperature, pressure, altitude; // Stores the MPU9250 internal chip temperature in degrees Celsius
 
