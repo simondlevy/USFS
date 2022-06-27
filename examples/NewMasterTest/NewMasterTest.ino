@@ -174,7 +174,7 @@ void EM7180_set_float_param (uint8_t param, float param_val) {
 }
 
 
-void readSENtralQuatData(float * destination)
+static void readSENtralQuatData(float * destination)
 {
     uint8_t rawData[16];  // x/y/z quaternion register data stored here
     readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       // Read the sixteen raw data registers into data array
@@ -185,7 +185,7 @@ void readSENtralQuatData(float * destination)
 
 }
 
-void readSENtralAccelData(int16_t * destination)
+static void readSENtralAccelData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
     readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
@@ -194,7 +194,7 @@ void readSENtralAccelData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralGyroData(int16_t * destination)
+static void readSENtralGyroData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -203,7 +203,7 @@ void readSENtralGyroData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralMagData(int16_t * destination)
+static void readSENtralMagData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
