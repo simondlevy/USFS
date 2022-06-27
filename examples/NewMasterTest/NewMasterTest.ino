@@ -808,32 +808,6 @@ uint32_t MS5637Read(uint8_t CMD, uint8_t OSR)  // temperature data read
     return (uint32_t) (((uint32_t) data[0] << 16) | (uint32_t) data[1] << 8 | data[2]); // construct PROM data for return to main program
 }
 
-
-
-unsigned char MS5637checkCRC(uint16_t * n_prom)  // calculate checksum from PROM register contents
-{
-    int cnt;
-    unsigned int n_rem = 0;
-    unsigned char n_bit;
-
-    n_prom[0] = ((n_prom[0]) & 0x0FFF);  // replace CRC byte by 0 for checksum calculation
-    n_prom[7] = 0;
-    for(cnt = 0; cnt < 16; cnt++)
-    {
-        if(cnt%2==1) n_rem ^= (unsigned short) ((n_prom[cnt>>1]) & 0x00FF);
-        else         n_rem ^= (unsigned short)  (n_prom[cnt>>1]>>8);
-        for(n_bit = 8; n_bit > 0; n_bit--)
-        {
-            if(n_rem & 0x8000)    n_rem = (n_rem<<1) ^ 0x3000;
-            else                  n_rem = (n_rem<<1);
-        }
-    }
-    n_rem = ((n_rem>>12) & 0x000F);
-    return (n_rem ^ 0x00);
-}
-
-
-
 void setup()
 {
     Wire.begin();
