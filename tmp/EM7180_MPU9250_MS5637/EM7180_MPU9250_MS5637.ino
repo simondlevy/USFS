@@ -1473,6 +1473,17 @@ void loop()
         readSENtralQuatData(Quat); 
     }
 
+    // get MS5637 pressure
+    if(eventStatus & 0x40) { // new baro data available
+        //   Serial.println("new Baro data!");
+        rawPressure = readSENtralBaroData();
+        pressure = (float)rawPressure*0.01f + 1013.25f; // pressure in mBar
+
+        // get MS5637 temperature
+        rawTemperature = readSENtralTempData();  
+        temperature = (float) rawTemperature*0.01;  // temperature in degrees C
+    }
+ 
     // keep track of rates
     Now = micros();
     deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
@@ -1578,6 +1589,22 @@ void loop()
             Serial.print(Pitch, 2);
             Serial.print(", ");
             Serial.println(Roll, 2);
+
+            Serial.println("MS5637:");
+            Serial.print("Altimeter temperature = "); 
+            Serial.print( temperature, 2); 
+            Serial.println(" C"); // temperature in degrees Celsius
+            Serial.print("Altimeter temperature = "); 
+            Serial.print(9.*temperature/5. + 32., 2); 
+            Serial.println(" F"); // temperature in degrees Fahrenheit
+            Serial.print("Altimeter pressure = "); 
+            Serial.print(pressure, 2);  
+            Serial.println(" mbar");// pressure in millibar
+            altitude = 145366.45f*(1.0f - pow(((pressure)/1013.25f), 0.190284f));
+            Serial.print("Altitude = "); 
+            Serial.print(altitude, 2); 
+            Serial.println(" feet");
+            Serial.println(" ");
 
             Serial.print("rate = "); Serial.print((float)sumCount/sum, 2); Serial.println(" Hz");
         }
