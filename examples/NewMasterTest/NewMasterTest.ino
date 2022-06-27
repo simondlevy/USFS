@@ -32,7 +32,6 @@ static uint32_t Now = 0;                         // used to calculate integratio
 static uint8_t param[4];                         // used for param transfer
 static uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
 
-static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
 static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 
 float uint32_reg_to_float (uint8_t *buf)
@@ -1123,6 +1122,8 @@ void setup()
 
 void loop()
 {  
+    static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
+
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
 
