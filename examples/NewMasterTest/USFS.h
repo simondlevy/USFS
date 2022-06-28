@@ -318,4 +318,5 @@ void usfsBegin(
         uint8_t magRate,
         uint8_t accelRate,
         uint8_t gyroRate,
-        uint8_t baroRate);
+        uint8_t baroRate,
+        bool verbose=false);

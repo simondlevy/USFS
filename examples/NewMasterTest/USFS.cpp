@@ -1,3 +1,4 @@
+#include <Arduino.h>   
 #include <Wire.h>   
 
 #include "USFS.h"
@@ -16,8 +17,8 @@
     Wire.beginTransmission(address);         
     Wire.write(subAddress);	                 
     Wire.endTransmission(false);        
-    
-    
+
+
     Wire.requestFrom(address, (size_t) 1);   
     data = Wire.read();                      
     return data;                             
@@ -28,9 +29,9 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
     Wire.beginTransmission(address);   
     Wire.write(subAddress);            
     Wire.endTransmission(false);  
-    
+
     uint8_t i = 0;
-    
+
     Wire.requestFrom(address, (size_t) count);  
     while (Wire.available()) {
         dest[i++] = Wire.read(); }         
@@ -275,7 +276,8 @@ void usfsBegin(
         uint8_t magRate,
         uint8_t accelRate,
         uint8_t gyroRate,
-        uint8_t baroRate)
+        uint8_t baroRate,
+        bool verbose)
 {
     // Set SENtral in initialized state to configure registers
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
@@ -313,4 +315,160 @@ void usfsBegin(
 
     // Enable EM7180 run mode
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); 
- }
+
+    // EM7180 parameter adjustments
+    if (verbose) {
+        Serial.println("Beginning Parameter Adjustments");
+    }
+
+    // Read sensor default FS values from parameter space
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); 
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80);
+    uint8_t param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    while(!(param_xfer==0x4A)) {
+        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    }
+    uint8_t param[4] = {};
+    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
+    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
+    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
+    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    uint16_t EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
+    uint16_t EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+
+    if (verbose) {
+        Serial.print("Magnetometer Default Full Scale Range: +/-");
+        Serial.print(EM7180_mag_fs);
+        Serial.println("uT");
+        Serial.print("Accelerometer Default Full Scale Range: +/-");
+        Serial.print(EM7180_acc_fs);
+        Serial.println("g");
+    }
+
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B);
+    param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    while(!(param_xfer==0x4B)) {
+        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    }
+    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
+    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
+    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
+    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    uint16_t EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+
+    if (verbose) {
+        Serial.print("Gyroscope Default Full Scale Range: +/-");
+        Serial.print(EM7180_gyro_fs);
+        Serial.println("dps");
+    }
+
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+
+    //Disable stillness mode
+    usfsSetIntegerParam (0x49, 0x00);
+
+    //Write desired sensor full scale ranges to the EM7180
+    usfsSetMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
+    usfsSetGyroFs (0x7D0); // 2000 dps
+
+    // Read sensor new FS values from parameter space
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); 
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); 
+    param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    while(!(param_xfer==0x4A)) {
+        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    }
+    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
+    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
+    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
+    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
+    EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+
+    if (verbose) {
+        Serial.print("Magnetometer New Full Scale Range: +/-");
+        Serial.print(EM7180_mag_fs);
+        Serial.println("uT");
+        Serial.print("Accelerometer New Full Scale Range: +/-");
+        Serial.print(EM7180_acc_fs);
+        Serial.println("g");
+    }
+
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
+    param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    while(!(param_xfer==0x4B)) {
+        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    }
+    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
+    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
+    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
+    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+
+    if (verbose) {
+        Serial.print("Gyroscope New Full Scale Range: +/-");
+        Serial.print(EM7180_gyro_fs);
+        Serial.println("dps");
+    }
+
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+
+    // Read EM7180 status
+    uint8_t runStatus = readByte(EM7180_ADDRESS, EM7180_RunStatus);
+    uint8_t algoStatus = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
+
+    if (verbose) {
+        if (runStatus & 0x01) Serial.println(" EM7180 run status = normal mode");
+        if (algoStatus & 0x01) Serial.println(" EM7180 standby status");
+        if (algoStatus & 0x02) Serial.println(" EM7180 algorithm slow");
+        if (algoStatus & 0x04) Serial.println(" EM7180 in stillness mode");
+        if (algoStatus & 0x08) Serial.println(" EM7180 mag calibration completed");
+        if (algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
+        if (algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
+    }
+
+    uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus);
+    uint8_t passthruStatus = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
+
+    if (verbose) {
+        if (passthruStatus & 0x01) Serial.print(" EM7180 in passthru mode!");
+        if (eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
+        if (eventStatus & 0x02) Serial.println(" EM7180 Error");
+        if (eventStatus & 0x04) Serial.println(" EM7180 new quaternion result");
+        if (eventStatus & 0x08) Serial.println(" EM7180 new mag result");
+        if (eventStatus & 0x10) Serial.println(" EM7180 new accel result");
+        if (eventStatus & 0x20) Serial.println(" EM7180 new gyro result"); 
+    }
+
+    delay(1000); // give some time to read the screen
+
+    uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
+
+    // Check sensor status
+    if (verbose) {
+        Serial.print(" EM7180 sensor status = ");
+        Serial.println(sensorStatus);
+        if (sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
+        if (sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
+        if (sensorStatus & 0x04) Serial.print("Gyro not acknowledging!");
+        if (sensorStatus & 0x10) Serial.print("Magnetometer ID not recognized!");
+        if (sensorStatus & 0x20) Serial.print("Accelerometer ID not recognized!");
+        if (sensorStatus & 0x40) Serial.print("Gyro ID not recognized!");
+
+        Serial.print("Actual MagRate = ");
+        Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate));
+        Serial.println(" Hz"); 
+        Serial.print("Actual AccelRate = ");
+        Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualAccelRate));
+        Serial.println(" Hz"); 
+        Serial.print("Actual GyroRate = ");
+        Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualGyroRate));
+        Serial.println(" Hz"); 
+        Serial.print("Actual BaroRate = ");
+        Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualBaroRate));
+        Serial.println(" Hz"); 
+    }
+
+} // usfsBegin()
