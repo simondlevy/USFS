@@ -3,8 +3,6 @@
 #include "USFS.h"
 #include "madgwick.h"
 
-#define SerialDebug true  // set to true to get Serial output for debugging
-
 // Specify sensor full scale
 static const uint8_t Gscale = GFS_250DPS;
 static const uint8_t Ascale = AFS_2G;
@@ -14,8 +12,6 @@ static const uint8_t Mmode = MMODE_8HZ;
 // Pin definitions
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
-
-static float   temperature, pressure, altitude; 
 
 static uint32_t count = 0, sumCount = 0;  // used to control  output rate
 static float pitch, yaw, roll, Yaw, Pitch, Roll;
@@ -401,6 +397,7 @@ void loop()
     static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
     static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
     static int16_t rawPressure, rawTemperature;    
+    static float   temperature, pressure, altitude; 
 
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
@@ -476,7 +473,7 @@ void loop()
         rawTemperature = readSENtralTempData();  
         temperature = (float) rawTemperature*0.01;  // temperature in degrees C
     }
- 
+
     // keep track of rates
     Now = micros();
     deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
@@ -504,28 +501,26 @@ void loop()
 
     if (millis()-count > 500) { // update LCD once per half-second independent of read rate
 
-        if(SerialDebug) {
-            Serial.print("ax = "); Serial.print((int)1000*ax);  
-            Serial.print(" ay = "); Serial.print((int)1000*ay); 
-            Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
-            Serial.print("gx = "); Serial.print( gx, 2); 
-            Serial.print(" gy = "); Serial.print( gy, 2); 
-            Serial.print(" gz = "); Serial.print( gz, 2); Serial.println(" deg/s");
-            Serial.print("mx = "); Serial.print( (int)mx); 
-            Serial.print(" my = "); Serial.print( (int)my); 
-            Serial.print(" mz = "); Serial.print( (int)mz); Serial.println(" mG");
+        Serial.print("ax = "); Serial.print((int)1000*ax);  
+        Serial.print(" ay = "); Serial.print((int)1000*ay); 
+        Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
+        Serial.print("gx = "); Serial.print( gx, 2); 
+        Serial.print(" gy = "); Serial.print( gy, 2); 
+        Serial.print(" gz = "); Serial.print( gz, 2); Serial.println(" deg/s");
+        Serial.print("mx = "); Serial.print( (int)mx); 
+        Serial.print(" my = "); Serial.print( (int)my); 
+        Serial.print(" mz = "); Serial.print( (int)mz); Serial.println(" mG");
 
-            Serial.println("Software quaternions:"); 
-            Serial.print("qw = "); Serial.print(q[0]);
-            Serial.print(" qx = "); Serial.print(q[1]); 
-            Serial.print(" qy = "); Serial.print(q[2]); 
-            Serial.print(" qz = "); Serial.println(q[3]); 
-            Serial.println("Hardware quaternions:"); 
-            Serial.print("Qw = "); Serial.print(Quat[0]);
-            Serial.print(" Qx = "); Serial.print(Quat[1]); 
-            Serial.print(" Qy = "); Serial.print(Quat[2]); 
-            Serial.print(" Qz = "); Serial.println(Quat[3]); 
-        }               
+        Serial.println("Software quaternions:"); 
+        Serial.print("qw = "); Serial.print(q[0]);
+        Serial.print(" qx = "); Serial.print(q[1]); 
+        Serial.print(" qy = "); Serial.print(q[2]); 
+        Serial.print(" qz = "); Serial.println(q[3]); 
+        Serial.println("Hardware quaternions:"); 
+        Serial.print("Qw = "); Serial.print(Quat[0]);
+        Serial.print(" Qx = "); Serial.print(Quat[1]); 
+        Serial.print(" Qy = "); Serial.print(Quat[2]); 
+        Serial.print(" Qz = "); Serial.println(Quat[3]); 
 
         // Define output variables from updated quaternion---these are
         // Tait-Bryan angles, commonly used in aircraft orientation.  In this
@@ -568,39 +563,37 @@ void loop()
         // points toward the right of the device.
         //
 
-        if(SerialDebug) {
-            Serial.print("Software yaw, pitch, roll: ");
-            Serial.print(yaw, 2);
-            Serial.print(", ");
-            Serial.print(pitch, 2);
-            Serial.print(", ");
-            Serial.println(roll, 2);
+        Serial.print("Software yaw, pitch, roll: ");
+        Serial.print(yaw, 2);
+        Serial.print(", ");
+        Serial.print(pitch, 2);
+        Serial.print(", ");
+        Serial.println(roll, 2);
 
-            Serial.print("Hardware Yaw, Pitch, Roll: ");
-            Serial.print(Yaw, 2);
-            Serial.print(", ");
-            Serial.print(Pitch, 2);
-            Serial.print(", ");
-            Serial.println(Roll, 2);
+        Serial.print("Hardware Yaw, Pitch, Roll: ");
+        Serial.print(Yaw, 2);
+        Serial.print(", ");
+        Serial.print(Pitch, 2);
+        Serial.print(", ");
+        Serial.println(Roll, 2);
 
-            Serial.println("MS5637:");
-            Serial.print("Altimeter temperature = "); 
-            Serial.print( temperature, 2); 
-            Serial.println(" C"); // temperature in degrees Celsius
-            Serial.print("Altimeter temperature = "); 
-            Serial.print(9.*temperature/5. + 32., 2); 
-            Serial.println(" F"); // temperature in degrees Fahrenheit
-            Serial.print("Altimeter pressure = "); 
-            Serial.print(pressure, 2);  
-            Serial.println(" mbar");// pressure in millibar
-            altitude = 145366.45f*(1.0f - pow(((pressure)/1013.25f), 0.190284f));
-            Serial.print("Altitude = "); 
-            Serial.print(altitude, 2); 
-            Serial.println(" feet");
-            Serial.println(" ");
+        Serial.println("MS5637:");
+        Serial.print("Altimeter temperature = "); 
+        Serial.print( temperature, 2); 
+        Serial.println(" C"); // temperature in degrees Celsius
+        Serial.print("Altimeter temperature = "); 
+        Serial.print(9.*temperature/5. + 32., 2); 
+        Serial.println(" F"); // temperature in degrees Fahrenheit
+        Serial.print("Altimeter pressure = "); 
+        Serial.print(pressure, 2);  
+        Serial.println(" mbar");// pressure in millibar
+        altitude = 145366.45f*(1.0f - pow(((pressure)/1013.25f), 0.190284f));
+        Serial.print("Altitude = "); 
+        Serial.print(altitude, 2); 
+        Serial.println(" feet");
+        Serial.println(" ");
 
-            Serial.print("rate = "); Serial.print((float)sumCount/sum, 2); Serial.println(" Hz");
-        }
+        Serial.print("rate = "); Serial.print((float)sumCount/sum, 2); Serial.println(" Hz");
 
 
         digitalWrite(LED_PIN, !digitalRead(LED_PIN));
