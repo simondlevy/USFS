@@ -13,6 +13,53 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
+static void reportEulerAngles(float q[4], const char * label)
+{
+    // Define output variables from updated quaternion---these are
+    // Tait-Bryan angles, commonly used in aircraft orientation.  In this
+    // coordinate system, the positive z-axis is down toward Earth.  Yaw is
+    // the angle between Sensor x-axis and Earth magnetic North (or true
+    // North if corrected for local declination, looking down on the sensor
+    // positive yaw is counterclockwise.  Pitch is angle between sensor
+    // x-axis and Earth ground plane, toward the Earth is positive, up
+    // toward the sky is negative.  Roll is angle between sensor y-axis and
+    // Earth ground plane, y-axis up is positive roll.  These arise from
+    // the definition of the homogeneous rotation matrix constructed from
+    // quaternions.  Tait-Bryan angles as well as Euler angles are
+    // non-commutative; that is, the get the correct orientation the
+    // rotations must be applied in the correct order which for this
+    // configuration is yaw, pitch, and then roll.  For more see
+    // http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+    // which has additional links.
+
+    float yaw = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] *
+            q[1] - q[2] * q[2] - q[3] * q[3]);   
+
+    float pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
+
+    float roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1]
+            * q[1] - q[2] * q[2] + q[3] * q[3]);
+
+    pitch *= 180 / PI;
+    yaw   *= 180 / PI; 
+
+    // Declination at Danville, California is 13 degrees 48 minutes and 47
+    // seconds on 2014-04-04
+    yaw += 13.8f; 
+
+    yaw += (yaw < 0) ? 360 : 0; // Ensure yaw stays between 0 and 360
+
+    roll  *= 180.0f / PI;
+
+    Serial.print(label);
+    Serial.print(" yaw, pitch, roll: ");
+    Serial.print(yaw, 2);
+    Serial.print(", ");
+    Serial.print(pitch, 2);
+    Serial.print(", ");
+    Serial.println(roll, 2);
+}
+
 void setup()
 {
     Wire.begin();
@@ -118,14 +165,14 @@ void setup()
 
     usfsBegin(QUAT_RATE_DIVISOR, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE);
 
-   delay(100);
+    delay(100);
 
     // EM7180 parameter adjustments
     Serial.println("Beginning Parameter Adjustments");
 
     // Read sensor default FS values from parameter space
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); // Request to read parameter 74
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); // Request parameter transfer process
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); 
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80);
     byte param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A)) {
         param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
@@ -137,13 +184,15 @@ void setup()
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
     uint16_t EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     uint16_t EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+
     Serial.print("Magnetometer Default Full Scale Range: +/-");
     Serial.print(EM7180_mag_fs);
     Serial.println("uT");
     Serial.print("Accelerometer Default Full Scale Range: +/-");
     Serial.print(EM7180_acc_fs);
     Serial.println("g");
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
+
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B);
     param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
         param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
@@ -153,9 +202,11 @@ void setup()
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
     uint16_t EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+
     Serial.print("Gyroscope Default Full Scale Range: +/-");
     Serial.print(EM7180_gyro_fs);
     Serial.println("dps");
+
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
@@ -200,7 +251,6 @@ void setup()
     Serial.println("dps");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
-
 
     // Read EM7180 status
     uint8_t runStatus = readByte(EM7180_ADDRESS, EM7180_RunStatus);
@@ -268,7 +318,6 @@ void loop()
     static int16_t rawPressure, rawTemperature;    
     static float  temperature, pressure, altitude; 
     static uint32_t count, sumCount;  // used to control  output rate
-    static float pitch, yaw, roll, Yaw, Pitch, Roll;
     static float sum;          // integration interval
     static uint32_t lastUpdate; // used to calculate integration interval
 
@@ -417,63 +466,9 @@ void loop()
         Serial.print(" Qz = ");
         Serial.println(Quat[3]); 
 
-        // Define output variables from updated quaternion---these are
-        // Tait-Bryan angles, commonly used in aircraft orientation.  In this
-        // coordinate system, the positive z-axis is down toward Earth.  Yaw is
-        // the angle between Sensor x-axis and Earth magnetic North (or true
-        // North if corrected for local declination, looking down on the sensor
-        // positive yaw is counterclockwise.  Pitch is angle between sensor
-        // x-axis and Earth ground plane, toward the Earth is positive, up
-        // toward the sky is negative.  Roll is angle between sensor y-axis and
-        // Earth ground plane, y-axis up is positive roll.  These arise from
-        // the definition of the homogeneous rotation matrix constructed from
-        // quaternions.  Tait-Bryan angles as well as Euler angles are
-        // non-commutative; that is, the get the correct orientation the
-        // rotations must be applied in the correct order which for this
-        // configuration is yaw, pitch, and then roll.  For more see
-        // http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-        // which has additional links.
-        //Software AHRS:
-        yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
-        pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
-        roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
-        pitch *= 180.0f / PI;
-        yaw   *= 180.0f / PI; 
-        yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-        if (yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
-        roll  *= 180.0f / PI;
-        //Hardware AHRS:
-        Yaw   = atan2(2.0f * (Quat[0] * Quat[1] + Quat[3] * Quat[2]), Quat[3] * Quat[3] + Quat[0] * Quat[0] - Quat[1] * Quat[1] - Quat[2] * Quat[2]);   
-        Pitch = -asin(2.0f * (Quat[0] * Quat[2] - Quat[3] * Quat[1]));
-        Roll  = atan2(2.0f * (Quat[3] * Quat[0] + Quat[1] * Quat[2]), Quat[3] * Quat[3] - Quat[0] * Quat[0] - Quat[1] * Quat[1] + Quat[2] * Quat[2]);
-        Pitch *= 180.0f / PI;
-        Yaw   *= 180.0f / PI; 
-        Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-        if (Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
-        Roll  *= 180.0f / PI;
+        reportEulerAngles(q, "Software");
 
-        // Or define output variable according to the Android system, where
-        // heading (0 to 260) is defined by the angle between the y-axis and
-        // True North, pitch is rotation about the x-axis (-180 to +180), and
-        // roll is rotation about the y-axis (-90 to +90) In this systen, the
-        // z-axis is pointing away from Earth, the +y-axis is at the "top" of
-        // the device (cellphone) and the +x-axis points toward the right of
-        // the device.
-        //
-
-        Serial.print("Software yaw, pitch, roll: ");
-        Serial.print(yaw, 2);
-        Serial.print(", ");
-        Serial.print(pitch, 2);
-        Serial.print(", ");
-        Serial.println(roll, 2);
-
-        Serial.print("Hardware Yaw, Pitch, Roll: ");
-        Serial.print(Yaw, 2);
-        Serial.print(", ");
-        Serial.print(Pitch, 2);
-        Serial.print(", ");
-        Serial.println(Roll, 2);
+        reportEulerAngles(Quat, "Hardware");
 
         Serial.println("MS5637:");
         Serial.print("Altimeter temperature = "); 
