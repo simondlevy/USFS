@@ -5,13 +5,9 @@
 static const uint8_t LED_PIN       = 18; 
 static const uint8_t INTERRUPT_PIN = 12; 
 
-static int16_t rawPressure, rawTemperature;            
-static float   Temperature, Pressure, Altitude; 
-static float Ax, Ay, Az, Gx, Gy, Gz, Mx, My, Mz; 
+static const uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt = 0x14, gyroRt = 0x14, baroRt = 0x32;
 
-static uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt = 0x14, gyroRt = 0x14, baroRt = 0x32;
-
-static uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
+static const uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
 
 static USFS USFS(INTERRUPT_PIN, false);
 
@@ -52,6 +48,9 @@ void loop() {
 
     static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
     static float ax, ay, az;
+    static int16_t rawPressure, rawTemperature;            
+    static float Temperature, Pressure, Altitude; 
+    static float Ax, Ay, Az, Gx, Gy, Gz, Mx, My, Mz; 
 
     if (_gotNewData == true) { 
 
@@ -121,9 +120,9 @@ void loop() {
 
         
         if (eventStatus & 0x40) { 
+
             rawPressure = USFS.readSENtralBaroData();
             Pressure = (float)rawPressure * 0.01f + 1013.25f; 
-
             
             rawTemperature = USFS.readSENtralTempData();
             Temperature = (float) rawTemperature * 0.01f; 
@@ -209,8 +208,6 @@ void loop() {
         Serial.print(Altitude, 2);
         Serial.println(" feet");
         Serial.println(" ");
-
-
     } 
 
     digitalWrite(LED_PIN, LOW); delay(10); digitalWrite(LED_PIN, HIGH);  
