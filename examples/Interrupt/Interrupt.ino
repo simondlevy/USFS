@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include <Wire.h>
+
 #include "USFS.h"
 
 static const uint8_t LED_PIN       = 18; 
@@ -16,8 +18,6 @@ static const uint8_t BaroRt = 0x32;
 static const uint16_t AccFS  = 0x0008;
 static const uint16_t GyroFS = 0x07D0;
 static const uint16_t MagFS  = 0x03E8;
-
-static USFS usfs;
 
 static volatile bool _gotNewData;
 
@@ -39,14 +39,14 @@ void setup()
     Wire.setClock(400000); 
     delay(1000);
 
-    usfs.getChipID();        
-    usfs.loadfwfromEEPROM(); 
-    usfs.initEM7180(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
+    getChipID();        
+    loadfwfromEEPROM(); 
+    initEM7180(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
 
     pinMode(INTERRUPT_PIN, INPUT);
     attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
 
-    usfs.checkEM7180Status();
+    checkEM7180Status();
 
     Serial.println("Enter '1' to proceed...");
     while (true) {
@@ -74,11 +74,11 @@ void loop() {
 
         _interruptCount++;
 
-        uint8_t eventStatus = usfs.checkEM7180Status(); 
+        uint8_t eventStatus = checkEM7180Status(); 
 
         if (eventStatus & 0x02) { 
 
-            uint8_t errorStatus = usfs.checkEM7180Errors();
+            uint8_t errorStatus = checkEM7180Errors();
             if (errorStatus != 0x00) { 
                 Serial.print(" EM7180 sensor status = ");
                 Serial.println(errorStatus);
@@ -97,7 +97,7 @@ void loop() {
 
             int16_t accelCount[3] = {};  
 
-            usfs.readSENtralAccelData(accelCount);
+            readSENtralAccelData(accelCount);
 
             ax = (float)accelCount[0] * 0.000488f; 
             ay = (float)accelCount[1] * 0.000488f;
@@ -108,7 +108,7 @@ void loop() {
 
             int16_t gyroCount[3] = {};  
 
-            usfs.readSENtralGyroData(gyroCount);
+            readSENtralGyroData(gyroCount);
 
             gx = (float)gyroCount[0] * 0.153f; 
             gy = (float)gyroCount[1] * 0.153f;
@@ -119,7 +119,7 @@ void loop() {
 
             int16_t magCount[3] = {};  
 
-            usfs.readSENtralMagData(magCount);
+            readSENtralMagData(magCount);
 
             mx = (float)magCount[0] * 0.305176f; 
             my = (float)magCount[1] * 0.305176f;
@@ -127,16 +127,16 @@ void loop() {
         }
 
         if (eventStatus & 0x04) { 
-            usfs.readSENtralQuatData(q);
+            readSENtralQuatData(q);
         }
 
 
         if (eventStatus & 0x40) { 
 
-            rawPressure = usfs.readSENtralBaroData();
+            rawPressure = readSENtralBaroData();
             Pressure = (float)rawPressure * 0.01f + 1013.25f; 
 
-            rawTemperature = usfs.readSENtralTempData();
+            rawTemperature = readSENtralTempData();
             Temperature = (float) rawTemperature * 0.01f; 
         }
     } 

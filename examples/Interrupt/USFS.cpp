@@ -6,6 +6,10 @@
  *  Library may be used freely and without limit with attribution.
  *  
  */
+
+#include <Arduino.h>
+#include <Wire.h>
+
 #include "USFS.h"
 
 // See MS5637-02BA03 Low Voltage Barometric Pressure Sensor Data Sheet
@@ -336,19 +340,19 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs) {
 
 // ============================================================================
 
-uint8_t USFS::checkEM7180Errors(){
+uint8_t checkEM7180Errors(){
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_ErrorRegister); // check error register
     return c;
 }
 
-uint8_t USFS::checkEM7180Status(){
+uint8_t checkEM7180Status(){
     // Check event status register, way to check data ready by polling rather than interrupt
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register and interrupt
     return c;
 }
 
 
-void USFS::getChipID()
+void getChipID()
 {
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
@@ -364,7 +368,7 @@ void USFS::getChipID()
 }
 
 
-void USFS::initEM7180(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, uint16_t magFS, uint8_t QRtDiv, uint8_t magRt, uint8_t accRt, uint8_t gyroRt, uint8_t baroRt)
+void initEM7180(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, uint16_t magFS, uint8_t QRtDiv, uint8_t magRt, uint8_t accRt, uint8_t gyroRt, uint8_t baroRt)
 {
     uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
     uint8_t param[4];      
@@ -503,7 +507,7 @@ void USFS::initEM7180(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gy
 }
 
 
-void USFS::loadfwfromEEPROM()
+void loadfwfromEEPROM()
 {
     // Check which sensors can be detected by the EM7180
     uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
@@ -540,7 +544,7 @@ void USFS::loadfwfromEEPROM()
     if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
 }
 
-void USFS::readSENtralAccelData(int16_t * destination)
+void readSENtralAccelData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
     readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
@@ -549,14 +553,14 @@ void USFS::readSENtralAccelData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-int16_t USFS::readSENtralBaroData()
+int16_t readSENtralBaroData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-void USFS::readSENtralGyroData(int16_t * destination)
+void readSENtralGyroData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -565,7 +569,7 @@ void USFS::readSENtralGyroData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void USFS::readSENtralMagData(int16_t * destination)
+void readSENtralMagData(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -574,7 +578,7 @@ void USFS::readSENtralMagData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void USFS::readSENtralQuatData(float * destination)
+void readSENtralQuatData(float * destination)
 {
     uint8_t rawData[16];  // x/y/z quaternion register data stored here
     readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]); // Read the sixteen raw data registers into data array
@@ -585,7 +589,7 @@ void USFS::readSENtralQuatData(float * destination)
 
 }
 
-int16_t USFS::readSENtralTempData()
+int16_t readSENtralTempData()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
