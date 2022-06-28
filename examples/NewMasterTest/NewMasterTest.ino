@@ -110,25 +110,15 @@ void setup()
 
     delay(1000); // give some time to read the screen
 
-    // Set up the SENtral as sensor bus in normal operating mode
-    // Enter EM7180 initialized state
-    usfsBegin(2, 100, 20, 20);
+    static const uint8_t QUAT_RATE_DIVISOR = 2;
+    static const uint8_t MAG_RATE          = 100;
+    static const uint8_t ACCEL_RATE        = 20; // 200
+    static const uint8_t GYRO_RATE         = 20; // 200
+    static const uint8_t BARO_RATE         = 50; // 200
 
-    // Set enable bit and set Baro rate to 25 Hz
-    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32);  
+    usfsBegin(QUAT_RATE_DIVISOR, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE);
 
-    // Configure operating mode
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
-
-    // Enable interrupt to host upon certain events choose host interrupts when
-    // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
-    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
-    // or the SENtral needs to be reset(0x01)
-    writeByte(EM7180_ADDRESS, EM7180_EnableEvents, 0x07);
-
-    // Enable EM7180 run mode
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); 
-    delay(100);
+   delay(100);
 
     // EM7180 parameter adjustments
     Serial.println("Beginning Parameter Adjustments");

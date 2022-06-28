@@ -274,7 +274,8 @@ void usfsBegin(
         uint8_t quatRateDivisor,
         uint8_t magRate,
         uint8_t accelRate,
-        uint8_t gyroRate)
+        uint8_t gyroRate,
+        uint8_t baroRate)
 {
     // Set SENtral in initialized state to configure registers
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
@@ -297,4 +298,19 @@ void usfsBegin(
     writeByte(EM7180_ADDRESS, EM7180_MagRate, magRate); 
     writeByte(EM7180_ADDRESS, EM7180_AccelRate, accelRate);
     writeByte(EM7180_ADDRESS, EM7180_GyroRate, gyroRate);
-}
+
+    // Set enable bit and set Baro rate
+    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | baroRate);  
+
+    // Configure operating mode
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
+
+    // Enable interrupt to host upon certain events choose host interrupts when
+    // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
+    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
+    // or the SENtral needs to be reset(0x01)
+    writeByte(EM7180_ADDRESS, EM7180_EnableEvents, 0x07);
+
+    // Enable EM7180 run mode
+    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); 
+ }
