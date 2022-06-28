@@ -57,7 +57,7 @@ void loop() {
     static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
     static int16_t rawPressure, rawTemperature;            
     static float Temperature, Pressure, Altitude; 
-    static float Ax, Ay, Az, Gx, Gy, Gz, Mx, My, Mz; 
+    static float ax, ay, az, gx, gy, gz, mx, my, mz; 
 
     if (_gotNewData == true) { 
 
@@ -93,9 +93,9 @@ void loop() {
             usfs.readSENtralAccelData(accelCount);
 
 
-            Ax = (float)accelCount[0] * 0.000488f; 
-            Ay = (float)accelCount[1] * 0.000488f;
-            Az = (float)accelCount[2] * 0.000488f;
+            ax = (float)accelCount[0] * 0.000488f; 
+            ay = (float)accelCount[1] * 0.000488f;
+            az = (float)accelCount[2] * 0.000488f;
         }
 
         if (eventStatus & 0x20) { 
@@ -105,9 +105,9 @@ void loop() {
             usfs.readSENtralGyroData(gyroCount);
 
 
-            Gx = (float)gyroCount[0] * 0.153f; 
-            Gy = (float)gyroCount[1] * 0.153f;
-            Gz = (float)gyroCount[2] * 0.153f;
+            gx = (float)gyroCount[0] * 0.153f; 
+            gy = (float)gyroCount[1] * 0.153f;
+            gz = (float)gyroCount[2] * 0.153f;
         }
 
         if (eventStatus & 0x08) { 
@@ -116,10 +116,9 @@ void loop() {
 
             usfs.readSENtralMagData(magCount);
 
-
-            Mx = (float)magCount[0] * 0.305176f; 
-            My = (float)magCount[1] * 0.305176f;
-            Mz = (float)magCount[2] * 0.305176f;
+            mx = (float)magCount[0] * 0.305176f; 
+            my = (float)magCount[1] * 0.305176f;
+            mz = (float)magCount[2] * 0.305176f;
         }
 
         if (eventStatus & 0x04) { 
@@ -151,25 +150,25 @@ void loop() {
         _msec = msec;
 
         Serial.print("Ax = ");
-        Serial.print((int)1000 * Ax);
+        Serial.print((int)1000 * ax);
         Serial.print(" Ay = ");
-        Serial.print((int)1000 * Ay);
+        Serial.print((int)1000 * ay);
         Serial.print(" Az = ");
-        Serial.print((int)1000 * Az);
+        Serial.print((int)1000 * az);
         Serial.println(" mg");
         Serial.print("Gx = ");
-        Serial.print( Gx, 2);
+        Serial.print( gx, 2);
         Serial.print(" Gy = ");
-        Serial.print( Gy, 2);
+        Serial.print( gy, 2);
         Serial.print(" Gz = ");
-        Serial.print( Gz, 2);
+        Serial.print( gz, 2);
         Serial.println(" deg/s");
         Serial.print("Mx = ");
-        Serial.print( (int)Mx);
+        Serial.print( (int)mx);
         Serial.print(" My = ");
-        Serial.print( (int)My);
+        Serial.print( (int)my);
         Serial.print(" Mz = ");
-        Serial.print( (int)Mz);
+        Serial.print( (int)mz);
         Serial.println(" mG");
 
         Serial.println("Hardware quaternions:");
@@ -209,13 +208,15 @@ void loop() {
         Serial.print(", ");
         Serial.print(-A32 * 1000, 2);
         Serial.print(", ");
-        Serial.print(A33 * 1000, 2);  Serial.println(" mg");
+        Serial.print(A33 * 1000, 2);
+        Serial.println(" mg");
         Serial.print("Hardware ax, ay, az: ");
-        Serial.print(Ax * 1000, 2);
+        Serial.print(ax * 1000, 2);
         Serial.print(", ");
-        Serial.print(Ay * 1000, 2);
+        Serial.print(ay * 1000, 2);
         Serial.print(", ");
-        Serial.print(Az * 1000, 2);  Serial.println(" mg");
+        Serial.print(az * 1000, 2);
+        Serial.println(" mg");
 
         Serial.println("MS5637:");
         Serial.print("Altimeter temperature = ");
