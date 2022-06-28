@@ -271,6 +271,18 @@ int16_t readSENtralBaroData();
 
 int16_t readSENtralTempData();
 
+uint8_t readSENtralRom1(void);
+
+uint8_t readSENtralRom2(void);
+
+uint8_t readSENtralRam1(void);
+
+uint8_t readSENtralRam2(void);
+
+uint8_t readSENtralPid(void);
+
+uint8_t readSENtralRid(void);
+
 void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
 
 uint8_t readByte(uint8_t address, uint8_t subAddress);

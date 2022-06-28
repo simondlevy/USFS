@@ -164,3 +164,33 @@ int16_t readSENtralTempData()
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
 }
+
+uint8_t readSENtralRom1()
+{
+    return readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
+}
+
+uint8_t readSENtralRom2(void)
+{
+    return readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
+}
+
+uint8_t readSENtralRam1(void)
+{
+    return readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
+}
+
+uint8_t readSENtralRam2(void)
+{
+    return readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
+}
+
+uint8_t readSENtralPid(void)
+{
+    return readByte(EM7180_ADDRESS, EM7180_ProductID);
+}
+
+uint8_t readSENtralRid(void)
+{
+    return readByte(EM7180_ADDRESS, EM7180_RevisionID);
+}

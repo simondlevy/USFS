@@ -27,24 +27,18 @@ void setup()
     delay(1000);
 
     // Read SENtral device information
-    uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
-    uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
     Serial.print("EM7180 ROM Version: 0x");
-    Serial.print(ROM1, HEX);
-    Serial.println(ROM2, HEX);
+    Serial.print(readSENtralRom1(), HEX);
+    Serial.println(readSENtralRom2(), HEX);
     Serial.println("Should be: 0xE609");
-    uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
-    uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
     Serial.print("EM7180 RAM Version: 0x");
-    Serial.print(RAM1);
-    Serial.println(RAM2);
-    uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
+    Serial.print(readSENtralRam1());
+    Serial.println(readSENtralRam2());
     Serial.print("EM7180 ProductID: 0x");
-    Serial.print(PID, HEX);
+    Serial.print(readSENtralPid(), HEX);
     Serial.println(" Should be: 0x80");
-    uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
     Serial.print("EM7180 RevisionID: 0x");
-    Serial.print(RID, HEX);
+    Serial.print(readSENtralRid(), HEX);
     Serial.println(" Should be: 0x02");
 
     delay(1000); // give some time to read the screen
@@ -117,7 +111,6 @@ void setup()
     writeByte(EM7180_ADDRESS, EM7180_AccelRate, 0x14); // 200/10 Hz
     writeByte(EM7180_ADDRESS, EM7180_GyroRate, 0x14); // 200/10 Hz
     writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
-    // writeByte(EM7180_ADDRESS, EM7180_TempRate, 0x19);  // set enable bit and set rate to 25 Hz
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
@@ -176,8 +169,8 @@ void setup()
     EM7180_set_gyro_FS (0x7D0); // 2000 dps
 
     // Read sensor new FS values from parameter space
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); // Request parameter transfer process
+    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); 
+    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); 
     param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A)) {
         param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
