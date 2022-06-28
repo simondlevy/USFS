@@ -228,7 +228,6 @@ static const uint8_t ADC_8192 = 0x0A;
 static const uint8_t ADC_D1 = 0x40;
 static const uint8_t ADC_D2 = 0x50;
 
-// Set initial input parameters
 enum Ascale {
     AFS_2G = 0,
     AFS_4G,
@@ -252,6 +251,7 @@ enum Mmode {
     MMODE_8HZ = 2,
     MMODE_100HZ = 6
 };
+
 
 void usfsSetGyroFs (uint16_t gyro_fs);
 
@@ -313,4 +313,8 @@ void usfsReset(void);
 
 bool usfsEepromUploadSuccessful(void);
 
-void usfsUseHostMode(void);
+void usfsBegin(
+        uint8_t quatRateDivisor,
+        uint8_t magRate,
+        uint8_t accelRate,
+        uint8_t gyroRate);

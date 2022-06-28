@@ -112,28 +112,22 @@ void setup()
 
     // Set up the SENtral as sensor bus in normal operating mode
     // Enter EM7180 initialized state
-    usfsUseHostMode();
+    usfsBegin(2, 100, 20, 20);
 
-    // Set up LPF bandwidth (BEFORE setting ODR's)
-    writeByte(EM7180_ADDRESS, EM7180_ACC_LPF_BW, 0x03); // 41Hz
-    writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, 0x03); // 41Hz
-
-    // Set accel/gyro/mage desired ODR rates
-    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, 0x02); // 100 Hz
-    writeByte(EM7180_ADDRESS, EM7180_MagRate, 0x64); // 100 Hz
-    writeByte(EM7180_ADDRESS, EM7180_AccelRate, 0x14); // 200/10 Hz
-    writeByte(EM7180_ADDRESS, EM7180_GyroRate, 0x14); // 200/10 Hz
-    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
+    // Set enable bit and set Baro rate to 25 Hz
+    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | 0x32);  
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
+
     // Enable interrupt to host upon certain events choose host interrupts when
     // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
     // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
     // or the SENtral needs to be reset(0x01)
     writeByte(EM7180_ADDRESS, EM7180_EnableEvents, 0x07);
+
     // Enable EM7180 run mode
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // set SENtral in normal run mode
+    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); 
     delay(100);
 
     // EM7180 parameter adjustments
@@ -510,7 +504,6 @@ void loop()
         Serial.print("rate = ");
         Serial.print((float)sumCount/sum, 2);
         Serial.println(" Hz");
-
 
         digitalWrite(LED_PIN, !digitalRead(LED_PIN));
         count = millis(); 

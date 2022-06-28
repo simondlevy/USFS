@@ -270,7 +270,11 @@ bool usfsEepromUploadSuccessful(void)
     return (bool)(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04));
 }
 
-void usfsUseHostMode(void)
+void usfsBegin(
+        uint8_t quatRateDivisor,
+        uint8_t magRate,
+        uint8_t accelRate,
+        uint8_t gyroRate)
 {
     // Set SENtral in initialized state to configure registers
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
@@ -283,4 +287,14 @@ void usfsUseHostMode(void)
 
     // Set SENtral in initialized state to configure registers
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
+
+    // Set up LPF bandwidth (BEFORE setting ODR's)
+    writeByte(EM7180_ADDRESS, EM7180_ACC_LPF_BW, 0x03); // 41Hz
+    writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, 0x03); // 41Hz
+
+    // Set accel/gyro/mage desired ODR rates
+    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, quatRateDivisor);
+    writeByte(EM7180_ADDRESS, EM7180_MagRate, magRate); 
+    writeByte(EM7180_ADDRESS, EM7180_AccelRate, accelRate);
+    writeByte(EM7180_ADDRESS, EM7180_GyroRate, gyroRate);
 }
