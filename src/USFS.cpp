@@ -393,9 +393,21 @@ void usfsReportChipId()
 }
 
 
-void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, uint16_t magFS, uint8_t QRtDiv, uint8_t magRt, uint8_t accRt, uint8_t gyroRt, uint8_t baroRt)
+void usfsBegin(uint8_t accBW,
+        uint8_t gyroBW,
+        uint16_t accFS,
+        uint16_t gyroFS,
+        uint16_t magFS,
+        uint8_t QRtDiv,
+        uint8_t magRt,
+        uint8_t accRt,
+        uint8_t gyroRt,
+        uint8_t baroRt)
 {
-    uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
+    uint16_t EM7180_mag_fs,
+             EM7180_acc_fs,
+             EM7180_gyro_fs; // EM7180 sensor full scale ranges
+
     uint8_t param[4];      
 
     // Enter EM7180 initialized state
@@ -640,4 +652,9 @@ int16_t usfsReadTemperature()
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
+}
+
+bool usfsEventStatusIsError(uint8_t status)
+{
+    return status & 0x02;
 }

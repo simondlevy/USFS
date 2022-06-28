@@ -52,3 +52,6 @@ void    usfsReadGyrometer(int16_t * destination);
 void    usfsreadMagnetometer(int16_t * destination);
 void    usfsReadQuaternion(float * destination);
 int16_t usfsReadTemperature();
+
+bool usfsEventStatusIsError(uint8_t status);
+

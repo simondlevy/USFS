@@ -63,12 +63,15 @@ void setup()
     delay(1000);
 
     usfsReportChipId();        
+
     usfsLoadFirmware(); 
+
     usfsBegin(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
 
     pinMode(INTERRUPT_PIN, INPUT);
     attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
 
+    // Clear interrupts
     usfsCheckStatus();
 
     Serial.println("Enter '1' to proceed...");
@@ -99,20 +102,40 @@ void loop() {
 
         uint8_t eventStatus = usfsCheckStatus(); 
 
-        if (eventStatus & 0x02) { 
+        if (usfsEventStatusIsError(eventStatus)) { 
 
             uint8_t errorStatus = usfsCheckErrors();
+
             if (errorStatus != 0x00) { 
+
                 Serial.print(" EM7180 sensor status = ");
+
                 Serial.println(errorStatus);
-                if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
-                if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
-                if (errorStatus == 0x14) Serial.print("Gyro failure!");
-                if (errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
-                if (errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
-                if (errorStatus == 0x24) Serial.print("Gyro initialization failure!");
-                if (errorStatus == 0x30) Serial.print("Math error!");
-                if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
+
+                if (errorStatus == 0x11) {
+                    Serial.print("Magnetometer failure!");
+                }
+                if (errorStatus == 0x12) { 
+                    Serial.print("Accelerometer failure!");
+                }
+                if (errorStatus == 0x14) { 
+                    Serial.print("Gyro failure!");
+                }
+                if (errorStatus == 0x21) { 
+                    Serial.print("Magnetometer initialization failure!");
+                }
+                if (errorStatus == 0x22) { 
+                    Serial.print("Accelerometer initialization failure!");
+                }
+                if (errorStatus == 0x24) { 
+                    Serial.print("Gyro initialization failure!");
+                }
+                if (errorStatus == 0x30) { 
+                    Serial.print("Math error!");
+                }
+                if (errorStatus == 0x80) { 
+                    Serial.print("Invalid sample rate!");
+                }
             }
         }
 
