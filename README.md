@@ -19,9 +19,7 @@ The library has been tested on the following hardware:
 
 * Teensy 3.2, 3.6, 4.0
 
-* Raspberry Pi 3 (C++, Python)
-
-* NVIDIA Jetson TX1 (C++)
+* Raspberry Pi 3 (Python)
 
 * PYBV1.0 : thanks to [JonHylands](https://github.com/jonhylands) for the MicroPython support
 

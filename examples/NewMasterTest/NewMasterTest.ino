@@ -81,6 +81,7 @@ static void reportEulerAngles(float q[4], const char * label)
 void setup()
 {
     Wire.begin();
+    Wire.setClock(400000);
     delay(5000);
     Serial.begin(115200);
 
@@ -381,8 +382,6 @@ void loop()
     if (_gotInterrupt == true) {  
 
         _gotInterrupt = false; 
-
-        readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
 
         _interruptCount++;
     }
