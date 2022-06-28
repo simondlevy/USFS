@@ -283,17 +283,17 @@ uint8_t usfsReadPid(void);
 
 uint8_t usfsReadRid(void);
 
-bool hasBarometer(void);
+bool usfsHasBarometer(void);
 
-bool hasHumiditySensor(void);
+bool usfsHasHumiditySensor(void);
 
-bool hasTemperatureSensor(void);
+bool usfsHasTemperatureSensor(void);
 
-bool hasCustomSensor(void);
+bool usfsHasCustomSensor(void);
 
-bool hasSecondCustomSensor(void);
+bool usfsHasSecondCustomSensor(void);
 
-bool hasThirdCustomSensor(void);
+bool usfsHasThirdCustomSensor(void);
 
 void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
 

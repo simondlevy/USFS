@@ -62,17 +62,17 @@ void setup()
     delay(1000); // give some time to read the screen
 
     // Check which sensors can be detected by the EM7180
-    if (hasBarometer())
+    if (usfsHasBarometer())
         Serial.println("A barometer is installed");
-    if (hasHumiditySensor())
+    if (usfsHasHumiditySensor())
         Serial.println("A humidity sensor is installed");
-    if (hasTemperatureSensor())
+    if (usfsHasTemperatureSensor())
         Serial.println("A temperature sensor is installed");
-    if (hasCustomSensor())
+    if (usfsHasCustomSensor())
         Serial.println("A custom sensor is installed");
-    if (hasSecondCustomSensor())
+    if (usfsHasSecondCustomSensor())
         Serial.println("A second custom sensor is installed");
-    if (hasThirdCustomSensor())
+    if (usfsHasThirdCustomSensor())
         Serial.println("A third custom sensor is installed");
 
     delay(1000); // give some time to read the screen

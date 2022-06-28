@@ -200,32 +200,32 @@ static bool hasFeature(uint8_t mask)
     return (bool)readByte(EM7180_ADDRESS, EM7180_FeatureFlags) & mask;
 }
 
-bool hasBarometer(void)
+bool usfsHasBarometer(void)
 {
     return hasFeature(0x01);
 }
 
-bool hasHumiditySensor(void)
+bool usfsHasHumiditySensor(void)
 {
     return hasFeature(0x02);
 }
 
-bool hasTemperatureSensor(void)
+bool usfsHasTemperatureSensor(void)
 {
     return hasFeature(0x04);
 }
 
-bool hasCustomSensor(void)
+bool usfsHasCustomSensor(void)
 {
     return hasFeature(0x08);
 }
 
-bool hasSecondCustomSensor(void)
+bool usfsHasSecondCustomSensor(void)
 {
     return hasFeature(0x10);
 }
 
-bool hasThirdCustomSensor(void)
+bool usfsHasThirdCustomSensor(void)
 {
     return hasFeature(0x20);
 }
