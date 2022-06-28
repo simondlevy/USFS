@@ -1,6 +1,3 @@
-//#include "LSM6DSM.h"
-//#include "LIS2MDL.h"
-//#include "LPS22HB.h"
 #include "USFS.h"
 
 #include <RTC.h>
@@ -16,67 +13,16 @@ static float GyroMeasError = pi * (40.0f / 180.0f);   // gyroscope measurement e
 static float GyroMeasDrift = pi * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
 static float beta = sqrtf(3.0f / 4.0f) * GyroMeasError;   // compute beta
 static float zeta = sqrtf(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
-static uint32_t delt_t;                      // used to control display output rate
-static float pitch, yaw, roll, Yaw, Pitch, Roll;
-static float a12, a22, a31, a32, a33;            // rotation matrix coefficients for Euler angles and gravity components
+static float Yaw, Pitch, Roll;
+static float a31, a32, a33;            // rotation matrix coefficients for Euler angles and gravity components
 static float A12, A22, A31, A32, A33;            // rotation matrix coefficients for Hardware Euler angles and gravity components
 static float deltat;
 static float lin_Ax, lin_Ay, lin_Az;             // Hardware linear acceleration (acceleration with gravity component subtracted)
 static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // hardware quaternion data register
 
-//LSM6DSM definitions
-//static const uint8_t LSM6DSM_intPin1 = 10;
-//static const uint8_t LSM6DSM_intPin2 = 9;
 
-//static const uint8_t Ascale = AFS_2G, Gscale = GFS_245DPS, AODR = AODR_208Hz, GODR = GODR_416Hz;
-
-static float aRes, gRes;              // scale resolutions per LSB for the accel and gyro sensor2
-static float accelBias[3] = {-0.00499, 0.01540, 0.02902}, gyroBias[3] = {-0.50, 0.14, 0.28}; // offset biases for the accel and gyro
-//int16_t LSM6DSMData[7];        // Stores the 16-bit signed sensor output
-static float   Gtemperature;           // Stores the real internal gyro temperature in degrees Celsius
-static float ax, ay, az, gx, gy, gz;  // variables to hold latest accel/gyro data values 
-
-//static bool newLSM6DSMData = false;
-//static bool newLSM6DSMTap  = false;
-
-//static LSM6DSM LSM6DSM(LSM6DSM_intPin1, LSM6DSM_intPin2); // instantiate LSM6DSM class
-
-
-//LIS2MDL definitions
-//#define LIS2MDL_intPin  8 // interrupt for magnetometer data ready
-
-/* Specify sensor parameters (sample rate is twice the bandwidth)
- * choices are: MODR_10Hz, MOIDR_20Hz, MODR_50 Hz and MODR_100Hz
- */ 
-//static uint8_t MODR = MODR_100Hz;
-
-static float mRes = 0.0015f;            // mag sensitivity
-static float magBias[3] = {0,0,0}, magScale[3]  = {0,0,0}; // Bias corrections for magnetometer
-static int16_t LIS2MDLData[4];          // Stores the 16-bit signed sensor output
-static float Mtemperature;              // Stores the real internal chip temperature in degrees Celsius
-static float mx, my, mz;                // variables to hold latest mag data values 
-//static uint8_t LIS2MDLstatus;
-
-//static bool newLIS2MDLData = false;
-
-//static LIS2MDL LIS2MDL(LIS2MDL_intPin); // instantiate LIS2MDL class
-
-
-// LPS22H definitions
-//static uint8_t LPS22H_intPin = 5;
-
-/* Specify sensor parameters (sample rate is twice the bandwidth) 
-   Choices are P_1Hz, P_10Hz P_25 Hz, P_50Hz, and P_75Hz
- */
-//static const uint8_t PODR = P_25Hz;     // set pressure amd temperature output data rate
-//static uint8_t LPS22Hstatus;
-//static float temperature, pressure, altitude;
-
-//static bool newLPS22HData = false;
-
-//static LPS22H LPS22H(LPS22H_intPin);
-
+static float ax, ay, az;
 
 // RTC set time using STM32L4 natve RTC class
 /* Change these values to set the current initial time */
@@ -99,7 +45,7 @@ static bool newEM7180Data = false;
 static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
 static int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
 static int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-static int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
+static int16_t rawPressure, rawTemperature;            // temperature raw count output
 static float   Temperature, Pressure, Altitude; //  temperature in degrees Celsius, pressure in mbar
 static float Ax, Ay, Az, Gx, Gy, Gz, Mx, My, Mz; // variables to hold latest sensor data values
 
@@ -109,23 +55,6 @@ static uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt =
 static uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
 
 static USFS USFS(USFS_intPin, false);
-
-/*
-static void myinthandler1()
-{
-    newLSM6DSMData = true;
-}
-
-static void myinthandler2()
-{
-    newLIS2MDLData = true;
-}
-
-static void myinthandler3()
-{
-    newLPS22HData = true;
-}
-*/
 
 static void EM7180intHandler()
 {
@@ -222,7 +151,6 @@ void setup()
     Wire.setClock(400000); // I2C frequency at 400 kHz  
     delay(1000);
 
-    //LSM6DSM.I2Cscan(); // which I2C device are on the bus?
 
     // Initialize the USFS
     USFS.getChipID();        // check ROM/RAM version of EM7180
@@ -248,28 +176,6 @@ void loop() {
 
     static uint32_t _interruptCount;
 
-    /*
-    // If intPin goes high, either all data registers have new data
-    if(newLIS2MDLData == true) {   // On interrupt, read data
-        newLIS2MDLData = false;     // reset newData flag
-
-        LIS2MDLstatus = LIS2MDL.status();
-
-        if(LIS2MDLstatus & 0x08) // if all axes have new data ready
-        {
-            LIS2MDL.readData(LIS2MDLData);  
-
-            // Now we'll calculate the accleration value into actual G's
-            mx = (float)LIS2MDLData[0]*mRes - magBias[0];  // get actual G value 
-            my = (float)LIS2MDLData[1]*mRes - magBias[1];   
-            mz = (float)LIS2MDLData[2]*mRes - magBias[2]; 
-            mx *= magScale[0];
-            my *= magScale[1];
-            mz *= magScale[2];  
-        }
-    }*/
-
-    /*EM7180*/
     // If intpin goes high, all data registers have new data
     if (newEM7180Data == true) { // On interrupt, read data
         newEM7180Data = false;  // reset newData flag
