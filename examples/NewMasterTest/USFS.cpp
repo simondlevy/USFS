@@ -52,7 +52,7 @@ static float uint32_reg_to_float (uint8_t *buf)
 
 
 
-void EM7180_set_gyro_FS (uint16_t gyro_fs) {
+void usfsSetGyroFs (uint16_t gyro_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
     bytes[1] = (gyro_fs >> 8) & (0xFF);
@@ -72,7 +72,7 @@ void EM7180_set_gyro_FS (uint16_t gyro_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); 
 }
 
-void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
+void usfsSetMagAccFs (uint16_t mag_fs, uint16_t acc_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
     bytes[1] = (mag_fs >> 8) & (0xFF);
@@ -92,7 +92,7 @@ void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); 
 }
 
-void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
+void usfsSetIntegerParam (uint8_t param, uint32_t param_val) {
     uint8_t bytes[4], STAT;
     bytes[0] = param_val & (0xFF);
     bytes[1] = (param_val >> 8) & (0xFF);
@@ -113,7 +113,7 @@ void EM7180_set_integer_param (uint8_t param, uint32_t param_val) {
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); 
 }
 
-void readSENtralQuatData(float * destination)
+void usfsReadQuaternion(float * destination)
 {
     uint8_t rawData[16];  
     readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       
@@ -124,7 +124,7 @@ void readSENtralQuatData(float * destination)
 
 }
 
-void readSENtralAccelData(int16_t * destination)
+void usfsReadAccelerometer(int16_t * destination)
 {
     uint8_t rawData[6];  
     readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       
@@ -133,7 +133,7 @@ void readSENtralAccelData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralGyroData(int16_t * destination)
+void usfsReadGyrometer(int16_t * destination)
 {
     uint8_t rawData[6];  
     readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  
@@ -142,7 +142,7 @@ void readSENtralGyroData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralMagData(int16_t * destination)
+void usfsReadMagnetometer(int16_t * destination)
 {
     uint8_t rawData[6];  
     readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  
@@ -151,46 +151,46 @@ void readSENtralMagData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-int16_t readSENtralBaroData()
+int16_t usfsReadBarometer()
 {
     uint8_t rawData[2];  
     readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
 }
 
-int16_t readSENtralTempData()
+int16_t usfsReadTemperature()
 {
     uint8_t rawData[2];  
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
 }
 
-uint8_t readSENtralRom1()
+uint8_t usfsReadRom1()
 {
     return readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
 }
 
-uint8_t readSENtralRom2(void)
+uint8_t usfsReadRom2(void)
 {
     return readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
 }
 
-uint8_t readSENtralRam1(void)
+uint8_t usfsReadRam1(void)
 {
     return readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
 }
 
-uint8_t readSENtralRam2(void)
+uint8_t usfsReadRam2(void)
 {
     return readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
 }
 
-uint8_t readSENtralPid(void)
+uint8_t usfsReadPid(void)
 {
     return readByte(EM7180_ADDRESS, EM7180_ProductID);
 }
 
-uint8_t readSENtralRid(void)
+uint8_t usfsReadRid(void)
 {
     return readByte(EM7180_ADDRESS, EM7180_RevisionID);
 }

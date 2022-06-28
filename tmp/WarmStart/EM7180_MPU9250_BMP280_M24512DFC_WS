@@ -237,11 +237,11 @@ void setup()
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
   
     //Disable stillness mode
-    EM7180_set_integer_param (0x49, 0x00);
+    usfsSetIntegerParam (0x49, 0x00);
   
     //Write desired sensor full scale ranges to the EM7180
-    EM7180_set_mag_acc_FS (0x3E8, 0x08); // 1000 uT, 8 g
-    EM7180_set_gyro_FS (0x7D0); // 2000 dps
+    usfsSetMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
+    usfsSetGyroFs (0x7D0); // 2000 dps
   
     // Read sensor new FS values from parameter space
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
@@ -505,7 +505,7 @@ void loop()
     // new acceleration data available
     if(eventStatus & 0x10)
     { 
-      readSENtralAccelData(accelCount);
+      usfsReadAccelerometer(accelCount);
   
       // Now we'll calculate the accleration value into actual g's
       ax = (float)accelCount[0]*0.000488;  // get actual g value
@@ -516,7 +516,7 @@ void loop()
     if(eventStatus & 0x20)
     {
       // new gyro data available  
-      readSENtralGyroData(gyroCount);
+      usfsReadGyrometer(gyroCount);
   
       // Now we'll calculate the gyro value into actual dps's
       gx = (float)gyroCount[0]*0.153;  // get actual dps value
@@ -527,7 +527,7 @@ void loop()
     if(eventStatus & 0x08)
     {
       // new mag data available
-      readSENtralMagData(magCount);
+      usfsReadMagnetometer(magCount);
   
       // Now we'll calculate the mag value into actual G's
       // get actual G value
@@ -538,7 +538,7 @@ void loop()
 
     if(eventStatus & 0x04)  // new quaternions available
     {
-    readSENtralQuatData(Quat); 
+    usfsReadQuaternion(Quat); 
     }
 
     // get BMP280 pressure
@@ -546,11 +546,11 @@ void loop()
     
     if(eventStatus & 0x40)
     { 
-      rawPressure = readSENtralBaroData();
+      rawPressure = usfsReadBarometer();
       pressure = (float)rawPressure*0.01f +1013.25f; // pressure in mBar
 
       // get BMP280 temperature
-      rawTemperature = readSENtralTempData();  
+      rawTemperature = usfsReadTemperature();  
       temperature = (float) rawTemperature*0.01;  // temperature in degrees C
     }
   }
@@ -722,7 +722,7 @@ void loop()
 //====== Sentral parameter management functions
 //===================================================================================================================
 
-void EM7180_set_gyro_FS (uint16_t gyro_fs)
+void usfsSetGyroFs (uint16_t gyro_fs)
 {
   uint8_t bytes[4], STAT;
   bytes[0] = gyro_fs & (0xFF);
@@ -749,7 +749,7 @@ void EM7180_set_gyro_FS (uint16_t gyro_fs)
   writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
+void usfsSetMagAccFs (uint16_t mag_fs, uint16_t acc_fs) {
   uint8_t bytes[4], STAT;
   bytes[0] = mag_fs & (0xFF);
   bytes[1] = (mag_fs >> 8) & (0xFF);
@@ -776,7 +776,7 @@ void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
   writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
+void usfsSetIntegerParam (uint8_t param, uint32_t param_val)
 {
   uint8_t bytes[4], STAT;
   bytes[0] = param_val & (0xFF);
@@ -1030,7 +1030,7 @@ void float_to_bytes (float param_val, uint8_t *buf) {
   }
 }
 
-void readSENtralQuatData(float * destination)
+void usfsReadQuaternion(float * destination)
 {
   uint8_t rawData[16];  // x/y/z quaternion register data stored here
   readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]);       // Read the sixteen raw data registers into data array
@@ -1041,7 +1041,7 @@ void readSENtralQuatData(float * destination)
 
 }
 
-void readSENtralAccelData(int16_t * destination)
+void usfsReadAccelerometer(int16_t * destination)
 {
   uint8_t rawData[6];  // x/y/z accel register data stored here
   readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
@@ -1050,7 +1050,7 @@ void readSENtralAccelData(int16_t * destination)
   destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralGyroData(int16_t * destination)
+void usfsReadGyrometer(int16_t * destination)
 {
   uint8_t rawData[6];  // x/y/z gyro register data stored here
   readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -1059,7 +1059,7 @@ void readSENtralGyroData(int16_t * destination)
   destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralMagData(int16_t * destination)
+void usfsReadMagnetometer(int16_t * destination)
 {
   uint8_t rawData[6];  // x/y/z gyro register data stored here
   readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -1529,14 +1529,14 @@ void MPU9250SelfTest(float * destination) // Should return percent deviation fro
    
 }
 
-int16_t readSENtralBaroData()
+int16_t usfsReadBarometer()
 {
   uint8_t rawData[2];  // x/y/z gyro register data stored here
   readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
   return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-int16_t readSENtralTempData()
+int16_t usfsReadTemperature()
 {
   uint8_t rawData[2];  // x/y/z gyro register data stored here
   readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array

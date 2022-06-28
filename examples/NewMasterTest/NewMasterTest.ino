@@ -46,17 +46,17 @@ void setup()
 
     // Read SENtral device information
     Serial.print("EM7180 ROM Version: 0x");
-    Serial.print(readSENtralRom1(), HEX);
-    Serial.println(readSENtralRom2(), HEX);
+    Serial.print(usfsReadRom1(), HEX);
+    Serial.println(usfsReadRom2(), HEX);
     Serial.println("Should be: 0xE609");
     Serial.print("EM7180 RAM Version: 0x");
-    Serial.print(readSENtralRam1());
-    Serial.println(readSENtralRam2());
+    Serial.print(usfsReadRam1());
+    Serial.println(usfsReadRam2());
     Serial.print("EM7180 ProductID: 0x");
-    Serial.print(readSENtralPid(), HEX);
+    Serial.print(usfsReadPid(), HEX);
     Serial.println(" Should be: 0x80");
     Serial.print("EM7180 RevisionID: 0x");
-    Serial.print(readSENtralRid(), HEX);
+    Serial.print(usfsReadRid(), HEX);
     Serial.println(" Should be: 0x02");
 
     delay(1000); // give some time to read the screen
@@ -160,11 +160,11 @@ void setup()
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
     //Disable stillness mode
-    EM7180_set_integer_param (0x49, 0x00);
+    usfsSetIntegerParam (0x49, 0x00);
 
     //Write desired sensor full scale ranges to the EM7180
-    EM7180_set_mag_acc_FS (0x3E8, 0x08); // 1000 uT, 8 g
-    EM7180_set_gyro_FS (0x7D0); // 2000 dps
+    usfsSetMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
+    usfsSetGyroFs (0x7D0); // 2000 dps
 
     // Read sensor new FS values from parameter space
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); 
@@ -301,7 +301,7 @@ void loop()
 
         int16_t accelCount[3] = {};
 
-        readSENtralAccelData(accelCount);
+        usfsReadAccelerometer(accelCount);
 
         // Now we'll calculate the accleration value into actual g's
         ax = (float)accelCount[0]*0.000488;  // get actual g value
@@ -313,7 +313,7 @@ void loop()
 
         int16_t gyroCount[3] = {};
 
-        readSENtralGyroData(gyroCount);
+        usfsReadGyrometer(gyroCount);
 
         // Now we'll calculate the gyro value into actual dps's
         gx = (float)gyroCount[0]*0.153;  // get actual dps value
@@ -325,7 +325,7 @@ void loop()
 
         int16_t magCount[3] = {};
 
-        readSENtralMagData(magCount);
+        usfsReadMagnetometer(magCount);
 
         // Now we'll calculate the mag value into actual G's
         mx = (float)magCount[0]*0.305176;  // get actual G value
@@ -334,17 +334,17 @@ void loop()
     }
 
     if (eventStatus & 0x04) { // new quaternion data available
-        readSENtralQuatData(Quat); 
+        usfsReadQuaternion(Quat); 
     }
 
     // get MS5637 pressure
     if (eventStatus & 0x40) { // new baro data available
         //   Serial.println("new Baro data!");
-        rawPressure = readSENtralBaroData();
+        rawPressure = usfsReadBarometer();
         pressure = (float)rawPressure*0.01f + 1013.25f; // pressure in mBar
 
         // get MS5637 temperature
-        rawTemperature = readSENtralTempData();  
+        rawTemperature = usfsReadTemperature();  
         temperature = (float) rawTemperature*0.01;  // temperature in degrees C
     }
 

@@ -253,35 +253,35 @@ enum Mmode {
     MMODE_100HZ = 6
 };
 
-void EM7180_set_gyro_FS (uint16_t gyro_fs);
+void usfsSetGyroFs (uint16_t gyro_fs);
 
-void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs);
+void usfsSetMagAccFs (uint16_t mag_fs, uint16_t acc_fs);
 
-void EM7180_set_integer_param (uint8_t param, uint32_t param_val);
+void usfsSetIntegerParam (uint8_t param, uint32_t param_val);
 
-void readSENtralQuatData(float * destination);
+void usfsReadQuaternion(float * destination);
 
-void readSENtralAccelData(int16_t * destination);
+void usfsReadAccelerometer(int16_t * destination);
 
-void readSENtralGyroData(int16_t * destination);
+void usfsReadGyrometer(int16_t * destination);
 
-void readSENtralMagData(int16_t * destination);
+void usfsReadMagnetometer(int16_t * destination);
 
-int16_t readSENtralBaroData();
+int16_t usfsReadBarometer();
 
-int16_t readSENtralTempData();
+int16_t usfsReadTemperature();
 
-uint8_t readSENtralRom1(void);
+uint8_t usfsReadRom1(void);
 
-uint8_t readSENtralRom2(void);
+uint8_t usfsReadRom2(void);
 
-uint8_t readSENtralRam1(void);
+uint8_t usfsReadRam1(void);
 
-uint8_t readSENtralRam2(void);
+uint8_t usfsReadRam2(void);
 
-uint8_t readSENtralPid(void);
+uint8_t usfsReadPid(void);
 
-uint8_t readSENtralRid(void);
+uint8_t usfsReadRid(void);
 
 bool hasBarometer(void);
 
