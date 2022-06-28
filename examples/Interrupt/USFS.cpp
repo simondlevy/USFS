@@ -258,13 +258,6 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
     Wire.transfer(address, &subAddress, 1, dest, count); 
 }
 
-USFS::USFS(uint8_t intPin, bool passThru)
-{
-    pinMode(intPin, INPUT);
-    _intPin = intPin;
-    _passThru = passThru;   
-}
-
 uint8_t USFS::checkEM7180Errors(){
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_ErrorRegister); // check error register
     return c;

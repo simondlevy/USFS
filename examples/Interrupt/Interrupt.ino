@@ -17,7 +17,7 @@ static const uint16_t AccFS  = 0x0008;
 static const uint16_t GyroFS = 0x07D0;
 static const uint16_t MagFS  = 0x03E8;
 
-static USFS usfs(INTERRUPT_PIN, false);
+static USFS usfs;
 
 static volatile bool _gotNewData;
 
@@ -43,6 +43,7 @@ void setup()
     usfs.loadfwfromEEPROM(); 
     usfs.initEM7180(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
 
+    pinMode(INTERRUPT_PIN, INPUT);
     attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
 
     usfs.checkEM7180Status();

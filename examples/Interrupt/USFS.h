@@ -7,8 +7,6 @@ class USFS
 {
     public: 
 
-        USFS(uint8_t intPin, bool passThru);
-
         uint8_t checkEM7180Errors();
 
         uint8_t checkEM7180Status();
@@ -38,6 +36,7 @@ class USFS
     private:
 
         bool _passThru;
+        uint8_t _intPin;
         float _aRes;
         float _gRes;
         float _mRes;
@@ -75,7 +74,6 @@ class USFS
         unsigned char MS5637checkCRC(uint16_t * n_prom);
         void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
         void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
-        uint8_t _intPin;
         int16_t readTempData();
 
 };
