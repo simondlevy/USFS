@@ -30,7 +30,7 @@ uint8_t usfsCheckErrors();
 
 uint8_t usfsCheckStatus();
 
-void  usfsGetChipId();
+void  usfsReportChipId();
 
 void usfsBegin(
         uint8_t accBW,

@@ -62,7 +62,7 @@ void setup()
     Wire.setClock(400000); 
     delay(1000);
 
-    usfsGetChipId();        
+    usfsReportChipId();        
     usfsLoadFirmware(); 
     usfsBegin(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
 

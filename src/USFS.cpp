@@ -5,21 +5,21 @@
 
    Adapted from
 
-     https://github.com/kriswiner/USFS_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
+https://github.com/kriswiner/USFS_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
 
-   This file is part of USFS.
+This file is part of USFS.
 
-   USFS is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+USFS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-   USFS is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   You should have received a copy of the GNU General Public License
-   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
+USFS is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -368,19 +368,28 @@ uint8_t usfsCheckStatus(){
 }
 
 
-void usfsGetChipId()
+void usfsReportChipId()
 {
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
     uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
-    Serial.print("EM7180 ROM Version: 0x"); Serial.print(ROM1, HEX); Serial.println(ROM2, HEX); Serial.println("Should be: 0xE609");
+    Serial.print("EM7180 ROM Version: 0x");
+    Serial.print(ROM1, HEX);
+    Serial.println(ROM2, HEX);
+    Serial.println("Should be: 0xE609");
     uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
     uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
-    Serial.print("EM7180 RAM Version: 0x"); Serial.print(RAM1); Serial.println(RAM2);
+    Serial.print("EM7180 RAM Version: 0x");
+    Serial.print(RAM1);
+    Serial.println(RAM2);
     uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
-    Serial.print("EM7180 ProductID: 0x"); Serial.print(PID, HEX); Serial.println(" Should be: 0x80");
+    Serial.print("EM7180 ProductID: 0x");
+    Serial.print(PID, HEX);
+    Serial.println(" Should be: 0x80");
     uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
-    Serial.print("EM7180 RevisionID: 0x"); Serial.print(RID, HEX); Serial.println(" Should be: 0x02");
+    Serial.print("EM7180 RevisionID: 0x");
+    Serial.print(RID, HEX);
+    Serial.println(" Should be: 0x02");
 }
 
 
@@ -431,8 +440,12 @@ void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, u
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
     EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
-    Serial.print("Magnetometer Default Full Scale Range: +/-"); Serial.print(EM7180_mag_fs); Serial.println("uT");
-    Serial.print("Accelerometer Default Full Scale Range: +/-"); Serial.print(EM7180_acc_fs); Serial.println("g");
+    Serial.print("Magnetometer Default Full Scale Range: +/-");
+    Serial.print(EM7180_mag_fs);
+    Serial.println("uT");
+    Serial.print("Accelerometer Default Full Scale Range: +/-");
+    Serial.print(EM7180_acc_fs);
+    Serial.println("g");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
     param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
@@ -443,7 +456,9 @@ void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, u
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
     EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope Default Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
+    Serial.print("Gyroscope Default Full Scale Range: +/-");
+    Serial.print(EM7180_gyro_fs);
+    Serial.println("dps");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
@@ -467,8 +482,12 @@ void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, u
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
     EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
-    Serial.print("Magnetometer New Full Scale Range: +/-"); Serial.print(EM7180_mag_fs); Serial.println("uT");
-    Serial.print("Accelerometer New Full Scale Range: +/-"); Serial.print(EM7180_acc_fs); Serial.println("g");
+    Serial.print("Magnetometer New Full Scale Range: +/-");
+    Serial.print(EM7180_mag_fs);
+    Serial.println("uT");
+    Serial.print("Accelerometer New Full Scale Range: +/-");
+    Serial.print(EM7180_acc_fs);
+    Serial.println("g");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
     param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
@@ -479,7 +498,9 @@ void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, u
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
     EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope New Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
+    Serial.print("Gyroscope New Full Scale Range: +/-");
+    Serial.print(EM7180_gyro_fs);
+    Serial.println("dps");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
@@ -508,7 +529,8 @@ void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, u
 
     // Check sensor status
     uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
-    Serial.print(" EM7180 sensor status = "); Serial.println(sensorStatus);
+    Serial.print(" EM7180 sensor status = ");
+    Serial.println(sensorStatus);
     if(sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
     if(sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
     if(sensorStatus & 0x04) Serial.print("Gyro not acknowledging!");
@@ -516,10 +538,18 @@ void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, u
     if(sensorStatus & 0x20) Serial.print("Accelerometer ID not recognized!");
     if(sensorStatus & 0x40) Serial.print("Gyro ID not recognized!");
 
-    Serial.print("Actual MagRate = "); Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate)); Serial.println(" Hz"); 
-    Serial.print("Actual AccelRate = "); Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualAccelRate)); Serial.println(" Hz"); 
-    Serial.print("Actual GyroRate = "); Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualGyroRate)); Serial.println(" Hz"); 
-    Serial.print("Actual BaroRate = "); Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualBaroRate)); Serial.println(" Hz"); 
+    Serial.print("Actual MagRate = ");
+    Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate));
+    Serial.println(" Hz"); 
+    Serial.print("Actual AccelRate = ");
+    Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualAccelRate));
+    Serial.println(" Hz"); 
+    Serial.print("Actual GyroRate = ");
+    Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualGyroRate));
+    Serial.println(" Hz"); 
+    Serial.print("Actual BaroRate = ");
+    Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualBaroRate));
+    Serial.println(" Hz"); 
 }
 
 
