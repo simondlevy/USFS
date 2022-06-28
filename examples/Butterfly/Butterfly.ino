@@ -2,7 +2,8 @@
 
 #include <RTC.h>
 
-#define myLed 13
+static const uint8_t LED_PIN       = 13;
+static const uint8_t INTERRUPT_PIN = 31;
 
 static const char  *build_date = __DATE__;   // 11 characters MMM DD YYYY
 static const char  *build_time = __TIME__;   // 8 characters HH:MM:SS
@@ -20,8 +21,6 @@ static float deltat;
 static float lin_Ax, lin_Ay, lin_Az;             // Hardware linear acceleration (acceleration with gravity component subtracted)
 static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // hardware quaternion data register
-
-
 static float ax, ay, az;
 
 // RTC set time using STM32L4 natve RTC class
@@ -40,7 +39,6 @@ static uint8_t Seconds, Minutes, Hours, Day, Month, Year;
 static bool alarmFlag = false; // for RTC alarm interrupt
 
 
-static const uint8_t USFS_intPin = 31;
 static bool newEM7180Data = false;
 static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
 static int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
@@ -54,7 +52,7 @@ static uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt =
 
 static uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
 
-static USFS USFS(USFS_intPin, false);
+static USFS USFS(INTERRUPT_PIN, false);
 
 static void EM7180intHandler()
 {
@@ -144,8 +142,8 @@ void setup()
     delay(4000);
 
     // Configure led
-    pinMode(myLed, OUTPUT);
-    digitalWrite(myLed, HIGH); // start with led off
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, HIGH); // start with led off
 
     Wire.begin(TWI_PINS_20_21); // set master mode 
     Wire.setClock(400000); // I2C frequency at 400 kHz  
@@ -165,7 +163,7 @@ void setup()
 
     RTC.attachInterrupt(alarmMatch); // interrupt every time the alarm sounds
 
-    attachInterrupt(USFS_intPin, EM7180intHandler, RISING);  // define interrupt for INT pin output of EM7180
+    attachInterrupt(INTERRUPT_PIN, EM7180intHandler, RISING);  // define interrupt for INT pin output of EM7180
 
     USFS.checkEM7180Status();
 }
@@ -345,7 +343,7 @@ void loop() {
 
     } // end of RTC alarm handling
 
-    digitalWrite(myLed, LOW); delay(10); digitalWrite(myLed, HIGH);  // flash led for 10 milliseconds
+    digitalWrite(LED_PIN, LOW); delay(10); digitalWrite(LED_PIN, HIGH);  // flash led for 10 milliseconds
     STM32.sleep();
 
 }  //end of loop
