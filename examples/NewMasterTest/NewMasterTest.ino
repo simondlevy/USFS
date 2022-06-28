@@ -104,8 +104,9 @@ void setup()
         delay(500);  
     }
 
-    if (!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))
+    if (usfsEepromUploadSuccessful()) {
         Serial.println("EEPROM upload successful!");
+    }
 
     delay(1000); // give some time to read the screen
 

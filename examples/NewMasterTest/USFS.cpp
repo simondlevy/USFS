@@ -264,3 +264,8 @@ void usfsReset(void)
 {
     writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
 }
+
+bool usfsEepromUploadSuccessful(void)
+{
+    return (bool)(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04));
+}
