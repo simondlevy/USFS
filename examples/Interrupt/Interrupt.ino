@@ -46,6 +46,14 @@ void setup()
     attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
 
     usfs.checkEM7180Status();
+
+    Serial.println("Enter '1' to proceed...");
+    while (true) {
+        if (Serial.read() == '1') {
+            break;
+        }
+        delay(10);
+    }
 }
 
 /* End of setup */
@@ -65,9 +73,7 @@ void loop() {
 
         _interruptCount++;
 
-
         uint8_t eventStatus = usfs.checkEM7180Status(); 
-
 
         if (eventStatus & 0x02) { 
 
@@ -92,7 +98,6 @@ void loop() {
 
             usfs.readSENtralAccelData(accelCount);
 
-
             ax = (float)accelCount[0] * 0.000488f; 
             ay = (float)accelCount[1] * 0.000488f;
             az = (float)accelCount[2] * 0.000488f;
@@ -103,7 +108,6 @@ void loop() {
             int16_t gyroCount[3] = {};  
 
             usfs.readSENtralGyroData(gyroCount);
-
 
             gx = (float)gyroCount[0] * 0.153f; 
             gy = (float)gyroCount[1] * 0.153f;
