@@ -71,11 +71,13 @@ void setup()
         Serial.println("EM7180 in initialized state!");
     if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)
         Serial.println("No EEPROM detected!");
-    int count = 0;
-    while(!status) {
+
+    for (uint8_t count=0; !status && count < 10; ++count) {
+
         writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
         delay(500);  
         count++;  
+
         status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
         if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)
             Serial.println("EEPROM detected on the sensor bus!");
@@ -113,9 +115,10 @@ void setup()
 
     // Configure operating mode
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
-    // Enable interrupt to host upon certain events
-    // choose host interrupts when any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
-    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02), or the SENtral needs to be reset(0x01)
+    // Enable interrupt to host upon certain events choose host interrupts when
+    // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
+    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
+    // or the SENtral needs to be reset(0x01)
     writeByte(EM7180_ADDRESS, EM7180_EnableEvents, 0x07);
     // Enable EM7180 run mode
     writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // set SENtral in normal run mode
@@ -247,9 +250,6 @@ void setup()
     Serial.println(" Hz"); 
     Serial.print("Actual BaroRate = ");
     Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualBaroRate));
-    Serial.println(" Hz"); 
-    //  Serial.print("Actual TempRate = ");
-    Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualTempRate));
     Serial.println(" Hz"); 
 
     delay(1000); // give some time to read the screen
