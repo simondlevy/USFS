@@ -5,20 +5,9 @@
 static const uint8_t LED_PIN       = 18; 
 static const uint8_t INTERRUPT_PIN = 12; 
 
-static float Yaw, Pitch, Roll;
-static float a31, a32, a33;            
-static float A12, A22, A31, A32, A33;            
-static float lin_Ax, lin_Ay, lin_Az;             
-static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
-static float ax, ay, az;
-
-static int16_t accelCount[3];  
-static int16_t gyroCount[3];   
-static int16_t magCount[3];    
 static int16_t rawPressure, rawTemperature;            
 static float   Temperature, Pressure, Altitude; 
 static float Ax, Ay, Az, Gx, Gy, Gz, Mx, My, Mz; 
-
 
 static uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt = 0x14, gyroRt = 0x14, baroRt = 0x32;
 
@@ -61,7 +50,9 @@ void loop() {
 
     static uint32_t _interruptCount;
 
-    
+    static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
+    static float ax, ay, az;
+
     if (_gotNewData == true) { 
 
         _gotNewData = false;  
@@ -86,13 +77,12 @@ void loop() {
                 if (errorStatus == 0x30) Serial.print("Math error!");
                 if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
             }
-
-            
-
         }
-
         
         if (eventStatus & 0x10) { 
+
+            int16_t accelCount[3] = {};  
+
             USFS.readSENtralAccelData(accelCount);
 
             
@@ -102,6 +92,9 @@ void loop() {
         }
 
         if (eventStatus & 0x20) { 
+
+            int16_t gyroCount[3] = {};  
+
             USFS.readSENtralGyroData(gyroCount);
 
             
@@ -111,6 +104,9 @@ void loop() {
         }
 
         if (eventStatus & 0x08) { 
+
+            int16_t magCount[3] = {};  
+
             USFS.readSENtralMagData(magCount);
 
             
@@ -138,6 +134,8 @@ void loop() {
 
     uint32_t msec = millis();
 
+    static float yaw, pitch, roll;
+
     if (msec-_msec > 500) { 
 
         Serial.print("Interrupts: ");
@@ -162,29 +160,26 @@ void loop() {
         Serial.print(" Qz = "); Serial.println(Q[3]);
 
         
-        A12 =   2.0f * (Q[1] * Q[2] + Q[0] * Q[3]);
-        A22 =   Q[0] * Q[0] + Q[1] * Q[1] - Q[2] * Q[2] - Q[3] * Q[3];
-        A31 =   2.0f * (Q[0] * Q[1] + Q[2] * Q[3]);
-        A32 =   2.0f * (Q[1] * Q[3] - Q[0] * Q[2]);
-        A33 =   Q[0] * Q[0] - Q[1] * Q[1] - Q[2] * Q[2] + Q[3] * Q[3];
-        Pitch = -asinf(A32);
-        Roll  = atan2f(A31, A33);
-        Yaw   = atan2f(A12, A22);
-        Pitch *= 180.0f / M_PI;
-        Yaw   *= 180.0f / M_PI;
-        Yaw   += 13.8f; 
-        if (Yaw < 0) Yaw   += 360.0f ; 
-        Roll  *= 180.0f / M_PI;
-        lin_Ax = ax + a31;
-        lin_Ay = ay + a32;
-        lin_Az = az - a33;
+        float A12 =   2.0f * (Q[1] * Q[2] + Q[0] * Q[3]);
+        float A22 =   Q[0] * Q[0] + Q[1] * Q[1] - Q[2] * Q[2] - Q[3] * Q[3];
+        float A31 =   2.0f * (Q[0] * Q[1] + Q[2] * Q[3]);
+        float A32 =   2.0f * (Q[1] * Q[3] - Q[0] * Q[2]);
+        float A33 =   Q[0] * Q[0] - Q[1] * Q[1] - Q[2] * Q[2] + Q[3] * Q[3];
+        pitch = -asinf(A32);
+        roll  = atan2f(A31, A33);
+        yaw   = atan2f(A12, A22);
+        pitch *= 180.0f / M_PI;
+        yaw   *= 180.0f / M_PI;
+        yaw   += 13.8f; 
+        if (yaw < 0) yaw   += 360.0f ; 
+        roll  *= 180.0f / M_PI;
 
-        Serial.print("Hardware Yaw, pitch, Roll: ");
-        Serial.print(Yaw, 2);
+        Serial.print("Hardware yaw, pitch, roll: ");
+        Serial.print(yaw, 2);
         Serial.print(", ");
-        Serial.print(Pitch, 2);
+        Serial.print(pitch, 2);
         Serial.print(", ");
-        Serial.println(Roll, 2);
+        Serial.println(roll, 2);
 
         Serial.print("Hardware Grav_x, Grav_y, Grav_z: ");
         Serial.print(-A31 * 1000, 2);
@@ -193,11 +188,11 @@ void loop() {
         Serial.print(", ");
         Serial.print(A33 * 1000, 2);  Serial.println(" mg");
         Serial.print("Hardware Lin_ax, Lin_ay, Lin_az: ");
-        Serial.print(lin_Ax * 1000, 2);
+        Serial.print(ax * 1000, 2);
         Serial.print(", ");
-        Serial.print(lin_Ay * 1000, 2);
+        Serial.print(ay * 1000, 2);
         Serial.print(", ");
-        Serial.print(lin_Az * 1000, 2);  Serial.println(" mg");
+        Serial.print(az * 1000, 2);  Serial.println(" mg");
 
         Serial.println("MS5637:");
         Serial.print("Altimeter temperature = ");
