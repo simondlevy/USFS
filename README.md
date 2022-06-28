@@ -1,15 +1,12 @@
 <a href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/"><img src="sentral2.png" width=700></a>
 
-This repository contains Arduino, Python (MicroPython, WiringPi), and Linux i2cdev
+This repository contains Arduino and Python (MicroPython, WiringPi)
 libraries and examples for working with the incredible 
 EM7180 Ultimate Sensor Fusion Solution boards 
 (both the [MPU9250 version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-mpu9250/)
 and the
 [LSM6DSM + LIS2MD version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-lsm6dsm--lis2md/))
 from Pesky Products. 
-
-To use this library with C++ you will also need my cross-platform support 
-[library](https://github.com/simondlevy/CrossPlatformDataBus).
 
 The library has been tested on the following hardware:
 
@@ -23,14 +20,10 @@ The library has been tested on the following hardware:
 
 * PYBV1.0 : thanks to [JonHylands](https://github.com/jonhylands) for the MicroPython support
 
-The library provides two classes for working with the EM7180 SENtral sensor hub on this board:
+The Arduino library provides a simple API for for working with the EM7180 SENtral sensor hub.
 
-* A <b>USFS</b> class providing a convenient API for the full functionality of the EM7180 unit
-
-* A <b>USFS_Master</b> class that runs the EM7180 in master mode, for simple access to the sensor-fusion features
-
-The <b>examples</b> directory contains sketches showing how to use these two classes. As usual, just clone the repo
-into your Arduino libraries folder to get started. The class library and
+The <b>examples</b> directory contains a simple sketch showing how to use this API. As usual, just clone the repo
+into your Arduino libraries folder to get started. The API and
 examples were adapted from Kris Winer's [repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).
 I strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for
 a comprehensive overview of the EM7180 and other sensor-fusion solutions, and for instructions on how to 
