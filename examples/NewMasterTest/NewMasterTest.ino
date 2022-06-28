@@ -13,8 +13,6 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
-static float pitch, yaw, roll, Yaw, Pitch, Roll;
-static float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
 static uint32_t lastUpdate = 0; // used to calculate integration interval
 static uint32_t Now = 0;                         // used to calculate integration interval
 static uint8_t param[4];                         // used for param transfer
@@ -396,8 +394,10 @@ void loop()
     static float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
     static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
     static int16_t rawPressure, rawTemperature;    
-    static float   temperature, pressure, altitude; 
+    static float  temperature, pressure, altitude; 
     static uint32_t count, sumCount;  // used to control  output rate
+    static float pitch, yaw, roll, Yaw, Pitch, Roll;
+    static float sum;          // integration interval for both filter schemes
 
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
@@ -476,7 +476,7 @@ void loop()
 
     // keep track of rates
     Now = micros();
-    deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
+    float deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
     lastUpdate = Now;
 
     sum += deltat; // sum for averaging filter update rate
