@@ -175,7 +175,13 @@ void setup()
     static const uint8_t BARO_RATE         = 50; // 200
     static const bool    VERBOSE           = true;
 
-    usfsBegin(QUAT_RATE_DIVISOR, MAG_RATE, ACCEL_RATE, GYRO_RATE, BARO_RATE, VERBOSE);
+    usfsBegin(
+            QUAT_RATE_DIVISOR,
+            MAG_RATE,
+            ACCEL_RATE,
+            GYRO_RATE,
+            BARO_RATE, VERBOSE,
+            INTERRUPT_RESET | INTERRUPT_ERROR | INTERRUPT_QUAT);
 
     delay(1000); // give some time to read the screen
 

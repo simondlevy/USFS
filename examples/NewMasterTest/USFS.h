@@ -1,29 +1,37 @@
 #pragma once
 
-enum Ascale {
+enum {
     AFS_2G = 0,
     AFS_4G,
     AFS_8G,
     AFS_16G
 };
 
-enum Gscale {
+enum {
     GFS_250DPS = 0,
     GFS_500DPS,
     GFS_1000DPS,
     GFS_2000DPS
 };
 
-enum Mscale {
+enum {
     MFS_14BITS = 0, // 0.6 mG per LSB
     MFS_16BITS      // 0.15 mG per LSB
 };
 
-enum Mmode {
+enum {
     MMODE_8HZ = 2,
     MMODE_100HZ = 6
 };
 
+enum {
+    INTERRUPT_RESET = 0x01,
+    INTERRUPT_ERROR = 0x02,
+    INTERRUPT_QUAT  = 0x04,
+    INTERRUPT_MAG   = 0x08,
+    INTERRUPT_ACCEL = 0x10,
+    INTERRUPT_GYRO  = 0x20
+};
 
 void usfsSetGyroFs (uint16_t gyro_fs);
 
@@ -87,6 +95,7 @@ void usfsBegin(
         uint8_t accelRate,
         uint8_t gyroRate,
         uint8_t baroRate,
+        uint8_t interruptMode=INTERRUPT_GYRO,
         bool verbose=false);
 
 uint8_t usfsGetEventStatus(void);
