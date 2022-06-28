@@ -1,20 +1,20 @@
+#include <math.h>
+
 #include "USFS.h"
 
 static const uint8_t LED_PIN       = 18; 
 static const uint8_t INTERRUPT_PIN = 12; 
 
+static float GyroMeasError = M_PI * (40.0f / 180.0f);   
+static float GyroMeasDrift = M_PI * (0.0f  / 180.0f);   
 
-static float pi = 3.141592653589793238462643383279502884f;
-static float GyroMeasError = pi * (40.0f / 180.0f);   
-static float GyroMeasDrift = pi * (0.0f  / 180.0f);   
 static float beta = sqrtf(3.0f / 4.0f) * GyroMeasError;   
 static float zeta = sqrtf(3.0f / 4.0f) * GyroMeasDrift;   
+
 static float Yaw, Pitch, Roll;
 static float a31, a32, a33;            
 static float A12, A22, A31, A32, A33;            
-static float deltat;
 static float lin_Ax, lin_Ay, lin_Az;             
-static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
 static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
 static float ax, ay, az;
 
@@ -68,7 +68,9 @@ void loop() {
 
     
     if (newEM7180Data == true) { 
+
         newEM7180Data = false;  
+
         _interruptCount++;
 
         
@@ -173,11 +175,11 @@ void loop() {
         Pitch = -asinf(A32);
         Roll  = atan2f(A31, A33);
         Yaw   = atan2f(A12, A22);
-        Pitch *= 180.0f / pi;
-        Yaw   *= 180.0f / pi;
+        Pitch *= 180.0f / M_PI;
+        Yaw   *= 180.0f / M_PI;
         Yaw   += 13.8f; 
         if (Yaw < 0) Yaw   += 360.0f ; 
-        Roll  *= 180.0f / pi;
+        Roll  *= 180.0f / M_PI;
         lin_Ax = ax + a31;
         lin_Ay = ay + a32;
         lin_Az = az - a33;
