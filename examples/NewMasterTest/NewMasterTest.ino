@@ -13,6 +13,24 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
+static uint8_t checkStatus(void)
+{
+    byte status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
+
+    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)
+        Serial.println("EEPROM detected on the sensor bus!");
+    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)
+        Serial.println("EEPROM uploaded config file!");
+    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)
+        Serial.println("EEPROM CRC incorrect!");
+    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)
+        Serial.println("EM7180 in initialized state!");
+    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)
+        Serial.println("No EEPROM detected!");
+
+    return status;
+}
+
 void setup()
 {
     Wire.begin();
@@ -60,36 +78,14 @@ void setup()
     delay(1000); // give some time to read the screen
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    byte status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)
-        Serial.println("EEPROM detected on the sensor bus!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)
-        Serial.println("EEPROM uploaded config file!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)
-        Serial.println("EEPROM CRC incorrect!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)
-        Serial.println("EM7180 in initialized state!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)
-        Serial.println("No EEPROM detected!");
+    uint8_t status = checkStatus();
 
+    // Make several attempts to reset and check status
     for (uint8_t count=0; !status && count < 10; ++count) {
 
         writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
         delay(500);  
-        count++;  
-
-        status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)
-            Serial.println("EEPROM detected on the sensor bus!");
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)
-            Serial.println("EEPROM uploaded config file!");
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)
-            Serial.println("EEPROM CRC incorrect!");
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)
-            Serial.println("EM7180 in initialized state!");
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)
-            Serial.println("No EEPROM detected!");
-        if (count > 10) break;
+        status = checkStatus();
     }
 
     if (!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))
