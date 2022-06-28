@@ -13,7 +13,6 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
-static uint32_t count = 0, sumCount = 0;  // used to control  output rate
 static float pitch, yaw, roll, Yaw, Pitch, Roll;
 static float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
 static uint32_t lastUpdate = 0; // used to calculate integration interval
@@ -398,6 +397,7 @@ void loop()
     static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
     static int16_t rawPressure, rawTemperature;    
     static float   temperature, pressure, altitude; 
+    static uint32_t count, sumCount;  // used to control  output rate
 
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
