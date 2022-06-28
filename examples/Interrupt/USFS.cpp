@@ -340,12 +340,12 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs) {
 
 // ============================================================================
 
-uint8_t checkEM7180Errors(){
+uint8_t usfsCheckErrors(){
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_ErrorRegister); // check error register
     return c;
 }
 
-uint8_t checkEM7180Status(){
+uint8_t usfsCheckStatus(){
     // Check event status register, way to check data ready by polling rather than interrupt
     uint8_t c = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register and interrupt
     return c;
@@ -368,7 +368,7 @@ void getChipID()
 }
 
 
-void initEM7180(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, uint16_t magFS, uint8_t QRtDiv, uint8_t magRt, uint8_t accRt, uint8_t gyroRt, uint8_t baroRt)
+void usfsBegin(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, uint16_t magFS, uint8_t QRtDiv, uint8_t magRt, uint8_t accRt, uint8_t gyroRt, uint8_t baroRt)
 {
     uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
     uint8_t param[4];      
@@ -507,7 +507,7 @@ void initEM7180(uint8_t accBW, uint8_t gyroBW, uint16_t accFS, uint16_t gyroFS, 
 }
 
 
-void loadfwfromEEPROM()
+void usfsLoadFirmware()
 {
     // Check which sensors can be detected by the EM7180
     uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
@@ -544,7 +544,7 @@ void loadfwfromEEPROM()
     if(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))  Serial.println("EEPROM upload successful!");
 }
 
-void readSENtralAccelData(int16_t * destination)
+void usfsReadAccelerometer(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z accel register data stored here
     readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       // Read the six raw data registers into data array
@@ -553,14 +553,14 @@ void readSENtralAccelData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-int16_t readSENtralBaroData()
+int16_t usfsReadBarometer()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   // Turn the MSB and LSB into a signed 16-bit value
 }
 
-void readSENtralGyroData(int16_t * destination)
+void usfsReadGyrometer(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -569,7 +569,7 @@ void readSENtralGyroData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralMagData(int16_t * destination)
+void usfsreadMagnetometer(int16_t * destination)
 {
     uint8_t rawData[6];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
@@ -578,7 +578,7 @@ void readSENtralMagData(int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
-void readSENtralQuatData(float * destination)
+void usfsReadQuaternion(float * destination)
 {
     uint8_t rawData[16];  // x/y/z quaternion register data stored here
     readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]); // Read the sixteen raw data registers into data array
@@ -589,7 +589,7 @@ void readSENtralQuatData(float * destination)
 
 }
 
-int16_t readSENtralTempData()
+int16_t usfsReadTemperature()
 {
     uint8_t rawData[2];  // x/y/z gyro register data stored here
     readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array

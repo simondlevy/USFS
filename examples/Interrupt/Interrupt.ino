@@ -40,13 +40,13 @@ void setup()
     delay(1000);
 
     getChipID();        
-    loadfwfromEEPROM(); 
-    initEM7180(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
+    usfsLoadFirmware(); 
+    usfsBegin(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
 
     pinMode(INTERRUPT_PIN, INPUT);
     attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
 
-    checkEM7180Status();
+    usfsCheckStatus();
 
     Serial.println("Enter '1' to proceed...");
     while (true) {
@@ -74,11 +74,11 @@ void loop() {
 
         _interruptCount++;
 
-        uint8_t eventStatus = checkEM7180Status(); 
+        uint8_t eventStatus = usfsCheckStatus(); 
 
         if (eventStatus & 0x02) { 
 
-            uint8_t errorStatus = checkEM7180Errors();
+            uint8_t errorStatus = usfsCheckErrors();
             if (errorStatus != 0x00) { 
                 Serial.print(" EM7180 sensor status = ");
                 Serial.println(errorStatus);
@@ -97,7 +97,7 @@ void loop() {
 
             int16_t accelCount[3] = {};  
 
-            readSENtralAccelData(accelCount);
+            usfsReadAccelerometer(accelCount);
 
             ax = (float)accelCount[0] * 0.000488f; 
             ay = (float)accelCount[1] * 0.000488f;
@@ -108,7 +108,7 @@ void loop() {
 
             int16_t gyroCount[3] = {};  
 
-            readSENtralGyroData(gyroCount);
+            usfsReadGyrometer(gyroCount);
 
             gx = (float)gyroCount[0] * 0.153f; 
             gy = (float)gyroCount[1] * 0.153f;
@@ -119,7 +119,7 @@ void loop() {
 
             int16_t magCount[3] = {};  
 
-            readSENtralMagData(magCount);
+            usfsreadMagnetometer(magCount);
 
             mx = (float)magCount[0] * 0.305176f; 
             my = (float)magCount[1] * 0.305176f;
@@ -127,16 +127,16 @@ void loop() {
         }
 
         if (eventStatus & 0x04) { 
-            readSENtralQuatData(q);
+            usfsReadQuaternion(q);
         }
 
 
         if (eventStatus & 0x40) { 
 
-            rawPressure = readSENtralBaroData();
+            rawPressure = usfsReadBarometer();
             Pressure = (float)rawPressure * 0.01f + 1013.25f; 
 
-            rawTemperature = readSENtralTempData();
+            rawTemperature = usfsReadTemperature();
             Temperature = (float) rawTemperature * 0.01f; 
         }
     } 

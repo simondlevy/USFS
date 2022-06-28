@@ -2,13 +2,14 @@
 
 #include <stdint.h>
 
-uint8_t checkEM7180Errors();
+uint8_t usfsCheckErrors();
 
-uint8_t checkEM7180Status();
+uint8_t usfsCheckStatus();
 
 void  getChipID();
 
-void initEM7180(uint8_t accBW,
+void usfsBegin(
+        uint8_t accBW,
         uint8_t gyroBW,
         uint16_t accFS,
         uint16_t gyroFS,
@@ -19,11 +20,11 @@ void initEM7180(uint8_t accBW,
         uint8_t gyroRt,
         uint8_t baroRt);
 
-void loadfwfromEEPROM();
+void usfsLoadFirmware();
 
-void    readSENtralAccelData(int16_t * destination);
-int16_t readSENtralBaroData();
-void    readSENtralGyroData(int16_t * destination);
-void    readSENtralMagData(int16_t * destination);
-void    readSENtralQuatData(float * destination);
-int16_t readSENtralTempData();
+void    usfsReadAccelerometer(int16_t * destination);
+int16_t usfsReadBarometer();
+void    usfsReadGyrometer(int16_t * destination);
+void    usfsreadMagnetometer(int16_t * destination);
+void    usfsReadQuaternion(float * destination);
+int16_t usfsReadTemperature();
