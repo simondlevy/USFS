@@ -295,8 +295,6 @@ bool usfsHasSecondCustomSensor(void);
 
 bool usfsHasThirdCustomSensor(void);
 
-uint8_t readByte(uint8_t address, uint8_t subAddress);
-
 bool usfsEepromDetected(void);
 
 bool usfsEepromUploaded(void);

@@ -11,7 +11,7 @@ static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
     Wire.endTransmission();           
 }
 
-/*static*/ uint8_t readByte(uint8_t address, uint8_t subAddress)
+static uint8_t readByte(uint8_t address, uint8_t subAddress)
 {
     uint8_t data; 
     Wire.beginTransmission(address);         
