@@ -262,9 +262,6 @@ class USFS
 {
   public: 
   USFS(uint8_t intPin, bool passThru);
-  float getAres(uint8_t Ascale);
-  float getGres(uint8_t Gscale);
-  float getMres(uint8_t Mscale);
   float uint32_reg_to_float (uint8_t *buf);
   float int32_reg_to_float (uint8_t *buf);
   void float_to_bytes (float param_val, uint8_t *buf);
@@ -284,7 +281,6 @@ class USFS
   void initAK8963(uint8_t Mscale, uint8_t Mmode, float * destination);
   void initMPU9250(uint8_t Ascale, uint8_t Gscale);
   void accelgyrocalMPU9250(float * dest1, float * dest2);
-  void magcalMPU9250(float * dest1, float * dest2);
   void MPU9250SelfTest(float * destination);
   int16_t readSENtralBaroData();
   int16_t readSENtralTempData();
@@ -295,7 +291,6 @@ class USFS
   void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest);
   void MS5637Reset();
   void MS5637PromRead(uint16_t * destination);
-  uint32_t MS5637Read(uint8_t CMD, uint8_t OSR);
   unsigned char MS5637checkCRC(uint16_t * n_prom);
   void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
   void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);

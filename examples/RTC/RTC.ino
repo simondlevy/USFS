@@ -2,8 +2,8 @@
 
 #include <RTC.h>
 
-static const uint8_t LED_PIN       = 13;
-static const uint8_t INTERRUPT_PIN = 31;
+static const uint8_t LED_PIN       = 18; //13;
+static const uint8_t INTERRUPT_PIN = 12; //31;
 
 static const char  *build_date = __DATE__;   // 11 characters MMM DD YYYY
 static const char  *build_time = __TIME__;   // 8 characters HH:MM:SS
