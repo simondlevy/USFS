@@ -13,8 +13,6 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
-static uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
-
 static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
     Wire.beginTransmission(address);  // Initialize the Tx buffer
@@ -280,8 +278,8 @@ void setup()
     param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
-    EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
-    EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+    uint16_t EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
+    uint16_t EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
     Serial.print("Magnetometer Default Full Scale Range: +/-"); Serial.print(EM7180_mag_fs); Serial.println("uT");
     Serial.print("Accelerometer Default Full Scale Range: +/-"); Serial.print(EM7180_acc_fs); Serial.println("g");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
@@ -293,7 +291,7 @@ void setup()
     param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
     param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
-    EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+    uint16_t EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
     Serial.print("Gyroscope Default Full Scale Range: +/-"); Serial.print(EM7180_gyro_fs); Serial.println("dps");
     writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
