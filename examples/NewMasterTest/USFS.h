@@ -312,3 +312,5 @@ bool usfsEepromNotDetected(void);
 void usfsReset(void);
 
 bool usfsEepromUploadSuccessful(void);
+
+void usfsUseHostMode(void);

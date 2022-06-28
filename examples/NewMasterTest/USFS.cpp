@@ -269,3 +269,18 @@ bool usfsEepromUploadSuccessful(void)
 {
     return (bool)(!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04));
 }
+
+void usfsUseHostMode(void)
+{
+    // Set SENtral in initialized state to configure registers
+    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
+
+    // Make sure pass through mode is off
+    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x00); 
+
+    // Force initialize
+    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); 
+
+    // Set SENtral in initialized state to configure registers
+    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
+}

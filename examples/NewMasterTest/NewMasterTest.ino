@@ -112,14 +112,12 @@ void setup()
 
     // Set up the SENtral as sensor bus in normal operating mode
     // Enter EM7180 initialized state
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); // set SENtral in initialized state to configure registers
-    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x00); // make sure pass through mode is off
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // Force initialize
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); // set SENtral in initialized state to configure registers
+    usfsUseHostMode();
 
-    //Setup LPF bandwidth (BEFORE setting ODR's)
+    // Set up LPF bandwidth (BEFORE setting ODR's)
     writeByte(EM7180_ADDRESS, EM7180_ACC_LPF_BW, 0x03); // 41Hz
     writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, 0x03); // 41Hz
+
     // Set accel/gyro/mage desired ODR rates
     writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, 0x02); // 100 Hz
     writeByte(EM7180_ADDRESS, EM7180_MagRate, 0x64); // 100 Hz
