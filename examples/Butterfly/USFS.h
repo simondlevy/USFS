@@ -1,5 +1,4 @@
-#ifndef USFS_h
-#define USFSh_h
+#pragma once
 
 #include "Arduino.h"
 #include "Wire.h"   
@@ -324,5 +323,3 @@ class USFS
   float _Kp;
   float _Ki;
 };
-
-#endif

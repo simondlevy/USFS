@@ -1,143 +1,215 @@
-#include "LSM6DSM.h"
-#include "LIS2MDL.h"
-#include "LPS22HB.h"
+//#include "LSM6DSM.h"
+//#include "LIS2MDL.h"
+//#include "LPS22HB.h"
 #include "USFS.h"
 
 #include <RTC.h>
 
 #define myLed 13
 
-const char        *build_date = __DATE__;   // 11 characters MMM DD YYYY
-const char        *build_time = __TIME__;   // 8 characters HH:MM:SS
+static const char  *build_date = __DATE__;   // 11 characters MMM DD YYYY
+static const char  *build_time = __TIME__;   // 8 characters HH:MM:SS
 
 // global constants for 9 DoF fusion and AHRS (Attitude and Heading Reference System)
-float pi = 3.141592653589793238462643383279502884f;
-float GyroMeasError = pi * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
-float GyroMeasDrift = pi * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
-float beta = sqrtf(3.0f / 4.0f) * GyroMeasError;   // compute beta
-float zeta = sqrtf(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
-uint32_t delt_t = 0;                      // used to control display output rate
-uint32_t sumCount = 0;                    // used to control display output rate
-float pitch, yaw, roll, Yaw, Pitch, Roll;
-float a12, a22, a31, a32, a33;            // rotation matrix coefficients for Euler angles and gravity components
-float A12, A22, A31, A32, A33;            // rotation matrix coefficients for Hardware Euler angles and gravity components
-float deltat = 0.0f, sum = 0.0f;          // integration interval for both filter schemes
-uint32_t lastUpdate = 0, firstUpdate = 0; // used to calculate integration interval
-uint32_t Now = 0;                         // used to calculate integration interval
-float lin_ax, lin_ay, lin_az;             // linear acceleration (acceleration with gravity component subtracted)
-float lin_Ax, lin_Ay, lin_Az;             // Hardware linear acceleration (acceleration with gravity component subtracted)
-float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
-float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // hardware quaternion data register
-float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
-
+static float pi = 3.141592653589793238462643383279502884f;
+static float GyroMeasError = pi * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
+static float GyroMeasDrift = pi * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
+static float beta = sqrtf(3.0f / 4.0f) * GyroMeasError;   // compute beta
+static float zeta = sqrtf(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
+static uint32_t delt_t;                      // used to control display output rate
+static float pitch, yaw, roll, Yaw, Pitch, Roll;
+static float a12, a22, a31, a32, a33;            // rotation matrix coefficients for Euler angles and gravity components
+static float A12, A22, A31, A32, A33;            // rotation matrix coefficients for Hardware Euler angles and gravity components
+static float deltat;
+static float lin_Ax, lin_Ay, lin_Az;             // Hardware linear acceleration (acceleration with gravity component subtracted)
+static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
+static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // hardware quaternion data register
 
 //LSM6DSM definitions
-#define LSM6DSM_intPin1 10  // interrupt1 pin definitions, significant motion
-#define LSM6DSM_intPin2 9   // interrupt2 pin definitions, data ready
+//static const uint8_t LSM6DSM_intPin1 = 10;
+//static const uint8_t LSM6DSM_intPin2 = 9;
 
-/* Specify sensor parameters (sample rate is twice the bandwidth)
- * choices are:
- AFS_2G, AFS_4G, AFS_8G, AFS_16G  
- GFS_245DPS, GFS_500DPS, GFS_1000DPS, GFS_2000DPS 
- AODR_12_5Hz, AODR_26Hz, AODR_52Hz, AODR_104Hz, AODR_208Hz, AODR_416Hz, AODR_833Hz, AODR_1660Hz, AODR_3330Hz, AODR_6660Hz
- GODR_12_5Hz, GODR_26Hz, GODR_52Hz, GODR_104Hz, GODR_208Hz, GODR_416Hz, GODR_833Hz, GODR_1660Hz, GODR_3330Hz, GODR_6660Hz
- */ 
-uint8_t Ascale = AFS_2G, Gscale = GFS_245DPS, AODR = AODR_208Hz, GODR = GODR_416Hz;
+//static const uint8_t Ascale = AFS_2G, Gscale = GFS_245DPS, AODR = AODR_208Hz, GODR = GODR_416Hz;
 
-float aRes, gRes;              // scale resolutions per LSB for the accel and gyro sensor2
-float accelBias[3] = {-0.00499, 0.01540, 0.02902}, gyroBias[3] = {-0.50, 0.14, 0.28}; // offset biases for the accel and gyro
-int16_t LSM6DSMData[7];        // Stores the 16-bit signed sensor output
-float   Gtemperature;           // Stores the real internal gyro temperature in degrees Celsius
-float ax, ay, az, gx, gy, gz;  // variables to hold latest accel/gyro data values 
+static float aRes, gRes;              // scale resolutions per LSB for the accel and gyro sensor2
+static float accelBias[3] = {-0.00499, 0.01540, 0.02902}, gyroBias[3] = {-0.50, 0.14, 0.28}; // offset biases for the accel and gyro
+//int16_t LSM6DSMData[7];        // Stores the 16-bit signed sensor output
+static float   Gtemperature;           // Stores the real internal gyro temperature in degrees Celsius
+static float ax, ay, az, gx, gy, gz;  // variables to hold latest accel/gyro data values 
 
-bool newLSM6DSMData = false;
-bool newLSM6DSMTap  = false;
+//static bool newLSM6DSMData = false;
+//static bool newLSM6DSMTap  = false;
 
-LSM6DSM LSM6DSM(LSM6DSM_intPin1, LSM6DSM_intPin2); // instantiate LSM6DSM class
+//static LSM6DSM LSM6DSM(LSM6DSM_intPin1, LSM6DSM_intPin2); // instantiate LSM6DSM class
 
 
 //LIS2MDL definitions
-#define LIS2MDL_intPin  8 // interrupt for magnetometer data ready
+//#define LIS2MDL_intPin  8 // interrupt for magnetometer data ready
 
 /* Specify sensor parameters (sample rate is twice the bandwidth)
  * choices are: MODR_10Hz, MOIDR_20Hz, MODR_50 Hz and MODR_100Hz
  */ 
-uint8_t MODR = MODR_100Hz;
+//static uint8_t MODR = MODR_100Hz;
 
-float mRes = 0.0015f;            // mag sensitivity
-float magBias[3] = {0,0,0}, magScale[3]  = {0,0,0}; // Bias corrections for magnetometer
-int16_t LIS2MDLData[4];          // Stores the 16-bit signed sensor output
-float Mtemperature;              // Stores the real internal chip temperature in degrees Celsius
-float mx, my, mz;                // variables to hold latest mag data values 
-uint8_t LIS2MDLstatus;
+static float mRes = 0.0015f;            // mag sensitivity
+static float magBias[3] = {0,0,0}, magScale[3]  = {0,0,0}; // Bias corrections for magnetometer
+static int16_t LIS2MDLData[4];          // Stores the 16-bit signed sensor output
+static float Mtemperature;              // Stores the real internal chip temperature in degrees Celsius
+static float mx, my, mz;                // variables to hold latest mag data values 
+//static uint8_t LIS2MDLstatus;
 
-bool newLIS2MDLData = false;
+//static bool newLIS2MDLData = false;
 
-LIS2MDL LIS2MDL(LIS2MDL_intPin); // instantiate LIS2MDL class
+//static LIS2MDL LIS2MDL(LIS2MDL_intPin); // instantiate LIS2MDL class
 
 
 // LPS22H definitions
-uint8_t LPS22H_intPin = 5;
+//static uint8_t LPS22H_intPin = 5;
 
 /* Specify sensor parameters (sample rate is twice the bandwidth) 
    Choices are P_1Hz, P_10Hz P_25 Hz, P_50Hz, and P_75Hz
  */
-uint8_t PODR = P_25Hz;     // set pressure amd temperature output data rate
-uint8_t LPS22Hstatus;
-float temperature, pressure, altitude;
+//static const uint8_t PODR = P_25Hz;     // set pressure amd temperature output data rate
+//static uint8_t LPS22Hstatus;
+//static float temperature, pressure, altitude;
 
-bool newLPS22HData = false;
+//static bool newLPS22HData = false;
 
-LPS22H LPS22H(LPS22H_intPin);
+//static LPS22H LPS22H(LPS22H_intPin);
 
 
 // RTC set time using STM32L4 natve RTC class
 /* Change these values to set the current initial time */
-uint8_t seconds = 0;
-uint8_t minutes = 33;
-uint8_t hours = 12;
+static uint8_t seconds = 0;
+static uint8_t minutes = 33;
+static uint8_t hours = 12;
 
 /* Change these values to set the current initial date */
-uint8_t day = 2;
-uint8_t month = 12;
-uint8_t year = 17;
+static uint8_t day = 2;
+static uint8_t month = 12;
+static uint8_t year = 17;
 
-uint8_t Seconds, Minutes, Hours, Day, Month, Year;
+static uint8_t Seconds, Minutes, Hours, Day, Month, Year;
 
-bool alarmFlag = false; // for RTC alarm interrupt
-
-
-const uint8_t USFS_intPin = 31;
-bool newEM7180Data = false;
-int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
-int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
-int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
-float   Temperature, Pressure, Altitude; //  temperature in degrees Celsius, pressure in mbar
-float Ax, Ay, Az, Gx, Gy, Gz, Mx, My, Mz; // variables to hold latest sensor data values
+static bool alarmFlag = false; // for RTC alarm interrupt
 
 
+static const uint8_t USFS_intPin = 31;
+static bool newEM7180Data = false;
+static int16_t accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
+static int16_t gyroCount[3];   // Stores the 16-bit signed gyro sensor output
+static int16_t magCount[3];    // Stores the 16-bit signed magnetometer sensor output
+static int16_t tempCount, rawPressure, rawTemperature;            // temperature raw count output
+static float   Temperature, Pressure, Altitude; //  temperature in degrees Celsius, pressure in mbar
+static float Ax, Ay, Az, Gx, Gy, Gz, Mx, My, Mz; // variables to hold latest sensor data values
 
-/* Choose EM7180, MPU9250 and MS5637 sample rates and bandwidths
-   Choices are:
-   accBW, gyroBW 0x00 = 250 Hz, 0x01 = 184 Hz, 0x02 = 92 Hz, 0x03 = 41 Hz, 0x04 = 20 Hz, 0x05 = 10 Hz, 0x06 = 5 Hz, 0x07 = no filter (3600 Hz)
-   QRtDiv 0x00, 0x01, 0x02, etc quat rate = gyroRt/(1 + QRtDiv)
-   magRt 8 Hz = 0x08 or 100 Hz 0x64
-   accRt, gyroRt 1000, 500, 250, 200, 125, 100, 50 Hz enter by choosing desired rate
-   and dividing by 10, so 200 Hz would be 200/10 = 20 = 0x14
-   sample rate of barometer is baroRt/2 so for 25 Hz enter 50 = 0x32
- */
-uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt = 0x14, gyroRt = 0x14, baroRt = 0x32;
+
+static uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt = 0x14, gyroRt = 0x14, baroRt = 0x32;
+
+static uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
+
+static USFS USFS(USFS_intPin, false);
+
 /*
-   Choose MPU9250 sensor full ranges
-   Choices are 2, 4, 8, 16 g for accFS, 250, 500, 1000, and 2000 dps for gyro FS and 1000 uT for magFS expressed as HEX values
- */
-uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
+static void myinthandler1()
+{
+    newLSM6DSMData = true;
+}
 
-USFS USFS(USFS_intPin, false);
+static void myinthandler2()
+{
+    newLIS2MDLData = true;
+}
 
+static void myinthandler3()
+{
+    newLPS22HData = true;
+}
+*/
 
-void setup() {
+static void EM7180intHandler()
+{
+    newEM7180Data = true;
+}
+
+static void alarmMatch()
+{
+    alarmFlag = true;
+}
+
+static void SetDefaultRTC()  // Sets the RTC to the FW build date-time...
+{
+    char Build_mo[3];
+
+    // Convert month string to integer
+
+    Build_mo[0] = build_date[0];
+    Build_mo[1] = build_date[1];
+    Build_mo[2] = build_date[2];
+
+    String build_mo = Build_mo;
+
+    if(build_mo == "Jan")
+    {
+        month = 1;
+    } else if(build_mo == "Feb")
+    {
+        month = 2;
+    } else if(build_mo == "Mar")
+    {
+        month = 3;
+    } else if(build_mo == "Apr")
+    {
+        month = 4;
+    } else if(build_mo == "May")
+    {
+        month = 5;
+    } else if(build_mo == "Jun")
+    {
+        month = 6;
+    } else if(build_mo == "Jul")
+    {
+        month = 7;
+    } else if(build_mo == "Aug")
+    {
+        month = 8;
+    } else if(build_mo == "Sep")
+    {
+        month = 9;
+    } else if(build_mo == "Oct")
+    {
+        month = 10;
+    } else if(build_mo == "Nov")
+    {
+        month = 11;
+    } else if(build_mo == "Dec")
+    {
+        month = 12;
+    } else
+    {
+        month = 1;     // Default to January if something goes wrong...
+    }
+
+    // Convert ASCII strings to integers
+    day     = (build_date[4] - 48)*10 + build_date[5] - 48;  // ASCII "0" = 48
+    year    = (build_date[9] - 48)*10 + build_date[10] - 48;
+    hours   = (build_time[0] - 48)*10 + build_time[1] - 48;
+    minutes = (build_time[3] - 48)*10 + build_time[4] - 48;
+    seconds = (build_time[6] - 48)*10 + build_time[7] - 48;
+
+    // Set the date/time
+
+    RTC.setDay(day);
+    RTC.setMonth(month);
+    RTC.setYear(year);
+    RTC.setHours(hours);
+    RTC.setMinutes(minutes);
+    RTC.setSeconds(seconds);
+}
+
+void setup()
+{
+
     // put your setup code here, to run once:
     Serial.begin(115200);
     delay(4000);
@@ -150,7 +222,7 @@ void setup() {
     Wire.setClock(400000); // I2C frequency at 400 kHz  
     delay(1000);
 
-    LSM6DSM.I2Cscan(); // which I2C device are on the bus?
+    //LSM6DSM.I2Cscan(); // which I2C device are on the bus?
 
     // Initialize the USFS
     USFS.getChipID();        // check ROM/RAM version of EM7180
@@ -176,6 +248,7 @@ void loop() {
 
     static uint32_t _interruptCount;
 
+    /*
     // If intPin goes high, either all data registers have new data
     if(newLIS2MDLData == true) {   // On interrupt, read data
         newLIS2MDLData = false;     // reset newData flag
@@ -194,7 +267,7 @@ void loop() {
             my *= magScale[1];
             mz *= magScale[2];  
         }
-    }
+    }*/
 
     /*EM7180*/
     // If intpin goes high, all data registers have new data
@@ -371,100 +444,3 @@ void loop() {
 
 }  //end of loop
 
-/*  End of main loop */
-
-
-void myinthandler1()
-{
-    newLSM6DSMData = true;
-}
-
-void myinthandler2()
-{
-    newLIS2MDLData = true;
-}
-
-void myinthandler3()
-{
-    newLPS22HData = true;
-}
-
-void EM7180intHandler()
-{
-    newEM7180Data = true;
-}
-
-void alarmMatch()
-{
-    alarmFlag = true;
-}
-
-void SetDefaultRTC()  // Sets the RTC to the FW build date-time...
-{
-    char Build_mo[3];
-
-    // Convert month string to integer
-
-    Build_mo[0] = build_date[0];
-    Build_mo[1] = build_date[1];
-    Build_mo[2] = build_date[2];
-
-    String build_mo = Build_mo;
-
-    if(build_mo == "Jan")
-    {
-        month = 1;
-    } else if(build_mo == "Feb")
-    {
-        month = 2;
-    } else if(build_mo == "Mar")
-    {
-        month = 3;
-    } else if(build_mo == "Apr")
-    {
-        month = 4;
-    } else if(build_mo == "May")
-    {
-        month = 5;
-    } else if(build_mo == "Jun")
-    {
-        month = 6;
-    } else if(build_mo == "Jul")
-    {
-        month = 7;
-    } else if(build_mo == "Aug")
-    {
-        month = 8;
-    } else if(build_mo == "Sep")
-    {
-        month = 9;
-    } else if(build_mo == "Oct")
-    {
-        month = 10;
-    } else if(build_mo == "Nov")
-    {
-        month = 11;
-    } else if(build_mo == "Dec")
-    {
-        month = 12;
-    } else
-    {
-        month = 1;     // Default to January if something goes wrong...
-    }
-
-    // Convert ASCII strings to integers
-    day     = (build_date[4] - 48)*10 + build_date[5] - 48;  // ASCII "0" = 48
-    year    = (build_date[9] - 48)*10 + build_date[10] - 48;
-    hours   = (build_time[0] - 48)*10 + build_time[1] - 48;
-    minutes = (build_time[3] - 48)*10 + build_time[4] - 48;
-    seconds = (build_time[6] - 48)*10 + build_time[7] - 48;
-
-    // Set the date/time
-
-    RTC.setDay(day);
-    RTC.setMonth(month);
-    RTC.setYear(year);
-    RTC.setHours(hours);
-    RTC.setMinutes(minutes);
-    RTC.setSeconds(seconds);
-}
