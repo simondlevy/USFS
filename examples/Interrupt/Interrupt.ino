@@ -5,12 +5,6 @@
 static const uint8_t LED_PIN       = 18; 
 static const uint8_t INTERRUPT_PIN = 12; 
 
-static float GyroMeasError = M_PI * (40.0f / 180.0f);   
-static float GyroMeasDrift = M_PI * (0.0f  / 180.0f);   
-
-static float beta = sqrtf(3.0f / 4.0f) * GyroMeasError;   
-static float zeta = sqrtf(3.0f / 4.0f) * GyroMeasDrift;   
-
 static float Yaw, Pitch, Roll;
 static float a31, a32, a33;            
 static float A12, A22, A31, A32, A33;            
@@ -18,7 +12,6 @@ static float lin_Ax, lin_Ay, lin_Az;
 static float Q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
 static float ax, ay, az;
 
-static bool newEM7180Data = false;
 static int16_t accelCount[3];  
 static int16_t gyroCount[3];   
 static int16_t magCount[3];    
@@ -33,9 +26,11 @@ static uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
 
 static USFS USFS(INTERRUPT_PIN, false);
 
-static void EM7180intHandler()
+static volatile bool _gotNewData;
+
+static void interruptHandler()
 {
-    newEM7180Data = true;
+    _gotNewData = true;
 }
 
 void setup()
@@ -55,7 +50,7 @@ void setup()
     USFS.loadfwfromEEPROM(); 
     USFS.initEM7180(accBW, gyroBW, accFS, gyroFS, magFS, QRtDiv, magRt, accRt, gyroRt, baroRt); 
 
-    attachInterrupt(INTERRUPT_PIN, EM7180intHandler, RISING);  
+    attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
 
     USFS.checkEM7180Status();
 }
@@ -67,9 +62,9 @@ void loop() {
     static uint32_t _interruptCount;
 
     
-    if (newEM7180Data == true) { 
+    if (_gotNewData == true) { 
 
-        newEM7180Data = false;  
+        _gotNewData = false;  
 
         _interruptCount++;
 
