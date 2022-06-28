@@ -295,8 +295,6 @@ bool usfsHasSecondCustomSensor(void);
 
 bool usfsHasThirdCustomSensor(void);
 
-void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
-
 uint8_t readByte(uint8_t address, uint8_t subAddress);
 
 bool usfsEepromDetected(void);
@@ -320,3 +318,9 @@ void usfsBegin(
         uint8_t gyroRate,
         uint8_t baroRate,
         bool verbose=false);
+
+uint8_t usfsGetEventStatus(void);
+
+bool usfsEventStatusIsError(uint8_t eventStatus);
+
+void usfsReportEventError();

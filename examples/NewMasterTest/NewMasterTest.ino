@@ -190,27 +190,14 @@ void loop()
     static uint32_t lastUpdate; // used to calculate integration interval
 
     // Check event status register, way to chech data ready by polling rather than interrupt
-    uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); 
+    uint8_t eventStatus = usfsGetEventStatus();
 
     // Check for errors
-    if (eventStatus & 0x02) { // error detected, what is it?
+    if (usfsEventStatusIsError(eventStatus)) {
 
-        uint8_t errorStatus = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
-        if (!errorStatus) {
-            Serial.print(" EM7180 sensor status = ");
-            Serial.println(errorStatus);
-            if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
-            if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
-            if (errorStatus == 0x14) Serial.print("Gyro failure!");
-            if (errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
-            if (errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
-            if (errorStatus == 0x24) Serial.print("Gyro initialization failure!");
-            if (errorStatus == 0x30) Serial.print("Math error!");
-            if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
-        }
+        usfsReportEventError();
 
-        // Handle errors ToDo
-
+        // XXX should handle error
     }
 
     // if no errors, see if new data is ready

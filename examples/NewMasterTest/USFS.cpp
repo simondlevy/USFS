@@ -3,7 +3,7 @@
 
 #include "USFS.h"
 
-/*static*/ void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
+static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
     Wire.beginTransmission(address);  
     Wire.write(subAddress);           
@@ -51,7 +51,12 @@ static float uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
+static bool hasFeature(uint8_t mask)
+{
+    return (bool)readByte(EM7180_ADDRESS, EM7180_FeatureFlags) & mask;
+}
 
+// ----------------------------------------------------------------------------
 
 void usfsSetGyroFs (uint16_t gyro_fs) {
     uint8_t bytes[4], STAT;
@@ -194,11 +199,6 @@ uint8_t usfsReadPid(void)
 uint8_t usfsReadRid(void)
 {
     return readByte(EM7180_ADDRESS, EM7180_RevisionID);
-}
-
-static bool hasFeature(uint8_t mask)
-{
-    return (bool)readByte(EM7180_ADDRESS, EM7180_FeatureFlags) & mask;
 }
 
 bool usfsHasBarometer(void)
@@ -420,26 +420,26 @@ void usfsBegin(
     uint8_t algoStatus = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
 
     if (verbose) {
-        if (runStatus & 0x01) Serial.println(" EM7180 run status = normal mode");
-        if (algoStatus & 0x01) Serial.println(" EM7180 standby status");
-        if (algoStatus & 0x02) Serial.println(" EM7180 algorithm slow");
-        if (algoStatus & 0x04) Serial.println(" EM7180 in stillness mode");
-        if (algoStatus & 0x08) Serial.println(" EM7180 mag calibration completed");
-        if (algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
-        if (algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
+        if (runStatus & 0x01) Serial.println("EM7180 run status = normal mode");
+        if (algoStatus & 0x01) Serial.println("EM7180 standby status");
+        if (algoStatus & 0x02) Serial.println("EM7180 algorithm slow");
+        if (algoStatus & 0x04) Serial.println("EM7180 in stillness mode");
+        if (algoStatus & 0x08) Serial.println("EM7180 mag calibration completed");
+        if (algoStatus & 0x10) Serial.println("EM7180 magnetic anomaly detected");
+        if (algoStatus & 0x20) Serial.println("EM7180 unreliable sensor data");
     }
 
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus);
     uint8_t passthruStatus = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
 
     if (verbose) {
-        if (passthruStatus & 0x01) Serial.print(" EM7180 in passthru mode!");
-        if (eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
-        if (eventStatus & 0x02) Serial.println(" EM7180 Error");
-        if (eventStatus & 0x04) Serial.println(" EM7180 new quaternion result");
-        if (eventStatus & 0x08) Serial.println(" EM7180 new mag result");
-        if (eventStatus & 0x10) Serial.println(" EM7180 new accel result");
-        if (eventStatus & 0x20) Serial.println(" EM7180 new gyro result"); 
+        if (passthruStatus & 0x01) Serial.print("EM7180 in passthru mode!");
+        if (eventStatus & 0x01) Serial.println("EM7180 CPU reset");
+        if (eventStatus & 0x02) Serial.println("EM7180 Error");
+        if (eventStatus & 0x04) Serial.println("EM7180 new quaternion result");
+        if (eventStatus & 0x08) Serial.println("EM7180 new mag result");
+        if (eventStatus & 0x10) Serial.println("EM7180 new accel result");
+        if (eventStatus & 0x20) Serial.println("EM7180 new gyro result"); 
     }
 
     delay(1000); // give some time to read the screen
@@ -448,7 +448,7 @@ void usfsBegin(
 
     // Check sensor status
     if (verbose) {
-        Serial.print(" EM7180 sensor status = ");
+        Serial.print("EM7180 sensor status = ");
         Serial.println(sensorStatus);
         if (sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
         if (sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
@@ -472,3 +472,33 @@ void usfsBegin(
     }
 
 } // usfsBegin()
+
+uint8_t usfsGetEventStatus(void)
+{
+    return readByte(EM7180_ADDRESS, EM7180_EventStatus); 
+}
+
+bool usfsEventStatusIsError(uint8_t eventStatus)
+{
+    return eventStatus & 0x02;
+}
+
+void usfsReportEventError()
+{
+    uint8_t errorStatus = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
+
+    if (errorStatus) {
+
+        Serial.print(" EM7180 sensor status = ");
+        Serial.println(errorStatus);
+
+        if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
+        if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
+        if (errorStatus == 0x14) Serial.print("Gyro failure!");
+        if (errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
+        if (errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
+        if (errorStatus == 0x24) Serial.print("Gyro initialization failure!");
+        if (errorStatus == 0x30) Serial.print("Math error!");
+        if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
+    }
+}
