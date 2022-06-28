@@ -32,6 +32,17 @@ static void reportEulerAngles(float q[4], const char * label)
     // http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     // which has additional links.
 
+    Serial.print(label);
+    Serial.println(" quaternions:"); 
+    Serial.print("qw = ");
+    Serial.print(q[0]);
+    Serial.print(" qx = ");
+    Serial.print(q[1]); 
+    Serial.print(" qy = ");
+    Serial.print(q[2]); 
+    Serial.print(" qz = ");
+    Serial.println(q[3]); 
+
     float yaw = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] *
             q[1] - q[2] * q[2] - q[3] * q[3]);   
 
@@ -180,9 +191,7 @@ void setup()
 
 void loop()
 {  
-    static float Quat[4] = {0, 0, 0, 0}; // quaternion data register
     static float ax, ay, az, gx, gy, gz, mx, my, mz; 
-    static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};   
     static int16_t rawPressure, rawTemperature;    
     static float  temperature, pressure, altitude; 
     static uint32_t count, sumCount;  // used to control  output rate
@@ -237,8 +246,10 @@ void loop()
         mz = (float)magCount[2]*0.305176;  
     }
 
+    static float hardwareQuat[4];
+
     if (usfsEventIsQuaternion(eventStatus)) { 
-        usfsReadQuaternion(Quat); 
+        usfsReadQuaternion(hardwareQuat); 
     }
 
     // get MS5637 pressure
@@ -274,9 +285,11 @@ void loop()
     // orientation choice can be modified to allow any convenient (non-NED)
     // orientation convention.  This is ok by aircraft orientation standards!
     // Pass gyro rate as rad/s
-    MadgwickQuaternionUpdate(deltat, -ay, -ax, az,
-            gy*PI/180.0f, gx*PI/180.0f, -gz*PI/180.0f,  mx,  my, mz, q);
 
+    static float softwareQuat[4] = {1.0f, 0.0f, 0.0f, 0.0f};   
+
+    MadgwickQuaternionUpdate(deltat, -ay, -ax, az,
+            gy*PI/180.0f, gx*PI/180.0f, -gz*PI/180.0f,  mx,  my, mz, softwareQuat);
 
     if (millis()-count > 500) { // update LCD once per half-second independent of read rate
 
@@ -302,28 +315,9 @@ void loop()
         Serial.print( (int)mz);
         Serial.println(" mG");
 
-        Serial.println("Software quaternions:"); 
-        Serial.print("qw = ");
-        Serial.print(q[0]);
-        Serial.print(" qx = ");
-        Serial.print(q[1]); 
-        Serial.print(" qy = ");
-        Serial.print(q[2]); 
-        Serial.print(" qz = ");
-        Serial.println(q[3]); 
-        Serial.println("Hardware quaternions:"); 
-        Serial.print("Qw = ");
-        Serial.print(Quat[0]);
-        Serial.print(" Qx = ");
-        Serial.print(Quat[1]); 
-        Serial.print(" Qy = ");
-        Serial.print(Quat[2]); 
-        Serial.print(" Qz = ");
-        Serial.println(Quat[3]); 
+        reportEulerAngles(softwareQuat, "Software");
 
-        reportEulerAngles(q, "Software");
-
-        reportEulerAngles(Quat, "Hardware");
+        reportEulerAngles(hardwareQuat, "Hardware");
 
         Serial.println("MS5637:");
         Serial.print("Altimeter temperature = "); 
