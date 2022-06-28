@@ -50,12 +50,8 @@ class USFS
         float _Kp;
         float _Ki;
 
-        float uint32_reg_to_float (uint8_t *buf);
         float int32_reg_to_float (uint8_t *buf);
         void float_to_bytes (float param_val, uint8_t *buf);
-        void EM7180_set_gyro_FS (uint16_t gyro_fs);
-        void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs);
-        void EM7180_set_integer_param (uint8_t param, uint32_t param_val);
         void EM7180_set_float_param (uint8_t param, float param_val);
         void readAccelData(int16_t * destination);
         void readGyroData(int16_t * destination);
