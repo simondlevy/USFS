@@ -322,3 +322,13 @@ uint8_t usfsGetEventStatus(void);
 bool usfsEventStatusIsError(uint8_t eventStatus);
 
 void usfsReportEventError();
+
+bool usfsEventIsAccelerometer(uint8_t eventStatus);
+
+bool usfsEventIsGyrometer(uint8_t eventStatus);
+
+bool usfsEventIsMagnetometer(uint8_t eventStatus);
+
+bool usfsEventIsQuaternion(uint8_t eventStatus);
+
+bool usfsEventIsBarometer(uint8_t eventStatus);

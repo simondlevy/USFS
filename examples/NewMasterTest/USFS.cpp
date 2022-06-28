@@ -502,3 +502,28 @@ void usfsReportEventError()
         if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
     }
 }
+
+bool usfsEventIsAccelerometer(uint8_t eventStatus)
+{
+    return (bool)(eventStatus & 0x10);
+}
+
+bool usfsEventIsGyrometer(uint8_t eventStatus)
+{
+    return (bool)(eventStatus & 0x20);
+}
+
+bool usfsEventIsMagnetometer(uint8_t eventStatus)
+{
+    return (bool)(eventStatus & 0x08);
+}
+
+bool usfsEventIsQuaternion(uint8_t eventStatus)
+{
+    return (bool)(eventStatus & 0x04);
+}
+
+bool usfsEventIsBarometer(uint8_t eventStatus)
+{
+    return (bool)(eventStatus & 0x40);
+}

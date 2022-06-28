@@ -201,7 +201,7 @@ void loop()
     }
 
     // if no errors, see if new data is ready
-    if (eventStatus & 0x10) { // new acceleration data available
+    if (usfsEventIsAccelerometer(eventStatus)) { 
 
         int16_t accelCount[3] = {};
 
@@ -213,7 +213,7 @@ void loop()
         az = (float)accelCount[2]*0.000488;  
     }
 
-    if (eventStatus & 0x20) { // new gyro data available
+    if (usfsEventIsGyrometer(eventStatus)) { 
 
         int16_t gyroCount[3] = {};
 
@@ -225,7 +225,7 @@ void loop()
         gz = (float)gyroCount[2]*0.153;  
     }
 
-    if (eventStatus & 0x08) { // new mag data available
+    if (usfsEventIsMagnetometer(eventStatus)) {
 
         int16_t magCount[3] = {};
 
@@ -237,13 +237,13 @@ void loop()
         mz = (float)magCount[2]*0.305176;  
     }
 
-    if (eventStatus & 0x04) { // new quaternion data available
+    if (usfsEventIsQuaternion(eventStatus)) { 
         usfsReadQuaternion(Quat); 
     }
 
     // get MS5637 pressure
-    if (eventStatus & 0x40) { // new baro data available
-        //   Serial.println("new Baro data!");
+    if (usfsEventIsBarometer(eventStatus)) {
+    
         rawPressure = usfsReadBarometer();
         pressure = (float)rawPressure*0.01f + 1013.25f; // pressure in mBar
 
