@@ -191,12 +191,6 @@ void setup()
 
 void loop()
 {  
-    static int16_t rawPressure, rawTemperature;    
-    static float  temperature, pressure; 
-    static uint32_t count, sumCount;  // used to control  output rate
-    static float sum;          // integration interval
-    static uint32_t lastUpdate; // used to calculate integration interval
-
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = usfsGetEventStatus();
 
@@ -256,6 +250,9 @@ void loop()
         usfsReadQuaternion(hardwareQuat); 
     }
 
+    static int16_t rawPressure, rawTemperature;    
+    static float  temperature, pressure; 
+
     if (usfsEventIsBarometer(eventStatus)) {
     
         rawPressure = usfsReadBarometer();
@@ -268,10 +265,14 @@ void loop()
 
     // keep track of rates
     uint32_t now = micros();
+    static uint32_t lastUpdate;
     float deltat = ((now - lastUpdate)/1000000.0f); 
     lastUpdate = now;
 
-    sum += deltat; // sum for averaging filter update rate
+    static float sum;
+    sum += deltat; 
+
+    static uint32_t sumCount;
     sumCount++;
 
     // Sensors x (y)-axis of the accelerometer/gyro is aligned with the y
@@ -293,6 +294,8 @@ void loop()
 
     MadgwickQuaternionUpdate(deltat, -ay, -ax, az,
             gy*PI/180.0f, gx*PI/180.0f, -gz*PI/180.0f,  mx,  my, mz, softwareQuat);
+
+    static uint32_t count;
 
     if (millis()-count > 500) { // update LCD once per half-second independent of read rate
 
