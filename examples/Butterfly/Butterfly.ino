@@ -2,10 +2,8 @@
 #include "LIS2MDL.h"
 #include "LPS22HB.h"
 #include "USFS.h"
-#include <RTC.h>
 
-bool SerialDebug = true;  // set to true to get Serial output for debugging
-bool passThru  = false;
+#include <RTC.h>
 
 #define myLed 13
 
@@ -136,8 +134,7 @@ uint8_t accBW = 0x03, gyroBW = 0x03, QRtDiv = 0x01, magRt = 0x64, accRt = 0x14, 
  */
 uint16_t accFS = 0x08, gyroFS = 0x7D0, magFS = 0x3E8;
 
-USFS USFS(USFS_intPin, passThru);
-
+USFS USFS(USFS_intPin, false);
 
 
 void setup() {
@@ -155,85 +152,10 @@ void setup() {
 
     LSM6DSM.I2Cscan(); // which I2C device are on the bus?
 
-    if(!passThru)
-    {
-        // Initialize the USFS
-        USFS.getChipID();        // check ROM/RAM version of EM7180
-        USFS.loadfwfromEEPROM(); // load EM7180 firmware from EEPROM
-        USFS.initEM7180(accBW, gyroBW, accFS, gyroFS, magFS, QRtDiv, magRt, accRt, gyroRt, baroRt); // set MPU and MS5637 sensor parameters
-    } // end of "if(!passThru)" handling
-
-    if(passThru)
-    {
-        // Read the LSM6DSM Chip ID register, this is a good test of communication
-        Serial.println("LSM6DSM accel/gyro...");
-        byte c = LSM6DSM.getChipID();  // Read CHIP_ID register for LSM6DSM
-        Serial.print("LSM6DSM "); Serial.print("I AM "); Serial.print(c, HEX); Serial.print(" I should be "); Serial.println(0x6A, HEX);
-        Serial.println(" ");
-        delay(1000); 
-
-        // Read the LIS2MDL Chip ID register, this is a good test of communication
-        Serial.println("LIS2MDL mag...");
-        byte d = LIS2MDL.getChipID();  // Read CHIP_ID register for LSM6DSM
-        Serial.print("LIS2MDL "); Serial.print("I AM "); Serial.print(d, HEX); Serial.print(" I should be "); Serial.println(0x40, HEX);
-        Serial.println(" ");
-        delay(1000); 
-
-        Serial.println("LPS22HB barometer...");
-        uint8_t e = LPS22H.getChipID();
-        Serial.print("LPS25H "); Serial.print("I AM "); Serial.print(e, HEX); Serial.print(" I should be "); Serial.println(0xB1, HEX);
-        delay(1000); 
-
-
-        if(c == 0x6A && d == 0x40 && e == 0xB1) // check if all I2C sensors have acknowledged
-        {
-            Serial.println("LSM6DSM and LIS2MDL and LPS22HB are online..."); Serial.println(" ");
-
-            digitalWrite(myLed, LOW);
-
-            LSM6DSM.reset();  // software reset LSM6DSM to default registers
-
-            // get sensor resolutions, only need to do this once
-            aRes = LSM6DSM.getAres(Ascale);
-            gRes = LSM6DSM.getGres(Gscale);
-
-            LSM6DSM.init(Ascale, Gscale, AODR, GODR);
-
-            LSM6DSM.selfTest();
-
-            LSM6DSM.offsetBias(gyroBias, accelBias);
-            Serial.println("accel biases (mg)"); Serial.println(1000.0f * accelBias[0]); Serial.println(1000.0f * accelBias[1]); Serial.println(1000.0f * accelBias[2]);
-            Serial.println("gyro biases (dps)"); Serial.println(gyroBias[0]); Serial.println(gyroBias[1]); Serial.println(gyroBias[2]);
-            delay(1000); 
-
-            LIS2MDL.reset(); // software reset LIS2MDL to default registers
-
-            mRes = 0.0015f;  // fixed sensitivity and full scale (+/- 49.152 Gauss); 
-
-            LIS2MDL.init(MODR);
-
-            LIS2MDL.selfTest();
-
-            LIS2MDL.offsetBias(magBias, magScale);
-            Serial.println("mag biases (mG)"); Serial.println(1000.0f * magBias[0]); Serial.println(1000.0f * magBias[1]); Serial.println(1000.0f * magBias[2]); 
-            Serial.println("mag scale (mG)"); Serial.println(magScale[0]); Serial.println(magScale[1]); Serial.println(magScale[2]); 
-            delay(2000); // add delay to see results before serial spew of data
-
-            LPS22H.Init(PODR);  // Initialize LPS22H altimeter
-            delay(1000);
-
-            digitalWrite(myLed, HIGH);
-
-        }
-        else 
-        {
-            if(c != 0x6A) Serial.println(" LSM6DSM not functioning!");
-            if(d != 0x40) Serial.println(" LIS2MDL not functioning!");    
-            if(e != 0xB1) Serial.println(" LPS22HB not functioning!");   
-
-            while(1){};
-        }
-    }  // end of "if(passThru)" handling
+    // Initialize the USFS
+    USFS.getChipID();        // check ROM/RAM version of EM7180
+    USFS.loadfwfromEEPROM(); // load EM7180 firmware from EEPROM
+    USFS.initEM7180(accBW, gyroBW, accFS, gyroFS, magFS, QRtDiv, magRt, accRt, gyroRt, baroRt); // set MPU and MS5637 sensor parameters
 
     // Set the time
     SetDefaultRTC();
@@ -243,22 +165,9 @@ void setup() {
 
     RTC.attachInterrupt(alarmMatch); // interrupt every time the alarm sounds
 
-    if(!passThru)
-    {
-        attachInterrupt(USFS_intPin, EM7180intHandler, RISING);  // define interrupt for INT pin output of EM7180
+    attachInterrupt(USFS_intPin, EM7180intHandler, RISING);  // define interrupt for INT pin output of EM7180
 
-        USFS.checkEM7180Status();
-    }
-
-    if(passThru)
-    {
-        attachInterrupt(LSM6DSM_intPin2, myinthandler1, RISING);  // define interrupt for intPin2 output of LSM6DSM
-        attachInterrupt(LIS2MDL_intPin , myinthandler2, RISING);  // define interrupt for intPin  output of LIS2MDL
-        attachInterrupt(LPS22H_intPin  , myinthandler3, RISING);  // define interrupt for intPin  output of LPS22HB
-
-        LIS2MDLstatus = LIS2MDL.status();  // read status register to clear interrupt before main loop
-    }
-
+    USFS.checkEM7180Status();
 }
 
 /* End of setup */
@@ -287,80 +196,77 @@ void loop() {
         }
     }
 
-    if(!passThru)
-    {
-        /*EM7180*/
-        // If intpin goes high, all data registers have new data
-        if (newEM7180Data == true) { // On interrupt, read data
-            newEM7180Data = false;  // reset newData flag
-            _interruptCount++;
+    /*EM7180*/
+    // If intpin goes high, all data registers have new data
+    if (newEM7180Data == true) { // On interrupt, read data
+        newEM7180Data = false;  // reset newData flag
+        _interruptCount++;
 
-            // Check event status register, way to chech data ready by polling rather than interrupt
-            uint8_t eventStatus = USFS.checkEM7180Status(); // reading clears the register
+        // Check event status register, way to chech data ready by polling rather than interrupt
+        uint8_t eventStatus = USFS.checkEM7180Status(); // reading clears the register
 
-            // Check for errors
-            if (eventStatus & 0x02) { // error detected, what is it?
+        // Check for errors
+        if (eventStatus & 0x02) { // error detected, what is it?
 
-                uint8_t errorStatus = USFS.checkEM7180Errors();
-                if (errorStatus != 0x00) { // is there an error?
-                    Serial.print(" EM7180 sensor status = "); Serial.println(errorStatus);
-                    if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
-                    if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
-                    if (errorStatus == 0x14) Serial.print("Gyro failure!");
-                    if (errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
-                    if (errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
-                    if (errorStatus == 0x24) Serial.print("Gyro initialization failure!");
-                    if (errorStatus == 0x30) Serial.print("Math error!");
-                    if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
-                }
-
-                // Handle errors ToDo
-
+            uint8_t errorStatus = USFS.checkEM7180Errors();
+            if (errorStatus != 0x00) { // is there an error?
+                Serial.print(" EM7180 sensor status = "); Serial.println(errorStatus);
+                if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
+                if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
+                if (errorStatus == 0x14) Serial.print("Gyro failure!");
+                if (errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
+                if (errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
+                if (errorStatus == 0x24) Serial.print("Gyro initialization failure!");
+                if (errorStatus == 0x30) Serial.print("Math error!");
+                if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
             }
 
-            // if no errors, see if new data is ready
-            if (eventStatus & 0x10) { // new acceleration data available
-                USFS.readSENtralAccelData(accelCount);
+            // Handle errors ToDo
 
-                // Now we'll calculate the accleration value into actual g's
-                Ax = (float)accelCount[0] * 0.000488f; // get actual g value
-                Ay = (float)accelCount[1] * 0.000488f;
-                Az = (float)accelCount[2] * 0.000488f;
-            }
+        }
 
-            if (eventStatus & 0x20) { // new gyro data available
-                USFS.readSENtralGyroData(gyroCount);
+        // if no errors, see if new data is ready
+        if (eventStatus & 0x10) { // new acceleration data available
+            USFS.readSENtralAccelData(accelCount);
 
-                // Now we'll calculate the gyro value into actual dps's
-                Gx = (float)gyroCount[0] * 0.153f; // get actual dps value
-                Gy = (float)gyroCount[1] * 0.153f;
-                Gz = (float)gyroCount[2] * 0.153f;
-            }
+            // Now we'll calculate the accleration value into actual g's
+            Ax = (float)accelCount[0] * 0.000488f; // get actual g value
+            Ay = (float)accelCount[1] * 0.000488f;
+            Az = (float)accelCount[2] * 0.000488f;
+        }
 
-            if (eventStatus & 0x08) { // new mag data available
-                USFS.readSENtralMagData(magCount);
+        if (eventStatus & 0x20) { // new gyro data available
+            USFS.readSENtralGyroData(gyroCount);
 
-                // Now we'll calculate the mag value into actual G's
-                Mx = (float)magCount[0] * 0.305176f; // get actual G value
-                My = (float)magCount[1] * 0.305176f;
-                Mz = (float)magCount[2] * 0.305176f;
-            }
+            // Now we'll calculate the gyro value into actual dps's
+            Gx = (float)gyroCount[0] * 0.153f; // get actual dps value
+            Gy = (float)gyroCount[1] * 0.153f;
+            Gz = (float)gyroCount[2] * 0.153f;
+        }
 
-            if (eventStatus & 0x04) { // new quaternion data available
-                USFS.readSENtralQuatData(Q);
-            }
+        if (eventStatus & 0x08) { // new mag data available
+            USFS.readSENtralMagData(magCount);
 
-            // get MS5637 pressure
-            if (eventStatus & 0x40) { // new baro data available
-                rawPressure = USFS.readSENtralBaroData();
-                Pressure = (float)rawPressure * 0.01f + 1013.25f; // pressure in mBar
+            // Now we'll calculate the mag value into actual G's
+            Mx = (float)magCount[0] * 0.305176f; // get actual G value
+            My = (float)magCount[1] * 0.305176f;
+            Mz = (float)magCount[2] * 0.305176f;
+        }
 
-                // get MS5637 temperature
-                rawTemperature = USFS.readSENtralTempData();
-                Temperature = (float) rawTemperature * 0.01f; // temperature in degrees C
-            }
-        } 
-    } // end of "if(!passThru)" handling
+        if (eventStatus & 0x04) { // new quaternion data available
+            USFS.readSENtralQuatData(Q);
+        }
+
+        // get MS5637 pressure
+        if (eventStatus & 0x40) { // new baro data available
+            rawPressure = USFS.readSENtralBaroData();
+            Pressure = (float)rawPressure * 0.01f + 1013.25f; // pressure in mBar
+
+            // get MS5637 temperature
+            rawTemperature = USFS.readSENtralTempData();
+            Temperature = (float) rawTemperature * 0.01f; // temperature in degrees C
+        }
+    } 
 
     // end sensor interrupt handling
 
@@ -369,203 +275,95 @@ void loop() {
         alarmFlag = false;
 
         // Read RTC
-        if(SerialDebug)
-        {
-            Serial.print("Interrupts: ");
-            Serial.println(_interruptCount);
-            Serial.println("RTC:");
-            Day = RTC.getDay();
-            Month = RTC.getMonth();
-            Year = RTC.getYear();
-            Seconds = RTC.getSeconds();
-            Minutes = RTC.getMinutes();
-            Hours   = RTC.getHours();     
-            if(Hours < 10) {Serial.print("0"); Serial.print(Hours);} else Serial.print(Hours);
-            Serial.print(":"); 
-            if(Minutes < 10) {Serial.print("0"); Serial.print(Minutes);} else Serial.print(Minutes); 
-            Serial.print(":"); 
-            if(Seconds < 10) {Serial.print("0"); Serial.println(Seconds);} else Serial.println(Seconds);  
+        Serial.print("Interrupts: ");
+        Serial.println(_interruptCount);
+        Serial.println("RTC:");
+        Day = RTC.getDay();
+        Month = RTC.getMonth();
+        Year = RTC.getYear();
+        Seconds = RTC.getSeconds();
+        Minutes = RTC.getMinutes();
+        Hours   = RTC.getHours();     
+        if(Hours < 10) {Serial.print("0"); Serial.print(Hours);} else Serial.print(Hours);
+        Serial.print(":"); 
+        if(Minutes < 10) {Serial.print("0"); Serial.print(Minutes);} else Serial.print(Minutes); 
+        Serial.print(":"); 
+        if(Seconds < 10) {Serial.print("0"); Serial.println(Seconds);} else Serial.println(Seconds);  
 
-            Serial.print(Month); Serial.print("/"); Serial.print(Day); Serial.print("/"); Serial.println(Year);
-            Serial.println(" ");
-        }
+        Serial.print(Month); Serial.print("/"); Serial.print(Day); Serial.print("/"); Serial.println(Year);
+        Serial.println(" ");
 
-        if(passThru)
-        {
-            if(SerialDebug) {
-                Serial.print("ax = "); Serial.print((int)1000*ax);  
-                Serial.print(" ay = "); Serial.print((int)1000*ay); 
-                Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
-                Serial.print("gx = "); Serial.print( gx, 2); 
-                Serial.print(" gy = "); Serial.print( gy, 2); 
-                Serial.print(" gz = "); Serial.print( gz, 2); Serial.println(" deg/s");
-                Serial.print("mx = "); Serial.print((int)1000*mx);  
-                Serial.print(" my = "); Serial.print((int)1000*my); 
-                Serial.print(" mz = "); Serial.print((int)1000*mz); Serial.println(" mG");
+        Serial.print("Ax = "); Serial.print((int)1000 * Ax);
+        Serial.print(" Ay = "); Serial.print((int)1000 * Ay);
+        Serial.print(" Az = "); Serial.print((int)1000 * Az); Serial.println(" mg");
+        Serial.print("Gx = "); Serial.print( Gx, 2);
+        Serial.print(" Gy = "); Serial.print( Gy, 2);
+        Serial.print(" Gz = "); Serial.print( Gz, 2); Serial.println(" deg/s");
+        Serial.print("Mx = "); Serial.print( (int)Mx);
+        Serial.print(" My = "); Serial.print( (int)My);
+        Serial.print(" Mz = "); Serial.print( (int)Mz); Serial.println(" mG");
 
-                Serial.print("q0 = "); Serial.print(q[0]);
-                Serial.print(" qx = "); Serial.print(q[1]); 
-                Serial.print(" qy = "); Serial.print(q[2]); 
-                Serial.print(" qz = "); Serial.println(q[3]); 
-            }
+        Serial.println("Hardware quaternions:");
+        Serial.print("Q0 = "); Serial.print(Q[0]);
+        Serial.print(" Qx = "); Serial.print(Q[1]);
+        Serial.print(" Qy = "); Serial.print(Q[2]);
+        Serial.print(" Qz = "); Serial.println(Q[3]);
 
-            // get pressure and temperature from the LPS22HB
-            LPS22Hstatus = LPS22H.status();
+        //Hardware AHRS:
+        A12 =   2.0f * (Q[1] * Q[2] + Q[0] * Q[3]);
+        A22 =   Q[0] * Q[0] + Q[1] * Q[1] - Q[2] * Q[2] - Q[3] * Q[3];
+        A31 =   2.0f * (Q[0] * Q[1] + Q[2] * Q[3]);
+        A32 =   2.0f * (Q[1] * Q[3] - Q[0] * Q[2]);
+        A33 =   Q[0] * Q[0] - Q[1] * Q[1] - Q[2] * Q[2] + Q[3] * Q[3];
+        Pitch = -asinf(A32);
+        Roll  = atan2f(A31, A33);
+        Yaw   = atan2f(A12, A22);
+        Pitch *= 180.0f / pi;
+        Yaw   *= 180.0f / pi;
+        Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
+        if (Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
+        Roll  *= 180.0f / pi;
+        lin_Ax = ax + a31;
+        lin_Ay = ay + a32;
+        lin_Az = az - a33;
 
-            if(LPS22Hstatus & 0x01) { // if new pressure data available
-                pressure = (float) LPS22H.readAltimeterPressure()/4096.0f;
-                temperature = (float) LPS22H.readAltimeterTemperature()/100.0f; 
+        Serial.print("Hardware Yaw, pitch, Roll: ");
+        Serial.print(Yaw, 2);
+        Serial.print(", ");
+        Serial.print(Pitch, 2);
+        Serial.print(", ");
+        Serial.println(Roll, 2);
 
-                altitude = 145366.45f*(1.0f - pow((pressure/1013.25f), 0.190284f)); 
+        Serial.print("Hardware Grav_x, Grav_y, Grav_z: ");
+        Serial.print(-A31 * 1000, 2);
+        Serial.print(", ");
+        Serial.print(-A32 * 1000, 2);
+        Serial.print(", ");
+        Serial.print(A33 * 1000, 2);  Serial.println(" mg");
+        Serial.print("Hardware Lin_ax, Lin_ay, Lin_az: ");
+        Serial.print(lin_Ax * 1000, 2);
+        Serial.print(", ");
+        Serial.print(lin_Ay * 1000, 2);
+        Serial.print(", ");
+        Serial.print(lin_Az * 1000, 2);  Serial.println(" mg");
 
-                if(SerialDebug) {
-                    Serial.print("Altimeter temperature = "); Serial.print( temperature, 2); Serial.println(" C"); // temperature in degrees Celsius  
-                    Serial.print("Altimeter temperature = "); Serial.print(9.0f*temperature/5.0f + 32.0f, 2); Serial.println(" F"); // temperature in degrees Fahrenheit
-                    Serial.print("Altimeter pressure = "); Serial.print(pressure, 2);  Serial.println(" mbar");// pressure in millibar
-                    Serial.print("Altitude = "); Serial.print(altitude, 2); Serial.println(" feet");
-                }
-            }
+        Serial.println("MS5637:");
+        Serial.print("Altimeter temperature = ");
+        Serial.print(Temperature, 2);
+        Serial.println(" C"); // temperature in degrees Celsius
+        Serial.print("Altimeter temperature = ");
+        Serial.print(9.0f * Temperature / 5.0f + 32.0f, 2);
+        Serial.println(" F"); // temperature in degrees Fahrenheit
+        Serial.print("Altimeter pressure = ");
+        Serial.print(Pressure, 2);
+        Serial.println(" mbar");// pressure in millibar
+        Altitude = 145366.45f * (1.0f - pow(((Pressure) / 1013.25f), 0.190284f));
+        Serial.print("Altitude = ");
+        Serial.print(Altitude, 2);
+        Serial.println(" feet");
+        Serial.println(" ");
 
-            Gtemperature = ((float) LSM6DSMData[0]) / 256.0f + 25.0f; // Gyro chip temperature in degrees Centigrade
-            // Print temperature in degrees Centigrade      
-            if(SerialDebug) {
-                Serial.print("Gyro temperature is ");  Serial.print(Gtemperature, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
-            }
 
-            LIS2MDLData[3] = LIS2MDL.readTemperature();
-            Mtemperature = ((float) LIS2MDLData[3]) / 8.0f + 25.0f; // Mag chip temperature in degrees Centigrade
-            // Print temperature in degrees Centigrade      
-            if(SerialDebug) {
-                Serial.print("Mag temperature is ");  Serial.print(Mtemperature, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
-            }
-
-            a12 =   2.0f * (q[1] * q[2] + q[0] * q[3]);
-            a22 =   q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3];
-            a31 =   2.0f * (q[0] * q[1] + q[2] * q[3]);
-            a32 =   2.0f * (q[1] * q[3] - q[0] * q[2]);
-            a33 =   q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3];
-            pitch = -asinf(a32);
-            roll  = atan2f(a31, a33);
-            yaw   = atan2f(a12, a22);
-            pitch *= 180.0f / pi;
-            yaw   *= 180.0f / pi; 
-            yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-            if(yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
-            roll  *= 180.0f / pi;
-            lin_ax = ax + a31;
-            lin_ay = ay + a32;
-            lin_az = az - a33;
-
-            if(SerialDebug) {
-                Serial.print("Yaw, Pitch, Roll: ");
-                Serial.print(yaw, 2);
-                Serial.print(", ");
-                Serial.print(pitch, 2);
-                Serial.print(", ");
-                Serial.println(roll, 2);
-
-                Serial.print("Grav_x, Grav_y, Grav_z: ");
-                Serial.print(-a31*1000.0f, 2);
-                Serial.print(", ");
-                Serial.print(-a32*1000.0f, 2);
-                Serial.print(", ");
-                Serial.print(a33*1000.0f, 2);  Serial.println(" mg");
-                Serial.print("Lin_ax, Lin_ay, Lin_az: ");
-                Serial.print(lin_ax*1000.0f, 2);
-                Serial.print(", ");
-                Serial.print(lin_ay*1000.0f, 2);
-                Serial.print(", ");
-                Serial.print(lin_az*1000.0f, 2);  Serial.println(" mg");
-
-                Serial.print("rate = "); Serial.print((float)sumCount/sum, 2); Serial.println(" Hz");
-            }
-
-            //     Serial.print(millis()/1000);Serial.print(",");
-            //     Serial.print(yaw, 2); Serial.print(","); Serial.print(pitch, 2); Serial.print(","); Serial.print(roll, 2); Serial.print(","); Serial.println(Pressure, 2);
-
-            sumCount = 0;
-            sum = 0;      
-
-        }  // end of "if(passThru)" handling
-
-        if(!passThru)
-        {
-
-            if (SerialDebug) {
-                Serial.print("Ax = "); Serial.print((int)1000 * Ax);
-                Serial.print(" Ay = "); Serial.print((int)1000 * Ay);
-                Serial.print(" Az = "); Serial.print((int)1000 * Az); Serial.println(" mg");
-                Serial.print("Gx = "); Serial.print( Gx, 2);
-                Serial.print(" Gy = "); Serial.print( Gy, 2);
-                Serial.print(" Gz = "); Serial.print( Gz, 2); Serial.println(" deg/s");
-                Serial.print("Mx = "); Serial.print( (int)Mx);
-                Serial.print(" My = "); Serial.print( (int)My);
-                Serial.print(" Mz = "); Serial.print( (int)Mz); Serial.println(" mG");
-
-                Serial.println("Hardware quaternions:");
-                Serial.print("Q0 = "); Serial.print(Q[0]);
-                Serial.print(" Qx = "); Serial.print(Q[1]);
-                Serial.print(" Qy = "); Serial.print(Q[2]);
-                Serial.print(" Qz = "); Serial.println(Q[3]);
-            }
-
-            //Hardware AHRS:
-            A12 =   2.0f * (Q[1] * Q[2] + Q[0] * Q[3]);
-            A22 =   Q[0] * Q[0] + Q[1] * Q[1] - Q[2] * Q[2] - Q[3] * Q[3];
-            A31 =   2.0f * (Q[0] * Q[1] + Q[2] * Q[3]);
-            A32 =   2.0f * (Q[1] * Q[3] - Q[0] * Q[2]);
-            A33 =   Q[0] * Q[0] - Q[1] * Q[1] - Q[2] * Q[2] + Q[3] * Q[3];
-            Pitch = -asinf(A32);
-            Roll  = atan2f(A31, A33);
-            Yaw   = atan2f(A12, A22);
-            Pitch *= 180.0f / pi;
-            Yaw   *= 180.0f / pi;
-            Yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-            if (Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
-            Roll  *= 180.0f / pi;
-            lin_Ax = ax + a31;
-            lin_Ay = ay + a32;
-            lin_Az = az - a33;
-
-            if (SerialDebug) {
-                Serial.print("Hardware Yaw, pitch, Roll: ");
-                Serial.print(Yaw, 2);
-                Serial.print(", ");
-                Serial.print(Pitch, 2);
-                Serial.print(", ");
-                Serial.println(Roll, 2);
-
-                Serial.print("Hardware Grav_x, Grav_y, Grav_z: ");
-                Serial.print(-A31 * 1000, 2);
-                Serial.print(", ");
-                Serial.print(-A32 * 1000, 2);
-                Serial.print(", ");
-                Serial.print(A33 * 1000, 2);  Serial.println(" mg");
-                Serial.print("Hardware Lin_ax, Lin_ay, Lin_az: ");
-                Serial.print(lin_Ax * 1000, 2);
-                Serial.print(", ");
-                Serial.print(lin_Ay * 1000, 2);
-                Serial.print(", ");
-                Serial.print(lin_Az * 1000, 2);  Serial.println(" mg");
-
-                Serial.println("MS5637:");
-                Serial.print("Altimeter temperature = ");
-                Serial.print(Temperature, 2);
-                Serial.println(" C"); // temperature in degrees Celsius
-                Serial.print("Altimeter temperature = ");
-                Serial.print(9.0f * Temperature / 5.0f + 32.0f, 2);
-                Serial.println(" F"); // temperature in degrees Fahrenheit
-                Serial.print("Altimeter pressure = ");
-                Serial.print(Pressure, 2);
-                Serial.println(" mbar");// pressure in millibar
-                Altitude = 145366.45f * (1.0f - pow(((Pressure) / 1013.25f), 0.190284f));
-                Serial.print("Altitude = ");
-                Serial.print(Altitude, 2);
-                Serial.println(" feet");
-                Serial.println(" ");
-            }
-
-        } // end of "if(!passThru)" handling
     } // end of RTC alarm handling
 
     digitalWrite(myLed, LOW); delay(10); digitalWrite(myLed, HIGH);  // flash led for 10 milliseconds
