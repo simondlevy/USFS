@@ -27,8 +27,7 @@
 #include <Wire.h>
 #endif
 
-#include "USFS.h"
-
+#include "USFS_old.h"
 
 void usfs_warm_start_and_accel_cal_setup(void);
 
