@@ -309,3 +309,4 @@ bool usfsEepromInitialized(void);
 
 bool usfsEepromNotDetected(void);
 
+void usfsReset(void);

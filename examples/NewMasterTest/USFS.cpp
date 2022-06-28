@@ -259,3 +259,8 @@ bool usfsEepromNotDetected(void)
 {
     return eepromStatus(0x10);
 }
+
+void usfsReset(void)
+{
+    writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
+}
