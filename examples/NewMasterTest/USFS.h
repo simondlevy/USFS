@@ -6,9 +6,6 @@ static const uint8_t MS5637_CONVERT_D1 = 0x40;
 static const uint8_t MS5637_CONVERT_D2 = 0x50;
 static const uint8_t MS5637_ADC_READ   = 0x00;
 ;
-// See also MPU-9250 Register Map and Descriptions, Revision 4.0, RM-MPU-9250A-00, Rev. 1.4, 9/9/2013 for registers not listed in 
-// above document; the MPU9250 and MPU9150 are virtually identical but the latter has a different register map
-//
 //Magnetometer Registers
 static const uint8_t AK8963_ADDRESS   = 0x0C;
 static const uint8_t WHO_AM_I_AK8963  = 0x00; // should return = 0x48;
@@ -255,3 +252,25 @@ enum Mmode {
     MMODE_8HZ = 2,
     MMODE_100HZ = 6
 };
+
+void EM7180_set_gyro_FS (uint16_t gyro_fs);
+
+void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs);
+
+void EM7180_set_integer_param (uint8_t param, uint32_t param_val);
+
+void readSENtralQuatData(float * destination);
+
+void readSENtralAccelData(int16_t * destination);
+
+void readSENtralGyroData(int16_t * destination);
+
+void readSENtralMagData(int16_t * destination);
+
+int16_t readSENtralBaroData();
+
+int16_t readSENtralTempData();
+
+void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
+
+uint8_t readByte(uint8_t address, uint8_t subAddress);
