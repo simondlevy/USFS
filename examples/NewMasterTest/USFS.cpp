@@ -698,6 +698,9 @@ void usfsBegin(
         Serial.println(" Hz"); 
     }
 
+    // Check event status register to clear the EM7180 interrupt
+    readByte(EM7180_ADDRESS, EM7180_EventStatus); 
+
 } // usfsBegin()
 
 uint8_t usfsGetEventStatus(void)
