@@ -22,13 +22,16 @@ The library has been tested on the following hardware:
 
 The Arduino library provides a simple API for for working with the EM7180 SENtral sensor hub.
 
-The <b>examples</b> directory contains a simple sketch showing how to use this API. As usual, just clone the repo
-into your Arduino libraries folder to get started. The API and
-examples were adapted from Kris Winer's [repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).
-I strongly recommend reading Kris's  [wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for
-a comprehensive overview of the EM7180 and other sensor-fusion solutions, and for instructions on how to 
+The <b>examples</b> directory contains a simple Arduino sketch showing how to
+use this API. As usual, just clone the repo into your Arduino libraries folder
+to get started. The API and examples were adapted from Kris Winer's
+[repository](https://github.com/kriswiner/EM7180_SENtral_sensor_hub).  I
+strongly recommend reading Kris's
+[wiki](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki) for a
+comprehensive overview of the EM7180 and other sensor-fusion solutions, and for
+instructions on how to
 [calibrate](https://github.com/kriswiner/EM7180_SENtral_sensor_hub/wiki/F.--Magnetometer-and-Accelerometer-Calibration)
-the EM7180 before you start using it.  (You can use my 
+the EM7180 before you start using it.  (You can use my
 [version](https://github.com/simondlevy/EM7180/tree/master/examples/WarmStartAndAccelCal)
 of the calibration sketch.)
 
