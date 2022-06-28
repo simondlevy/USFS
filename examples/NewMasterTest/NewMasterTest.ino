@@ -191,9 +191,8 @@ void setup()
 
 void loop()
 {  
-    static float ax, ay, az, gx, gy, gz, mx, my, mz; 
     static int16_t rawPressure, rawTemperature;    
-    static float  temperature, pressure, altitude; 
+    static float  temperature, pressure; 
     static uint32_t count, sumCount;  // used to control  output rate
     static float sum;          // integration interval
     static uint32_t lastUpdate; // used to calculate integration interval
@@ -209,7 +208,8 @@ void loop()
         // XXX should handle error
     }
 
-    // if no errors, see if new data is ready
+    static float ax, ay, az;
+
     if (usfsEventIsAccelerometer(eventStatus)) { 
 
         int16_t accelCount[3] = {};
@@ -222,6 +222,8 @@ void loop()
         az = (float)accelCount[2]*0.000488;  
     }
 
+    static float gx, gy, gz; 
+
     if (usfsEventIsGyrometer(eventStatus)) { 
 
         int16_t gyroCount[3] = {};
@@ -233,6 +235,8 @@ void loop()
         gy = (float)gyroCount[1]*0.153;    
         gz = (float)gyroCount[2]*0.153;  
     }
+
+    static float mx, my, mz; 
 
     if (usfsEventIsMagnetometer(eventStatus)) {
 
@@ -252,7 +256,6 @@ void loop()
         usfsReadQuaternion(hardwareQuat); 
     }
 
-    // get MS5637 pressure
     if (usfsEventIsBarometer(eventStatus)) {
     
         rawPressure = usfsReadBarometer();
@@ -329,7 +332,7 @@ void loop()
         Serial.print("Altimeter pressure = "); 
         Serial.print(pressure, 2);  
         Serial.println(" mbar");// pressure in millibar
-        altitude = 145366.45f*(1.0f - pow(((pressure)/1013.25f), 0.190284f));
+        float altitude = 145366.45f*(1.0f - pow(((pressure)/1013.25f), 0.190284f));
         Serial.print("Altitude = "); 
         Serial.print(altitude, 2); 
         Serial.println(" feet");
