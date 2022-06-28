@@ -13,24 +13,6 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
-static uint8_t checkStatus(void)
-{
-    byte status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)
-        Serial.println("EEPROM detected on the sensor bus!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)
-        Serial.println("EEPROM uploaded config file!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)
-        Serial.println("EEPROM CRC incorrect!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)
-        Serial.println("EM7180 in initialized state!");
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)
-        Serial.println("No EEPROM detected!");
-
-    return status;
-}
-
 void setup()
 {
     Wire.begin();
@@ -62,34 +44,69 @@ void setup()
     delay(1000); // give some time to read the screen
 
     // Check which sensors can be detected by the EM7180
-    if (usfsHasBarometer())
+    if (usfsHasBarometer()) {
         Serial.println("A barometer is installed");
-    if (usfsHasHumiditySensor())
+    }
+
+    if (usfsHasHumiditySensor()) {
         Serial.println("A humidity sensor is installed");
-    if (usfsHasTemperatureSensor())
+    }
+
+    if (usfsHasTemperatureSensor()) {
         Serial.println("A temperature sensor is installed");
-    if (usfsHasCustomSensor())
+    }
+
+    if (usfsHasCustomSensor()) {
         Serial.println("A custom sensor is installed");
-    if (usfsHasSecondCustomSensor())
+    }
+
+    if (usfsHasSecondCustomSensor()) {
         Serial.println("A second custom sensor is installed");
-    if (usfsHasThirdCustomSensor())
+    }
+
+    if (usfsHasThirdCustomSensor()) {
         Serial.println("A third custom sensor is installed");
+    }
 
     delay(1000); // give some time to read the screen
 
-    // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    uint8_t status = checkStatus();
+    // Make several attempts to check status, each followed by a reset
+    for (uint8_t k=0; k<10; ++k) {
 
-    // Make several attempts to reset and check status
-    for (uint8_t count=0; !status && count < 10; ++count) {
+        bool eepromDetected = usfsEepromDetected();
+
+        if (eepromDetected) {
+            Serial.println("EEPROM detected on the sensor bus!");
+        }
+
+        if (usfsEepromUploaded()) {
+            Serial.println("EEPROM uploaded config file!");
+        }
+
+        if (usfsEepromIncorrect()) {
+            Serial.println("EEPROM CRC incorrect!");
+        }
+
+        if (usfsEepromInitialized()) {
+            Serial.println("EM7180 in initialized state!");
+        }
+
+        if (usfsEepromNotDetected()) {
+            Serial.println("No EEPROM detected!");
+        }
+
+        if (eepromDetected) {
+            break;
+        }
 
         writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
+
         delay(500);  
-        status = checkStatus();
     }
 
     if (!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04))
         Serial.println("EEPROM upload successful!");
+
     delay(1000); // give some time to read the screen
 
     // Set up the SENtral as sensor bus in normal operating mode

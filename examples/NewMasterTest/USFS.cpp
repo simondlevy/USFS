@@ -229,3 +229,33 @@ bool usfsHasThirdCustomSensor(void)
 {
     return hasFeature(0x20);
 }
+
+static bool eepromStatus(uint8_t mask)
+{
+    return bool(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & mask);
+}
+
+bool usfsEepromDetected(void)
+{
+    return eepromStatus(0x01);
+}
+
+bool usfsEepromUploaded(void)
+{
+    return eepromStatus(0x02);
+}
+
+bool usfsEepromIncorrect(void)
+{
+    return eepromStatus(0x04);
+}
+
+bool usfsEepromInitialized(void)
+{
+    return eepromStatus(0x08);
+}
+
+bool usfsEepromNotDetected(void)
+{
+    return eepromStatus(0x10);
+}
