@@ -52,7 +52,6 @@ static void interruptHandler()
 
 void setup()
 {
-
     Serial.begin(115200);
     delay(4000);
 
@@ -63,7 +62,7 @@ void setup()
     Wire.setClock(400000); 
     delay(1000);
 
-    getChipID();        
+    usfsGetChipId();        
     usfsLoadFirmware(); 
     usfsBegin(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
 

@@ -368,7 +368,7 @@ uint8_t usfsCheckStatus(){
 }
 
 
-void getChipID()
+void usfsGetChipId()
 {
     // Read SENtral device information
     uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);

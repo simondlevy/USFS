@@ -23,7 +23,9 @@
    along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Arduino.h>
 #include "USFS_old.h"
+
 #include <CrossPlatformI2C_Core.h>
 
 float USFS::uint32_reg_to_float (uint8_t *buf)
