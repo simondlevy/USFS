@@ -75,10 +75,6 @@ class USFS
         unsigned char MS5637checkCRC(uint16_t * n_prom);
         void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
         void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
-        void I2Cscan();
-        void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
-        uint8_t readByte(uint8_t address, uint8_t subAddress);
-        void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest);
         uint8_t _intPin;
         int16_t readTempData();
 
