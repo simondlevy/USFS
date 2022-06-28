@@ -13,11 +13,7 @@ static const uint8_t Mmode = MMODE_8HZ;
 static const uint8_t INT_PIN = 12;  
 static const uint8_t LED_PIN = 18;  
 
-static uint32_t lastUpdate = 0; // used to calculate integration interval
-static uint32_t Now = 0;                         // used to calculate integration interval
-static uint8_t param[4];                         // used for param transfer
 static uint16_t EM7180_mag_fs, EM7180_acc_fs, EM7180_gyro_fs; // EM7180 sensor full scale ranges
-
 
 static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
@@ -279,6 +275,7 @@ void setup()
     while(!(param_xfer==0x4A)) {
         param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
     }
+    uint8_t param[4] = {};
     param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
     param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
     param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
@@ -397,7 +394,8 @@ void loop()
     static float  temperature, pressure, altitude; 
     static uint32_t count, sumCount;  // used to control  output rate
     static float pitch, yaw, roll, Yaw, Pitch, Roll;
-    static float sum;          // integration interval for both filter schemes
+    static float sum;          // integration interval
+    static uint32_t lastUpdate; // used to calculate integration interval
 
     // Check event status register, way to chech data ready by polling rather than interrupt
     uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register
@@ -475,9 +473,9 @@ void loop()
     }
 
     // keep track of rates
-    Now = micros();
-    float deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
-    lastUpdate = Now;
+    uint32_t now = micros();
+    float deltat = ((now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
+    lastUpdate = now;
 
     sum += deltat; // sum for averaging filter update rate
     sumCount++;
