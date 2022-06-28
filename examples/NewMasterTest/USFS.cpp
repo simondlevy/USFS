@@ -194,3 +194,38 @@ uint8_t readSENtralRid(void)
 {
     return readByte(EM7180_ADDRESS, EM7180_RevisionID);
 }
+
+static bool hasFeature(uint8_t mask)
+{
+    return (bool)readByte(EM7180_ADDRESS, EM7180_FeatureFlags) & mask;
+}
+
+bool hasBarometer(void)
+{
+    return hasFeature(0x01);
+}
+
+bool hasHumiditySensor(void)
+{
+    return hasFeature(0x02);
+}
+
+bool hasTemperatureSensor(void)
+{
+    return hasFeature(0x04);
+}
+
+bool hasCustomSensor(void)
+{
+    return hasFeature(0x08);
+}
+
+bool hasSecondCustomSensor(void)
+{
+    return hasFeature(0x10);
+}
+
+bool hasThirdCustomSensor(void)
+{
+    return hasFeature(0x20);
+}

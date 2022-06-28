@@ -44,24 +44,23 @@ void setup()
     delay(1000); // give some time to read the screen
 
     // Check which sensors can be detected by the EM7180
-    uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
-    if (featureflag & 0x01)
+    if (hasBarometer())
         Serial.println("A barometer is installed");
-    if (featureflag & 0x02)
+    if (hasHumiditySensor())
         Serial.println("A humidity sensor is installed");
-    if (featureflag & 0x04)
+    if (hasTemperatureSensor())
         Serial.println("A temperature sensor is installed");
-    if (featureflag & 0x08)
+    if (hasCustomSensor())
         Serial.println("A custom sensor is installed");
-    if (featureflag & 0x10)
+    if (hasSecondCustomSensor())
         Serial.println("A second custom sensor is installed");
-    if (featureflag & 0x20)
+    if (hasThirdCustomSensor())
         Serial.println("A third custom sensor is installed");
 
     delay(1000); // give some time to read the screen
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    byte STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
+    byte status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
     if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)
         Serial.println("EEPROM detected on the sensor bus!");
     if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)
@@ -73,11 +72,11 @@ void setup()
     if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)
         Serial.println("No EEPROM detected!");
     int count = 0;
-    while(!STAT) {
+    while(!status) {
         writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
         delay(500);  
         count++;  
-        STAT = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
+        status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
         if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)
             Serial.println("EEPROM detected on the sensor bus!");
         if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)

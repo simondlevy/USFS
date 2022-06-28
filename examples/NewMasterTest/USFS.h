@@ -283,6 +283,20 @@ uint8_t readSENtralPid(void);
 
 uint8_t readSENtralRid(void);
 
+bool hasBarometer(void);
+
+bool hasHumiditySensor(void);
+
+bool hasTemperatureSensor(void);
+
+bool hasCustomSensor(void);
+
+bool hasSecondCustomSensor(void);
+
+bool hasThirdCustomSensor(void);
+
 void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
 
 uint8_t readByte(uint8_t address, uint8_t subAddress);
+
+
