@@ -32,12 +32,16 @@ static const uint8_t LED_PIN       = 18;
 static const uint8_t INTERRUPT_PIN = 12; 
 
 static const uint8_t ACCEL_BANDWIDTH = 3;
-static const uint8_t GYRO_BANDWIDTH = 3;
-static const uint8_t QUAT_DIVISOR = 1;
-static const uint8_t MAG_RATE = 100;
-static const uint8_t ACCEL_RATE = 20; // Multiply by 10 to get actual rate
-static const uint8_t GYRO_RATE = 100; // Multiply by 10 to get actual rate
-static const uint8_t BARO_RATE = 50;
+static const uint8_t GYRO_BANDWIDTH  = 3;
+static const uint8_t QUAT_DIVISOR    = 1;
+static const uint8_t MAG_RATE        = 100;
+static const uint8_t ACCEL_RATE      = 20; // Multiply by 10 to get actual rate
+static const uint8_t GYRO_RATE       = 100; // Multiply by 10 to get actual rate
+static const uint8_t BARO_RATE       = 50;
+
+static const uint16_t ACCEL_SCALE = 8;
+static const uint16_t GYRO_SCALE  = 2000;
+static const uint16_t MAG_SCALE   = 1000;
 
 static const uint8_t INTERRUPT_ENABLE = USFS_INTERRUPT_RESET_REQUIRED |
                                         USFS_INTERRUPT_ERROR |
@@ -46,10 +50,6 @@ static const uint8_t INTERRUPT_ENABLE = USFS_INTERRUPT_RESET_REQUIRED |
 static const bool VERBOSE = true;
 
 static const uint8_t REPORT_HZ = 2;
-
-static const uint16_t AccFS  = 0x0008;
-static const uint16_t GyroFS = 0x07D0;
-static const uint16_t MagFS  = 0x03E8;
 
 static volatile bool _gotNewData;
 
@@ -77,9 +77,9 @@ void setup()
     usfsBegin(
             ACCEL_BANDWIDTH,
             GYRO_BANDWIDTH,
-            AccFS,
-            GyroFS,
-            MagFS,
+            ACCEL_SCALE,
+            GYRO_SCALE,
+            MAG_SCALE,
             QUAT_DIVISOR,
             MAG_RATE,
             ACCEL_RATE,
