@@ -267,6 +267,17 @@ static void readThreeAxis(uint8_t subAddress, int16_t * destination)
     destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
+static int16_t read16BitValue(uint8_t subAddress)
+{
+    uint8_t rawData[2] = {};
+
+    // Read the two raw data registers sequentially into data array
+    readBytes(EM7180_ADDRESS, subAddress, 2, &rawData[0]);  
+
+    // Turn the MSB and LSB into a signed 16-bit value
+    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
+}
+
 // ============================================================================
 
 uint8_t usfsCheckErrors()
@@ -624,24 +635,12 @@ void usfsReadQuaternion(float * destination)
 
 int16_t usfsReadBarometer()
 {
-    uint8_t rawData[2];  // x/y/z gyro register data stored here
-
-    // Read the two raw data registers sequentially into data array
-    readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  
-
-    // Turn the MSB and LSB into a signed 16-bit value
-    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
+    return read16BitValue(EM7180_Baro);
 }
 
 int16_t usfsReadTemperature()
 {
-    uint8_t rawData[2];  // x/y/z gyro register data stored here
-
-    // Read the two raw data registers sequentially into data array
-    readBytes(EM7180_ADDRESS, EM7180_Temp, 2, &rawData[0]);  
-
-    // Turn the MSB and LSB into a signed 16-bit value
-    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
+    return read16BitValue(EM7180_Temp);
 }
 
 bool usfsEventStatusIsError(uint8_t status)
