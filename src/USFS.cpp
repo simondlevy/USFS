@@ -137,23 +137,36 @@ static float uint32_reg_to_float (uint8_t *buf)
 
 static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) 
 {
-    uint8_t temp[2] = {};
-    temp[0] = subAddress;
-    temp[1] = data;
-    Wire.transfer(address, &temp[0], 2, NULL, 0); 
+    Wire.beginTransmission(address);
+    Wire.write(subAddress);
+    Wire.write(data);
+    Wire.endTransmission();
 }
 
 static uint8_t readByte(uint8_t address, uint8_t subAddress) 
 {
-    uint8_t temp = 0;
-    Wire.transfer(address, &subAddress, 1, &temp, 1);
-    return temp;
+    Wire.beginTransmission(address);
+    Wire.write(subAddress);
+    Wire.endTransmission();
+    Wire.requestFrom(address, 1);
+    return Wire.read();
 }
 
-static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest) 
-{
-    Wire.transfer(address, &subAddress, 1, dest, count); 
+static void readBytes(uint8_t address,
+        uint8_t subAddress,
+        uint8_t count,
+        uint8_t * dst)
+{  
+    Wire.beginTransmission(address);   // Initialize the Tx buffer
+    Wire.write(subAddress);
+    Wire.endTransmission(false);      // Send Tx buffer; keep connection alive
+    uint32_t i = 0;
+    Wire.requestFrom(address, count);  // Read bytes from slave reg address 
+    while (Wire.available()) {
+        dst[i++] = Wire.read(); 
+    } 
 }
+
 
 static void writeUsfsByte(uint8_t subAddress, uint8_t data) 
 {
