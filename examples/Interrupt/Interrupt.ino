@@ -28,7 +28,8 @@
 
 #include "USFS.h"
 
-static const uint8_t INTERRUPT_PIN = 12; 
+// Set to 0 for polling version
+static const uint8_t INTERRUPT_PIN = 0 /*12*/; 
 
 static const uint8_t ACCEL_BANDWIDTH = 3;
 static const uint8_t GYRO_BANDWIDTH  = 3;
@@ -84,8 +85,10 @@ void setup()
             INTERRUPT_ENABLE,
             VERBOSE); 
 
-    pinMode(INTERRUPT_PIN, INPUT);
-    attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
+    if (INTERRUPT_PIN) {
+        pinMode(INTERRUPT_PIN, INPUT);
+        attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  
+    }
 
     // Clear interrupts
     usfsCheckStatus();
@@ -109,11 +112,13 @@ void loop()
     static float Temperature, Pressure, Altitude; 
     static float ax, ay, az, gx, gy, gz, mx, my, mz; 
 
-    if (_gotNewData == true) { 
+    if (INTERRUPT_PIN == 0 || _gotNewData == true) { 
 
         _gotNewData = false;  
 
-        _interruptCount++;
+        if (INTERRUPT_PIN) {
+            _interruptCount++;
+        }
 
         uint8_t eventStatus = usfsCheckStatus(); 
 
@@ -210,8 +215,10 @@ void loop()
 
     if (msec-_msec > 1000/REPORT_HZ) { 
 
-        Serial.print("Interrupts/sec: ");
-        Serial.println(_interruptCount * REPORT_HZ);
+        if (INTERRUPT_PIN) {
+            Serial.print("Interrupts/sec: ");
+            Serial.println(_interruptCount * REPORT_HZ);
+        }
 
         _interruptCount = 0;
         _msec = msec;

@@ -1,6 +1,6 @@
 /* 
 
-   : Class implementation for USFS 
+   Class implementation for USFS 
 
    Copyright (C) 2018 Simon D. Levy
 
@@ -22,6 +22,8 @@
    You should have received a copy of the GNU General Public License
    along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#if 0
 
 #include <Arduino.h>
 #include "USFS_old.h"
@@ -557,3 +559,4 @@ void USFS::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     cpi2c_readRegisters(_i2c, subAddress, count, dest);
 }
+#endif
