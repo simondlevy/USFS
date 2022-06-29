@@ -148,11 +148,12 @@ static uint8_t readByte(uint8_t address, uint8_t subAddress)
     Wire.beginTransmission(address);
     Wire.write(subAddress);
     Wire.endTransmission();
-    Wire.requestFrom(address, 1);
+    Wire.requestFrom((int)address, (int)1);
     return Wire.read();
 }
 
-static void readBytes(uint8_t address,
+static void readBytes(
+        uint8_t address,
         uint8_t subAddress,
         uint8_t count,
         uint8_t * dst)
@@ -161,7 +162,7 @@ static void readBytes(uint8_t address,
     Wire.write(subAddress);
     Wire.endTransmission(false);      // Send Tx buffer; keep connection alive
     uint32_t i = 0;
-    Wire.requestFrom(address, count);  // Read bytes from slave reg address 
+    Wire.requestFrom((int)address, (int)count);  // Read bytes from slave reg address 
     while (Wire.available()) {
         dst[i++] = Wire.read(); 
     } 
