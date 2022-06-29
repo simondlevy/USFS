@@ -118,9 +118,6 @@ class USFS {
         static const uint8_t TEMP_OUT_H       = 0x41;
         static const uint8_t TEMP_OUT_L       = 0x42;
 
-        // Cross-platform support
-        uint8_t  _i2c;
-
         uint8_t errorStatus;
 
 
@@ -132,7 +129,7 @@ class USFS {
 
     public:
 
-        bool begin(uint8_t bus=1);
+        bool begin(void);
 
         const char * getErrorString(void);
 

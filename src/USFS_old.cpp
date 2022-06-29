@@ -23,12 +23,10 @@
    along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if 0
-
 #include <Arduino.h>
-#include "USFS_old.h"
+#include <Wire.h>
 
-#include <CrossPlatformI2C_Core.h>
+#include "USFS_old.h"
 
 float USFS::uint32_reg_to_float (uint8_t *buf)
 {
@@ -44,10 +42,8 @@ float USFS::uint32_reg_to_float (uint8_t *buf)
     return u.f;
 }
 
-bool USFS::begin(uint8_t bus)
+bool USFS::begin(void)
 {
-    _i2c = cpi2c_open(ADDRESS, bus);
-
     errorStatus = 0;
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
@@ -552,11 +548,20 @@ uint8_t USFS::readRegister(uint8_t subAddress)
 
 void USFS::writeRegister(uint8_t subAddress, uint8_t data)
 {
-    cpi2c_writeRegister(_i2c, subAddress, data);
+    Wire.beginTransmission(ADDRESS);
+    Wire.write(subAddress);
+    Wire.write(data);
+    Wire.endTransmission();
 }
 
 void USFS::readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    cpi2c_readRegisters(_i2c, subAddress, count, dest);
+    Wire.beginTransmission(ADDRESS);   // Initialize the Tx buffer
+    Wire.write(subAddress);
+    Wire.endTransmission(false);      // Send Tx buffer; keep connection alive
+    uint32_t i = 0;
+    Wire.requestFrom((int)ADDRESS, (int)count);  // Read bytes from slave reg address 
+    while (Wire.available()) {
+        dest[i++] = Wire.read(); 
+    } 
 }
-#endif
