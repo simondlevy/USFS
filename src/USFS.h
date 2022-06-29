@@ -45,16 +45,16 @@ uint8_t usfsCheckStatus();
 void  usfsReportChipId();
 
 void usfsBegin(
-        uint8_t accBW,
-        uint8_t gyroBW,
-        uint16_t accFS,
-        uint16_t gyroFS,
-        uint16_t magFS,
-        uint8_t QRtDiv,
-        uint8_t magRt,
-        uint8_t accRt,
-        uint8_t gyroRt,
-        uint8_t baroRt, 
+        uint8_t accelBandwidth,
+        uint8_t gyroBandwidth,
+        uint16_t accelScale,
+        uint16_t gyroScale,
+        uint16_t magScale,
+        uint8_t quatDivisor,
+        uint8_t magRate,
+        uint8_t accelRate,
+        uint8_t gyroRate,
+        uint8_t baroRate, 
         bool verbose=false);
 
 void usfsLoadFirmware();

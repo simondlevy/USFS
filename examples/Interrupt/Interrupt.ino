@@ -31,13 +31,13 @@
 static const uint8_t LED_PIN       = 18; 
 static const uint8_t INTERRUPT_PIN = 12; 
 
-static const uint8_t AccBW = 3;
-static const uint8_t GyroBW = 3;
-static const uint8_t QRtDiv = 1;
-static const uint8_t MagRt = 100;
-static const uint8_t AccRt = 20;    // Multiply by 10 to get actual rate
-static const uint8_t GyroRt = 20; // Multiply by 10 to get actual rate
-static const uint8_t BaroRt = 50;
+static const uint8_t ACCEL_BANDWIDTH = 3;
+static const uint8_t GYRO_BANDWIDTH = 3;
+static const uint8_t QUAT_DIVISOR = 1;
+static const uint8_t MAG_RATE = 100;
+static const uint8_t ACCEL_RATE = 20;    // Multiply by 10 to get actual rate
+static const uint8_t GYRO_RATE = 20; // Multiply by 10 to get actual rate
+static const uint8_t BARO_RATE = 50;
 
 static const bool VERBOSE = true;
 
@@ -69,16 +69,16 @@ void setup()
     usfsLoadFirmware(); 
 
     usfsBegin(
-            AccBW,
-            GyroBW,
+            ACCEL_BANDWIDTH,
+            GYRO_BANDWIDTH,
             AccFS,
             GyroFS,
             MagFS,
-            QRtDiv,
-            MagRt,
-            AccRt,
-            GyroRt,
-            BaroRt,
+            QUAT_DIVISOR,
+            MAG_RATE,
+            ACCEL_RATE,
+            GYRO_RATE,
+            BARO_RATE,
             VERBOSE); 
 
     pinMode(INTERRUPT_PIN, INPUT);

@@ -338,16 +338,16 @@ void usfsReportChipId()
 
 
 void usfsBegin(
-        uint8_t accBW,
-        uint8_t gyroBW,
-        uint16_t accFS,
-        uint16_t gyroFS,
-        uint16_t magFS,
-        uint8_t QRtDiv,
-        uint8_t magRt,
-        uint8_t accRt,
-        uint8_t gyroRt,
-        uint8_t baroRt,
+        uint8_t accelBandwidth,
+        uint8_t gyroBandwidth,
+        uint16_t accelScale,
+        uint16_t gyroScale,
+        uint16_t magScale,
+        uint8_t quatDivisor,
+        uint8_t magRate,
+        uint8_t accelRate,
+        uint8_t gyroRate,
+        uint8_t baroRate,
         bool verbose)
 {
     uint16_t EM7180_mag_fs,
@@ -367,17 +367,17 @@ void usfsBegin(
     writeUsfsByte(EM7180_HostControl, 0x00); 
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
-    writeUsfsByte(EM7180_ACC_LPF_BW, accBW);   // accBW = 3 = 41Hz
-    writeUsfsByte(EM7180_GYRO_LPF_BW, gyroBW); // gyroBW = 3 = 41Hz
+    writeUsfsByte(EM7180_ACC_LPF_BW, accelBandwidth);   // accelBandwidth = 3 = 41Hz
+    writeUsfsByte(EM7180_GYRO_LPF_BW, gyroBandwidth); // gyroBandwidth = 3 = 41Hz
 
     // Set accel/gyro/mag desired ODR rates
-    writeUsfsByte(EM7180_QRateDivisor, QRtDiv); // quat rate = gyroRt/(1 QRTDiv)
-    writeUsfsByte(EM7180_MagRate, magRt); // 0x64 = 100 Hz
-    writeUsfsByte(EM7180_AccelRate, accRt); // 200/10 Hz, 0x14 = 200 Hz
-    writeUsfsByte(EM7180_GyroRate, gyroRt); // 200/10 Hz, 0x14 = 200 Hz
+    writeUsfsByte(EM7180_QRateDivisor, quatDivisor); // quat rate = gyroRate/(1 QRTDiv)
+    writeUsfsByte(EM7180_MagRate, magRate); // 0x64 = 100 Hz
+    writeUsfsByte(EM7180_AccelRate, accelRate); // 200/10 Hz, 0x14 = 200 Hz
+    writeUsfsByte(EM7180_GyroRate, gyroRate); // 200/10 Hz, 0x14 = 200 Hz
 
-    // Set enable bit and set Baro rate to 25 Hz, rate = baroRt/2, 0x32 = 25 Hz
-    writeUsfsByte(EM7180_BaroRate, 0x80 | baroRt);  
+    // Set enable bit and set Baro rate to 25 Hz, rate = baroRate/2, 0x32 = 25 Hz
+    writeUsfsByte(EM7180_BaroRate, 0x80 | baroRate);  
 
     // Configure operating mode
     writeUsfsByte(EM7180_AlgorithmControl, 0x00); // read scale sensor data
@@ -443,8 +443,8 @@ void usfsBegin(
     EM7180_set_integer_param (0x49, 0x00);
 
     //Write desired sensor full scale ranges to the EM7180
-    EM7180_set_mag_acc_FS (magFS, accFS); // 1000 uT == 0x3E8, 8 g == 0x08
-    EM7180_set_gyro_FS (gyroFS); // 2000 dps == 0x7D0
+    EM7180_set_mag_acc_FS (magScale, accelScale); // 1000 uT == 0x3E8, 8 g == 0x08
+    EM7180_set_gyro_FS (gyroScale); // 2000 dps == 0x7D0
 
     // Read sensor new FS values from parameter space
     writeUsfsByte(EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
