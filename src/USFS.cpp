@@ -269,15 +269,17 @@ static void readThreeAxis(uint8_t subAddress, int16_t * destination)
 
 // ============================================================================
 
-uint8_t usfsCheckErrors(){
-    uint8_t c = readByte(EM7180_ADDRESS, EM7180_ErrorRegister); // check error register
+uint8_t usfsCheckErrors()
+{
+    uint8_t c = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
     return c;
 }
 
-uint8_t usfsCheckStatus(){
-    // Check event status register, way to check data ready by polling rather than interrupt
-    uint8_t c = readByte(EM7180_ADDRESS, EM7180_EventStatus); // reading clears the register and interrupt
-    return c;
+uint8_t usfsCheckStatus()
+{
+    // Check event status register, way to check data ready by polling rather
+    // than interrupt.  Reading clears the register and interrupt.
+    return readByte(EM7180_ADDRESS, EM7180_EventStatus); 
 }
 
 void usfsReportChipId()
@@ -598,30 +600,12 @@ void usfsReadAccelerometer(int16_t * destination)
 
 void usfsReadGyrometer(int16_t * destination)
 {
-    uint8_t rawData[6];  // x/y/z gyro register data stored here
-
-    // Read the six raw data registers sequentially into data array
-    readBytes(EM7180_ADDRESS, EM7180_GX, 6, &rawData[0]);  
-
-    // Turn the MSB and LSB into a signed 16-bit value
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
-
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+    readThreeAxis(EM7180_GX, destination);
 }
 
 void usfsreadMagnetometer(int16_t * destination)
 {
-    uint8_t rawData[6];  // x/y/z gyro register data stored here
-
-    // Read the six raw data registers sequentially into data array
-    readBytes(EM7180_ADDRESS, EM7180_MX, 6, &rawData[0]);  
-
-    // Turn the MSB and LSB into a signed 16-bit value
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
-
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+    readThreeAxis(EM7180_MX, destination);
 }
 
 void usfsReadQuaternion(float * destination)
