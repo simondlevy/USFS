@@ -39,6 +39,8 @@ static const uint8_t AccRt = 20;    // Multiply by 10 to get actual rate
 static const uint8_t GyroRt = 20; // Multiply by 10 to get actual rate
 static const uint8_t BaroRt = 50;
 
+static const bool VERBOSE = true;
+
 static const uint16_t AccFS  = 0x0008;
 static const uint16_t GyroFS = 0x07D0;
 static const uint16_t MagFS  = 0x03E8;
@@ -66,7 +68,18 @@ void setup()
 
     usfsLoadFirmware(); 
 
-    usfsBegin(AccBW, GyroBW, AccFS, GyroFS, MagFS, QRtDiv, MagRt, AccRt, GyroRt, BaroRt); 
+    usfsBegin(
+            AccBW,
+            GyroBW,
+            AccFS,
+            GyroFS,
+            MagFS,
+            QRtDiv,
+            MagRt,
+            AccRt,
+            GyroRt,
+            BaroRt,
+            VERBOSE); 
 
     pinMode(INTERRUPT_PIN, INPUT);
     attachInterrupt(INTERRUPT_PIN, interruptHandler, RISING);  

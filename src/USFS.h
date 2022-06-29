@@ -54,7 +54,8 @@ void usfsBegin(
         uint8_t magRt,
         uint8_t accRt,
         uint8_t gyroRt,
-        uint8_t baroRt);
+        uint8_t baroRt, 
+        bool verbose=false);
 
 void usfsLoadFirmware();
 
