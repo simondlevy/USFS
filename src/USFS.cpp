@@ -137,7 +137,7 @@ static float uint32_reg_to_float (uint8_t *buf)
 
 static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) 
 {
-    uint8_t temp[2];
+    uint8_t temp[2] = {};
     temp[0] = subAddress;
     temp[1] = data;
     Wire.transfer(address, &temp[0], 2, NULL, 0); 
@@ -145,9 +145,9 @@ static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 
 static uint8_t readByte(uint8_t address, uint8_t subAddress) 
 {
-    uint8_t temp[1];
-    Wire.transfer(address, &subAddress, 1, &temp[0], 1);
-    return temp[0];
+    uint8_t temp = 0;
+    Wire.transfer(address, &subAddress, 1, &temp, 1);
+    return temp;
 }
 
 static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest) 
