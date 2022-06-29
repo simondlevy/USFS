@@ -185,7 +185,7 @@ static void readUsfsBytes( uint8_t subAddress, uint8_t count, uint8_t * dest)
 }
 
 
-static void EM7180_set_integer_param (uint8_t param, uint32_t param_val) 
+static void set_integer_param (uint8_t param, uint32_t param_val) 
 {
     uint8_t bytes[4] = {};
     bytes[0] = param_val & (0xFF);
@@ -220,7 +220,7 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
     writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) 
+static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) 
 {
     uint8_t bytes[4] = {};
     bytes[0] = mag_fs & (0xFF);
@@ -252,7 +252,7 @@ static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs)
     writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void EM7180_set_gyro_FS (uint16_t gyro_fs) 
+static void set_gyro_FS (uint16_t gyro_fs) 
 {
     uint8_t bytes[4] = {};
     bytes[0] = gyro_fs & (0xFF);
@@ -452,11 +452,11 @@ void usfsBegin(
     writeUsfsByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
     //Disable stillness mode for balancing robot application
-    EM7180_set_integer_param (0x49, 0x00);
+    set_integer_param (0x49, 0x00);
 
     //Write desired sensor full scale ranges to the EM7180
-    EM7180_set_mag_acc_FS (magScale, accelScale); // 1000 uT == 0x3E8, 8 g == 0x08
-    EM7180_set_gyro_FS (gyroScale); // 2000 dps == 0x7D0
+    set_mag_acc_FS (magScale, accelScale); // 1000 uT == 0x3E8, 8 g == 0x08
+    set_gyro_FS (gyroScale); // 2000 dps == 0x7D0
 
     // Read sensor new FS values from parameter space
     writeUsfsByte(EM7180_ParamRequest, 0x4A); // Request to read  parameter 74

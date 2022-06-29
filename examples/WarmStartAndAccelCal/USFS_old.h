@@ -24,8 +24,6 @@
 
 class USFS {
 
-    friend class USFS_Master;
-
     protected:
 
         // SENtral register map
@@ -58,7 +56,6 @@ class USFS {
         static const uint8_t SensorStatus       = 0x36;
         static const uint8_t SentralStatus      = 0x37;
         static const uint8_t AlgorithmStatus    = 0x38;
-        static const uint8_t FeatureFlags       = 0x39;
         static const uint8_t ParamAcknowledge   = 0x3A;
         static const uint8_t SavedParamByte0    = 0x3B;
         static const uint8_t SavedParamByte1    = 0x3C;
@@ -110,24 +107,16 @@ class USFS {
         static const uint8_t GP55               = 0x6E;
         static const uint8_t GP56               = 0x6F;
 
-        static const uint8_t ADDRESS           = 0x28;   // Address of the USFS SENtral sensor hub
-
-
-        bool hasFeature(uint8_t features);
 
         static const uint8_t TEMP_OUT_H       = 0x41;
         static const uint8_t TEMP_OUT_L       = 0x42;
 
         uint8_t errorStatus;
 
-
-        void readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z);
-
-        uint8_t readRegister(uint8_t subAddress);
-        void    readRegisters(uint8_t subAddress, uint8_t count, uint8_t * dest);
-        void    writeRegister(uint8_t subAddress, uint8_t data);
-
     public:
+
+        static const uint8_t ADDRESS = 0x28;
+        static const uint8_t FeatureFlags = 0x39;
 
         void algorithmControlReset(void); 
 

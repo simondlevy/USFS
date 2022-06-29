@@ -33,11 +33,6 @@ static const uint8_t M24512DFM_DATA_ADDRESS   = 0x50;   // Address of the 500 pa
 
 static const float MAGNETIC_DECLINATION =  13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
 
-/*************************************************************************************************/
-/*************                                                                     ***************/
-/*************                 Enumerators and Structure Variables                 ***************/
-/*************                                                                     ***************/
-/*************************************************************************************************/
 
 struct acc_cal
 {
@@ -67,7 +62,7 @@ static Sentral_WS_params  WS_params;
 //====== Sentral parameter management functions
 //===================================================================================================================
 
-static void USFS_set_integer_param (uint8_t param, uint32_t param_val)
+static void set_integer_param (uint8_t param, uint32_t param_val)
 {
     uint8_t bytes[4];
     bytes[0] = param_val & (0xFF);
@@ -96,7 +91,7 @@ static void USFS_set_integer_param (uint8_t param, uint32_t param_val)
     usfs.algorithmControlReset(); // Re-start algorithm
 }
 
-static void USFS_set_WS_params()
+static void set_WS_params()
 {
     uint8_t param = 1;
     uint8_t stat;
@@ -590,7 +585,7 @@ void setup(void)
     // Load Warm Start parameters
     if (warm_start)
     {
-        USFS_set_WS_params();
+        set_WS_params();
     }
 
     // Set SENtral in initialized state to configure registers
@@ -637,7 +632,7 @@ void setup(void)
     usfs.algorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
-    USFS_set_integer_param (0x49, 0x00);
+    set_integer_param (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the USFS
     usfs.setMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
