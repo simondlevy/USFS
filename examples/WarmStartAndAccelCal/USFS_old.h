@@ -129,64 +129,81 @@ class USFS {
 
     public:
 
-        bool begin(void);
-
-        const char * getErrorString(void);
-
-        uint8_t  getProductId(void); 
-        uint8_t  getRevisionId(void); 
-        uint16_t getRamVersion(void);
-        uint16_t getRomVersion(void);
-
-        uint8_t  getSentralStatus(void);
-
-        void requestReset(void);
-        void setPassThroughMode(void);
-        void setMasterMode(void);
-        void setRunEnable(void);
-        void setRunDisable(void);
-
-        void setAccelLpfBandwidth(uint8_t bw);
-        void setGyroLpfBandwidth(uint8_t bw);
-
-        void setQRateDivisor(uint8_t divisor);
-        void setMagRate(uint8_t rate);
-        void setAccelRate(uint8_t rate);
-        void setGyroRate(uint8_t rate);
-        void setBaroRate(uint8_t rate);
-
-        uint8_t  getActualMagRate();
-        uint16_t getActualAccelRate();
-        uint16_t getActualGyroRate();
-        uint8_t  getActualBaroRate();
-        uint8_t  getActualTempRate();
+        void algorithmControlReset(void); 
 
         void algorithmControlRequestParameterTransfer(void);
-        void algorithmControlReset(void); 
+
+        bool begin(void);
 
         void enableEvents(uint8_t mask);
 
-        void    requestParamRead(uint8_t param);
-        uint8_t getParamAcknowledge(void);
-        uint8_t readSavedParamByte0(void);
-        uint8_t readSavedParamByte1(void);
-        uint8_t readSavedParamByte2(void);
-        uint8_t readSavedParamByte3(void);
-
-        uint8_t getRunStatus(void);
         uint8_t getAlgorithmStatus(void);
-        uint8_t getPassThruStatus(void);
-        uint8_t getEventStatus(void);
-        uint8_t getSensorStatus(void);
+
         uint8_t getErrorStatus(void);
 
-        void setGyroFs(uint16_t gyro_fs);
-        void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
+        uint8_t getEventStatus(void);
+
+        uint8_t getParamAcknowledge(void);
+
+        uint8_t getPassThruStatus(void);
+
+        uint8_t  getProductId(void); 
+
+        uint16_t getRamVersion(void);
+
+        uint8_t  getRevisionId(void); 
+
+        uint16_t getRomVersion(void);
+
+        uint8_t getRunStatus(void);
+
+        uint8_t getSensorStatus(void);
+
+        uint8_t  getSentralStatus(void);
 
         void loadParamByte0(uint8_t value);
         void loadParamByte1(uint8_t value);
         void loadParamByte2(uint8_t value);
         void loadParamByte3(uint8_t value);
+
+        void readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
+
+        void readQuaternion(float & qw, float & qx, float & qy, float & qz);
+
+        uint8_t readSavedParamByte0(void);
+        uint8_t readSavedParamByte1(void);
+        uint8_t readSavedParamByte2(void);
+        uint8_t readSavedParamByte3(void);
+
+        void    requestParamRead(uint8_t param);
+
+        void requestReset(void);
+
+        void setAccelLpfBandwidth(uint8_t bw);
+
+        void setAccelRate(uint8_t rate);
+
+        void setBaroRate(uint8_t rate);
+
+        void setGyroFs(uint16_t gyro_fs);
+
+        void setGyroLpfBandwidth(uint8_t bw);
+
+        void setGyroRate(uint8_t rate);
+
+        void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
+
+        void setMagRate(uint8_t rate);
+
+        void setMasterMode(void);
+
+        void setPassThroughMode(void);
+
+        void setQRateDivisor(uint8_t divisor);
+
+        void setRunDisable(void);
+
+        void setRunEnable(void);
 
         void writeGp36(uint8_t value);
         void writeGp37(uint8_t value);
@@ -200,17 +217,5 @@ class USFS {
         void writeGp54(uint8_t value);
         void writeGp55(uint8_t value);
         void writeGp56(uint8_t value);
-
-        void readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
-        void readMagnetometer(int16_t & mx, int16_t & my, int16_t & mz);
-        void readGyrometer(int16_t & gx, int16_t & gy, int16_t & gz);
-        void readQuaternion(float & qw, float & qx, float & qy, float & qz);
-        void readBarometer(float & pressure, float & temperature);
-
-        void setIntegerParam (uint8_t param, uint32_t param_val);
-
-        void getFullScaleRanges(uint8_t& accFs, uint16_t& gyroFs, uint16_t& magFs);
-
-        static float uint32_reg_to_float (uint8_t *buf);
 
 }; // class USFS
