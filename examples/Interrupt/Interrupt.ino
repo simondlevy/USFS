@@ -36,8 +36,12 @@ static const uint8_t GYRO_BANDWIDTH = 3;
 static const uint8_t QUAT_DIVISOR = 1;
 static const uint8_t MAG_RATE = 100;
 static const uint8_t ACCEL_RATE = 20;    // Multiply by 10 to get actual rate
-static const uint8_t GYRO_RATE = 20; // Multiply by 10 to get actual rate
+static const uint8_t GYRO_RATE = 100; // Multiply by 10 to get actual rate
 static const uint8_t BARO_RATE = 50;
+
+static const uint8_t INTERRUPT_ENABLE = USFS_INTERRUPT_RESET_REQUIRED |
+                                        USFS_INTERRUPT_ERROR |
+                                        USFS_INTERRUPT_QUAT;
 
 static const bool VERBOSE = true;
 
@@ -79,6 +83,7 @@ void setup()
             ACCEL_RATE,
             GYRO_RATE,
             BARO_RATE,
+            INTERRUPT_ENABLE,
             VERBOSE); 
 
     pinMode(INTERRUPT_PIN, INPUT);

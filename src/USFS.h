@@ -38,6 +38,17 @@ enum {
     USFS_ERROR_SAMPLE_RATE        = 0x80
 };
 
+enum {
+
+    USFS_INTERRUPT_RESET_REQUIRED = 0x01,
+    USFS_INTERRUPT_ERROR = 0x02,
+    USFS_INTERRUPT_QUAT = 0x04,
+    USFS_INTERRUPT_MAG = 0x08,
+    USFS_INTERRUPT_ACCEL = 0x10,
+    USFS_INTERRUPT_GYRO = 0x20,
+    USFS_INTERRUPT_ANY = 0x40
+};
+
 uint8_t usfsCheckErrors();
 
 uint8_t usfsCheckStatus();
@@ -55,6 +66,7 @@ void usfsBegin(
         uint8_t accelRate,
         uint8_t gyroRate,
         uint8_t baroRate, 
+        uint8_t interruptEnable=USFS_INTERRUPT_GYRO,
         bool verbose=false);
 
 void usfsLoadFirmware();

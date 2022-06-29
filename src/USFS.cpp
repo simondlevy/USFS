@@ -348,6 +348,7 @@ void usfsBegin(
         uint8_t accelRate,
         uint8_t gyroRate,
         uint8_t baroRate,
+        uint8_t interruptEnable,
         bool verbose)
 {
     uint16_t EM7180_mag_fs,
@@ -382,11 +383,8 @@ void usfsBegin(
     // Configure operating mode
     writeUsfsByte(EM7180_AlgorithmControl, 0x00); // read scale sensor data
 
-    // Enable interrupt to host upon certain events choose host interrupts when
-    // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
-    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
-    // or the SENtral needs to be reset(0x01)
-    writeUsfsByte(EM7180_EnableEvents, 0x07);
+    // Enable interrupt to host upon certain events
+    writeUsfsByte(EM7180_EnableEvents, interruptEnable);
 
     // Enable EM7180 run mode
     writeUsfsByte(EM7180_HostControl, 0x01); // set SENtral in normal run mode
@@ -493,39 +491,39 @@ void usfsBegin(
 
     // Read EM7180 status
     uint8_t runStatus = readUsfsByte(EM7180_RunStatus);
-    if (runStatus & 0x01) Serial.println(" EM7180 run status = normal mode");
+    if (runStatus & 0x01) Serial.println("EM7180 run status = normal mode");
 
     uint8_t algoStatus = readUsfsByte(EM7180_AlgorithmStatus);
 
     if (verbose) {
-        if (algoStatus & 0x01) Serial.println(" EM7180 standby status");
-        if (algoStatus & 0x02) Serial.println(" EM7180 algorithm slow");
-        if (algoStatus & 0x04) Serial.println(" EM7180 in stillness mode");
-        if (algoStatus & 0x08) Serial.println(" EM7180 mag calibration completed");
-        if (algoStatus & 0x10) Serial.println(" EM7180 magnetic anomaly detected");
-        if (algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
+        if (algoStatus & 0x01) Serial.println("EM7180 standby status");
+        if (algoStatus & 0x02) Serial.println("EM7180 algorithm slow");
+        if (algoStatus & 0x04) Serial.println("EM7180 in stillness mode");
+        if (algoStatus & 0x08) Serial.println("EM7180 mag calibration completed");
+        if (algoStatus & 0x10) Serial.println("EM7180 magnetic anomaly detected");
+        if (algoStatus & 0x20) Serial.println("EM7180 unreliable sensor data");
     }
 
     uint8_t passthruStatus = readUsfsByte(EM7180_PassThruStatus);
 
-    if (passthruStatus & 0x01) Serial.print(" EM7180 in passthru mode!");
+    if (passthruStatus & 0x01) Serial.print("EM7180 in passthru mode!");
 
     uint8_t eventStatus = readUsfsByte(EM7180_EventStatus);
 
     if (verbose) {
-        if (eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
-        if (eventStatus & 0x02) Serial.println(" EM7180 Error");
-        if (eventStatus & 0x04) Serial.println(" EM7180 new quaternion result");
-        if (eventStatus & 0x08) Serial.println(" EM7180 new mag result");
-        if (eventStatus & 0x10) Serial.println(" EM7180 new accel result");
-        if (eventStatus & 0x20) Serial.println(" EM7180 new gyro result"); 
+        if (eventStatus & 0x01) Serial.println("EM7180 CPU reset");
+        if (eventStatus & 0x02) Serial.println("EM7180 Error");
+        if (eventStatus & 0x04) Serial.println("EM7180 new quaternion result");
+        if (eventStatus & 0x08) Serial.println("EM7180 new mag result");
+        if (eventStatus & 0x10) Serial.println("EM7180 new accel result");
+        if (eventStatus & 0x20) Serial.println("EM7180 new gyro result"); 
     }
 
     delay(1000); // give some time to read the screen
 
     // Check sensor status
     uint8_t sensorStatus = readUsfsByte(EM7180_SensorStatus);
-    Serial.print(" EM7180 sensor status = ");
+    Serial.print("EM7180 sensor status = ");
     Serial.println(sensorStatus);
     if (sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
     if (sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
