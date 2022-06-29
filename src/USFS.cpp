@@ -121,6 +121,20 @@ static const uint8_t EM7180_GYRO_LPF_BW= 0x5C;//Register GP37
 static const uint8_t EM7180_BARO_LPF_BW= 0x5D;//Register GP38
 
 
+static float uint32_reg_to_float (uint8_t *buf)
+{
+    union {
+        uint32_t ui32;
+        float f;
+    } u;
+
+    u.ui32 =     (((uint32_t)buf[0]) +
+            (((uint32_t)buf[1]) <<  8) +
+            (((uint32_t)buf[2]) << 16) +
+            (((uint32_t)buf[3]) << 24));
+    return u.f;
+}
+
 static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) 
 {
     uint8_t temp[2];
@@ -141,19 +155,21 @@ static void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_
     Wire.transfer(address, &subAddress, 1, dest, count); 
 }
 
-static float uint32_reg_to_float (uint8_t *buf)
+static void writeUsfsByte(uint8_t subAddress, uint8_t data) 
 {
-    union {
-        uint32_t ui32;
-        float f;
-    } u;
-
-    u.ui32 =     (((uint32_t)buf[0]) +
-            (((uint32_t)buf[1]) <<  8) +
-            (((uint32_t)buf[2]) << 16) +
-            (((uint32_t)buf[3]) << 24));
-    return u.f;
+    writeByte(EM7180_ADDRESS, subAddress, data);
 }
+
+static uint8_t readUsfsByte(uint8_t subAddress) 
+{
+    return readByte(EM7180_ADDRESS, subAddress);
+}
+
+static void readUsfsBytes( uint8_t subAddress, uint8_t count, uint8_t * dest) 
+{
+    readBytes(EM7180_ADDRESS, subAddress, count, dest);
+}
+
 
 static void EM7180_set_integer_param (uint8_t param, uint32_t param_val) 
 {
@@ -167,27 +183,27 @@ static void EM7180_set_integer_param (uint8_t param, uint32_t param_val)
     // paramter write processs
     param = param | 0x80; 
 
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); // Param LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); // Param MSB
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, param);
+    writeUsfsByte(EM7180_LoadParamByte0, bytes[0]); // Param LSB
+    writeUsfsByte(EM7180_LoadParamByte1, bytes[1]);
+    writeUsfsByte(EM7180_LoadParamByte2, bytes[2]);
+    writeUsfsByte(EM7180_LoadParamByte3, bytes[3]); // Param MSB
+    writeUsfsByte(EM7180_ParamRequest, param);
 
     // Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); 
+    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
-    uint8_t status = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge); 
+    uint8_t status = readUsfsByte(EM7180_ParamAcknowledge); 
 
     while(!(status==param)) {
-        status = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        status = readUsfsByte(EM7180_ParamAcknowledge);
     }
 
     // Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); 
+    writeUsfsByte(EM7180_ParamRequest, 0x00); 
 
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
 static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) 
@@ -197,29 +213,29 @@ static void EM7180_set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs)
     bytes[1] = (mag_fs >> 8) & (0xFF);
     bytes[2] = acc_fs & (0xFF);
     bytes[3] = (acc_fs >> 8) & (0xFF);
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); // Mag LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]); // Mag MSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]); // Acc LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); // Acc MSB
+    writeUsfsByte(EM7180_LoadParamByte0, bytes[0]); // Mag LSB
+    writeUsfsByte(EM7180_LoadParamByte1, bytes[1]); // Mag MSB
+    writeUsfsByte(EM7180_LoadParamByte2, bytes[2]); // Acc LSB
+    writeUsfsByte(EM7180_LoadParamByte3, bytes[3]); // Acc MSB
 
     // Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a
     // paramter write processs
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0xCA); 
+    writeUsfsByte(EM7180_ParamRequest, 0xCA); 
 
     // Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); 
+    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
-    uint8_t status = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge); 
+    uint8_t status = readUsfsByte(EM7180_ParamAcknowledge); 
     while(!(status==0xCA)) {
-        status = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        status = readUsfsByte(EM7180_ParamAcknowledge);
     }
 
     // Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); 
+    writeUsfsByte(EM7180_ParamRequest, 0x00); 
 
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
 static void EM7180_set_gyro_FS (uint16_t gyro_fs) 
@@ -229,29 +245,29 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs)
     bytes[1] = (gyro_fs >> 8) & (0xFF);
     bytes[2] = 0x00;
     bytes[3] = 0x00;
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte0, bytes[0]); //Gyro LSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte1, bytes[1]); //Gyro MSB
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte2, bytes[2]); //Unused
-    writeByte(EM7180_ADDRESS, EM7180_LoadParamByte3, bytes[3]); //Unused
+    writeUsfsByte(EM7180_LoadParamByte0, bytes[0]); //Gyro LSB
+    writeUsfsByte(EM7180_LoadParamByte1, bytes[1]); //Gyro MSB
+    writeUsfsByte(EM7180_LoadParamByte2, bytes[2]); //Unused
+    writeUsfsByte(EM7180_LoadParamByte3, bytes[3]); //Unused
 
     // Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a
     // paramter write processs
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0xCB); 
+    writeUsfsByte(EM7180_ParamRequest, 0xCB); 
 
     //Request parameter transfer procedure
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); 
+    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
-    uint8_t status = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge); 
+    uint8_t status = readUsfsByte(EM7180_ParamAcknowledge); 
     while(!(status==0xCB)) {
-        status = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        status = readUsfsByte(EM7180_ParamAcknowledge);
     }
 
     // Parameter request = 0 to end parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); 
+    writeUsfsByte(EM7180_ParamRequest, 0x00); 
 
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
 static void readThreeAxis(uint8_t subAddress, int16_t * destination)
@@ -259,7 +275,7 @@ static void readThreeAxis(uint8_t subAddress, int16_t * destination)
     uint8_t rawData[6] = {};
 
     // Read the six raw data registers into data array
-    readBytes(EM7180_ADDRESS, subAddress, 6, &rawData[0]);       
+    readUsfsBytes(subAddress, 6, &rawData[0]);       
 
     // Turn the MSB and LSB into a signed 16-bit value
     destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
@@ -272,7 +288,7 @@ static int16_t read16BitValue(uint8_t subAddress)
     uint8_t rawData[2] = {};
 
     // Read the two raw data registers sequentially into data array
-    readBytes(EM7180_ADDRESS, subAddress, 2, &rawData[0]);  
+    readUsfsBytes(subAddress, 2, &rawData[0]);  
 
     // Turn the MSB and LSB into a signed 16-bit value
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
@@ -282,7 +298,7 @@ static int16_t read16BitValue(uint8_t subAddress)
 
 uint8_t usfsCheckErrors()
 {
-    uint8_t c = readByte(EM7180_ADDRESS, EM7180_ErrorRegister);
+    uint8_t c = readUsfsByte(EM7180_ErrorRegister);
     return c;
 }
 
@@ -290,28 +306,28 @@ uint8_t usfsCheckStatus()
 {
     // Check event status register, way to check data ready by polling rather
     // than interrupt.  Reading clears the register and interrupt.
-    return readByte(EM7180_ADDRESS, EM7180_EventStatus); 
+    return readUsfsByte(EM7180_EventStatus); 
 }
 
 void usfsReportChipId()
 {
     // Read SENtral device information
-    uint16_t ROM1 = readByte(EM7180_ADDRESS, EM7180_ROMVersion1);
-    uint16_t ROM2 = readByte(EM7180_ADDRESS, EM7180_ROMVersion2);
+    uint16_t ROM1 = readUsfsByte(EM7180_ROMVersion1);
+    uint16_t ROM2 = readUsfsByte(EM7180_ROMVersion2);
     Serial.print("EM7180 ROM Version: 0x");
     Serial.print(ROM1, HEX);
     Serial.println(ROM2, HEX);
     Serial.println("Should be: 0xE609");
-    uint16_t RAM1 = readByte(EM7180_ADDRESS, EM7180_RAMVersion1);
-    uint16_t RAM2 = readByte(EM7180_ADDRESS, EM7180_RAMVersion2);
+    uint16_t RAM1 = readUsfsByte(EM7180_RAMVersion1);
+    uint16_t RAM2 = readUsfsByte(EM7180_RAMVersion2);
     Serial.print("EM7180 RAM Version: 0x");
     Serial.print(RAM1);
     Serial.println(RAM2);
-    uint8_t PID = readByte(EM7180_ADDRESS, EM7180_ProductID);
+    uint8_t PID = readUsfsByte(EM7180_ProductID);
     Serial.print("EM7180 ProductID: 0x");
     Serial.print(PID, HEX);
     Serial.println(" Should be: 0x80");
-    uint8_t RID = readByte(EM7180_ADDRESS, EM7180_RevisionID);
+    uint8_t RID = readUsfsByte(EM7180_RevisionID);
     Serial.print("EM7180 RevisionID: 0x");
     Serial.print(RID, HEX);
     Serial.println(" Should be: 0x02");
@@ -338,39 +354,39 @@ void usfsBegin(
     uint8_t param[4];      
 
     // Enter EM7180 initialized state
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
+    writeUsfsByte(EM7180_HostControl, 0x00); 
 
     // Make sure pass through mode is off
-    writeByte(EM7180_ADDRESS, EM7180_PassThruControl, 0x00); 
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // Force initialize
+    writeUsfsByte(EM7180_PassThruControl, 0x00); 
+    writeUsfsByte(EM7180_HostControl, 0x01); // Force initialize
 
     // Set SENtral in initialized state to configure registers
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x00); 
+    writeUsfsByte(EM7180_HostControl, 0x00); 
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
-    writeByte(EM7180_ADDRESS, EM7180_ACC_LPF_BW, accBW);   // accBW = 3 = 41Hz
-    writeByte(EM7180_ADDRESS, EM7180_GYRO_LPF_BW, gyroBW); // gyroBW = 3 = 41Hz
+    writeUsfsByte(EM7180_ACC_LPF_BW, accBW);   // accBW = 3 = 41Hz
+    writeUsfsByte(EM7180_GYRO_LPF_BW, gyroBW); // gyroBW = 3 = 41Hz
 
     // Set accel/gyro/mag desired ODR rates
-    writeByte(EM7180_ADDRESS, EM7180_QRateDivisor, QRtDiv); // quat rate = gyroRt/(1 QRTDiv)
-    writeByte(EM7180_ADDRESS, EM7180_MagRate, magRt); // 0x64 = 100 Hz
-    writeByte(EM7180_ADDRESS, EM7180_AccelRate, accRt); // 200/10 Hz, 0x14 = 200 Hz
-    writeByte(EM7180_ADDRESS, EM7180_GyroRate, gyroRt); // 200/10 Hz, 0x14 = 200 Hz
+    writeUsfsByte(EM7180_QRateDivisor, QRtDiv); // quat rate = gyroRt/(1 QRTDiv)
+    writeUsfsByte(EM7180_MagRate, magRt); // 0x64 = 100 Hz
+    writeUsfsByte(EM7180_AccelRate, accRt); // 200/10 Hz, 0x14 = 200 Hz
+    writeUsfsByte(EM7180_GyroRate, gyroRt); // 200/10 Hz, 0x14 = 200 Hz
 
     // Set enable bit and set Baro rate to 25 Hz, rate = baroRt/2, 0x32 = 25 Hz
-    writeByte(EM7180_ADDRESS, EM7180_BaroRate, 0x80 | baroRt);  
+    writeUsfsByte(EM7180_BaroRate, 0x80 | baroRt);  
 
     // Configure operating mode
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // read scale sensor data
+    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // read scale sensor data
 
     // Enable interrupt to host upon certain events choose host interrupts when
     // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
     // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
     // or the SENtral needs to be reset(0x01)
-    writeByte(EM7180_ADDRESS, EM7180_EnableEvents, 0x07);
+    writeUsfsByte(EM7180_EnableEvents, 0x07);
 
     // Enable EM7180 run mode
-    writeByte(EM7180_ADDRESS, EM7180_HostControl, 0x01); // set SENtral in normal run mode
+    writeUsfsByte(EM7180_HostControl, 0x01); // set SENtral in normal run mode
     delay(100);
 
     if (verbose) {
@@ -378,18 +394,18 @@ void usfsBegin(
     }
 
     // Read sensor default FS values from parameter space
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); // Request to read parameter 74
+    writeUsfsByte(EM7180_ParamRequest, 0x4A); // Request to read parameter 74
 
     // Request parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); 
-    byte param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
+    byte param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A)) {
-        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     }
-    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
-    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
-    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
-    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    param[0] = readUsfsByte(EM7180_SavedParamByte0);
+    param[1] = readUsfsByte(EM7180_SavedParamByte1);
+    param[2] = readUsfsByte(EM7180_SavedParamByte2);
+    param[3] = readUsfsByte(EM7180_SavedParamByte3);
     EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
 
@@ -403,22 +419,22 @@ void usfsBegin(
     }
 
     // Request to read  parameter 75
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); 
+    writeUsfsByte(EM7180_ParamRequest, 0x4B); 
 
-    param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
-        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     }
-    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
-    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
-    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
-    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    param[0] = readUsfsByte(EM7180_SavedParamByte0);
+    param[1] = readUsfsByte(EM7180_SavedParamByte1);
+    param[2] = readUsfsByte(EM7180_SavedParamByte2);
+    param[3] = readUsfsByte(EM7180_SavedParamByte3);
     EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
     Serial.print("Gyroscope Default Full Scale Range: +/-");
     Serial.print(EM7180_gyro_fs);
     Serial.println("dps");
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+    writeUsfsByte(EM7180_ParamRequest, 0x00); //End parameter transfer
+    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
     //Disable stillness mode for balancing robot application
     EM7180_set_integer_param (0x49, 0x00);
@@ -428,18 +444,18 @@ void usfsBegin(
     EM7180_set_gyro_FS (gyroFS); // 2000 dps == 0x7D0
 
     // Read sensor new FS values from parameter space
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
+    writeUsfsByte(EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
 
     // Request parameter transfer process
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x80); 
-    param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
+    param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A)) {
-        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     }
-    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
-    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
-    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
-    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    param[0] = readUsfsByte(EM7180_SavedParamByte0);
+    param[1] = readUsfsByte(EM7180_SavedParamByte1);
+    param[2] = readUsfsByte(EM7180_SavedParamByte2);
+    param[3] = readUsfsByte(EM7180_SavedParamByte3);
     EM7180_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     EM7180_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
 
@@ -452,15 +468,15 @@ void usfsBegin(
         Serial.println("g");
     }
 
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
-    param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+    writeUsfsByte(EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
+    param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
-        param_xfer = readByte(EM7180_ADDRESS, EM7180_ParamAcknowledge);
+        param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     }
-    param[0] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte0);
-    param[1] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte1);
-    param[2] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte2);
-    param[3] = readByte(EM7180_ADDRESS, EM7180_SavedParamByte3);
+    param[0] = readUsfsByte(EM7180_SavedParamByte0);
+    param[1] = readUsfsByte(EM7180_SavedParamByte1);
+    param[2] = readUsfsByte(EM7180_SavedParamByte2);
+    param[3] = readUsfsByte(EM7180_SavedParamByte3);
     EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
 
     if (verbose) {
@@ -469,14 +485,14 @@ void usfsBegin(
         Serial.println("dps");
     }
 
-    writeByte(EM7180_ADDRESS, EM7180_ParamRequest, 0x00); //End parameter transfer
-    writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+    writeUsfsByte(EM7180_ParamRequest, 0x00); //End parameter transfer
+    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
     // Read EM7180 status
-    uint8_t runStatus = readByte(EM7180_ADDRESS, EM7180_RunStatus);
+    uint8_t runStatus = readUsfsByte(EM7180_RunStatus);
     if (runStatus & 0x01) Serial.println(" EM7180 run status = normal mode");
 
-    uint8_t algoStatus = readByte(EM7180_ADDRESS, EM7180_AlgorithmStatus);
+    uint8_t algoStatus = readUsfsByte(EM7180_AlgorithmStatus);
 
     if (verbose) {
         if (algoStatus & 0x01) Serial.println(" EM7180 standby status");
@@ -487,11 +503,11 @@ void usfsBegin(
         if (algoStatus & 0x20) Serial.println(" EM7180 unreliable sensor data");
     }
 
-    uint8_t passthruStatus = readByte(EM7180_ADDRESS, EM7180_PassThruStatus);
+    uint8_t passthruStatus = readUsfsByte(EM7180_PassThruStatus);
 
     if (passthruStatus & 0x01) Serial.print(" EM7180 in passthru mode!");
 
-    uint8_t eventStatus = readByte(EM7180_ADDRESS, EM7180_EventStatus);
+    uint8_t eventStatus = readUsfsByte(EM7180_EventStatus);
 
     if (verbose) {
         if (eventStatus & 0x01) Serial.println(" EM7180 CPU reset");
@@ -505,7 +521,7 @@ void usfsBegin(
     delay(1000); // give some time to read the screen
 
     // Check sensor status
-    uint8_t sensorStatus = readByte(EM7180_ADDRESS, EM7180_SensorStatus);
+    uint8_t sensorStatus = readUsfsByte(EM7180_SensorStatus);
     Serial.print(" EM7180 sensor status = ");
     Serial.println(sensorStatus);
     if (sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
@@ -517,16 +533,16 @@ void usfsBegin(
 
     if (verbose) {
         Serial.print("Actual MagRate = ");
-        Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualMagRate));
+        Serial.print(readUsfsByte(EM7180_ActualMagRate));
         Serial.println(" Hz"); 
         Serial.print("Actual AccelRate = ");
-        Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualAccelRate));
+        Serial.print(10*readUsfsByte(EM7180_ActualAccelRate));
         Serial.println(" Hz"); 
         Serial.print("Actual GyroRate = ");
-        Serial.print(10*readByte(EM7180_ADDRESS, EM7180_ActualGyroRate));
+        Serial.print(10*readUsfsByte(EM7180_ActualGyroRate));
         Serial.println(" Hz"); 
         Serial.print("Actual BaroRate = ");
-        Serial.print(readByte(EM7180_ADDRESS, EM7180_ActualBaroRate));
+        Serial.print(readUsfsByte(EM7180_ActualBaroRate));
         Serial.println(" Hz"); 
     }
 }
@@ -535,7 +551,7 @@ void usfsBegin(
 void usfsLoadFirmware()
 {
     // Check which sensors can be detected by the EM7180
-    uint8_t featureflag = readByte(EM7180_ADDRESS, EM7180_FeatureFlags);
+    uint8_t featureflag = readUsfsByte(EM7180_FeatureFlags);
     if (featureflag & 0x01)  {
         Serial.println("A barometer is installed");
     }
@@ -558,48 +574,48 @@ void usfsLoadFirmware()
     delay(1000); // give some time to read the screen
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    byte status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  {
+    byte status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
+    if (readUsfsByte(EM7180_SentralStatus) & 0x01)  {
         Serial.println("EEPROM detected on the sensor bus!");
     }
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  {
+    if (readUsfsByte(EM7180_SentralStatus) & 0x02)  {
         Serial.println("EEPROM uploaded config file!");
     }
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  {
+    if (readUsfsByte(EM7180_SentralStatus) & 0x04)  {
         Serial.println("EEPROM CRC incorrect!");
     }
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  {
+    if (readUsfsByte(EM7180_SentralStatus) & 0x08)  {
         Serial.println("EM7180 in initialized state!");
     }
-    if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  {
+    if (readUsfsByte(EM7180_SentralStatus) & 0x10)  {
         Serial.println("No EEPROM detected!");
     }
 
     int count = 0;
     while(!status) {
-        writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
+        writeUsfsByte(EM7180_ResetRequest, 0x01);
         delay(500);  
         count++;  
-        status = (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01);
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x01)  {
+        status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
+        if (readUsfsByte(EM7180_SentralStatus) & 0x01)  {
             Serial.println("EEPROM detected on the sensor bus!");
         }
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x02)  {
+        if (readUsfsByte(EM7180_SentralStatus) & 0x02)  {
             Serial.println("EEPROM uploaded config file!");
         }
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)  {
+        if (readUsfsByte(EM7180_SentralStatus) & 0x04)  {
             Serial.println("EEPROM CRC incorrect!");
         }
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  {
+        if (readUsfsByte(EM7180_SentralStatus) & 0x08)  {
             Serial.println("EM7180 in initialized state!");
         }
-        if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  {
+        if (readUsfsByte(EM7180_SentralStatus) & 0x10)  {
             Serial.println("No EEPROM detected!");
         }
         if (count > 10) break;
     }
 
-    if (!(readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x04)) {
+    if (!(readUsfsByte(EM7180_SentralStatus) & 0x04)) {
         Serial.println("EEPROM upload successful!");
     }
 }
@@ -624,7 +640,7 @@ void usfsReadQuaternion(float * destination)
     uint8_t rawData[16];  // x/y/z quaternion register data stored here
 
     // Read the sixteen raw data registers into data array
-    readBytes(EM7180_ADDRESS, EM7180_QX, 16, &rawData[0]); 
+    readUsfsBytes(EM7180_QX, 16, &rawData[0]); 
 
     // SENtral stores quats as qx, qy, qz, q0!
     destination[1] = uint32_reg_to_float (&rawData[0]);
