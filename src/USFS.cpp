@@ -51,7 +51,7 @@ static const uint8_t EM7180_QTIME= 0x10;
 static const uint8_t EM7180_MX = 0x12;// int16_t from registers = 0x12-13
 static const uint8_t EM7180_MY = 0x14;// int16_t from registers = 0x14-15
 static const uint8_t EM7180_MZ = 0x16;// int16_t from registers = 0x16-17
-static const uint8_t EM7180_MTIME= 0x18;// uint16_t from registers = 0x18-19
+static const uint8_t EM7180_MTIME = 0x18;// uint16_t from registers = 0x18-19
 static const uint8_t EM7180_AX = 0x1A;// int16_t from registers = 0x1A-1B
 static const uint8_t EM7180_AY = 0x1C;// int16_t from registers = 0x1C-1D
 static const uint8_t EM7180_AZ = 0x1E;// int16_t from registers = 0x1E-1F

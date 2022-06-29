@@ -35,7 +35,7 @@ static const uint8_t ACCEL_BANDWIDTH = 3;
 static const uint8_t GYRO_BANDWIDTH = 3;
 static const uint8_t QUAT_DIVISOR = 1;
 static const uint8_t MAG_RATE = 100;
-static const uint8_t ACCEL_RATE = 20;    // Multiply by 10 to get actual rate
+static const uint8_t ACCEL_RATE = 20; // Multiply by 10 to get actual rate
 static const uint8_t GYRO_RATE = 100; // Multiply by 10 to get actual rate
 static const uint8_t BARO_RATE = 50;
 
@@ -44,6 +44,8 @@ static const uint8_t INTERRUPT_ENABLE = USFS_INTERRUPT_RESET_REQUIRED |
                                         USFS_INTERRUPT_QUAT;
 
 static const bool VERBOSE = true;
+
+static const uint8_t REPORT_HZ = 2;
 
 static const uint16_t AccFS  = 0x0008;
 static const uint16_t GyroFS = 0x07D0;
@@ -210,11 +212,12 @@ void loop()
 
     static float yaw, pitch, roll;
 
-    if (msec-_msec > 500) { 
+    if (msec-_msec > 1000/REPORT_HZ) { 
 
-        Serial.print("Interrupts: ");
-        Serial.println(_interruptCount);
+        Serial.print("Interrupts/sec: ");
+        Serial.println(_interruptCount * REPORT_HZ);
 
+        _interruptCount = 0;
         _msec = msec;
 
         Serial.print("Ax = ");
