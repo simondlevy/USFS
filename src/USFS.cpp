@@ -254,6 +254,19 @@ static void EM7180_set_gyro_FS (uint16_t gyro_fs)
     writeByte(EM7180_ADDRESS, EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
+static void readThreeAxis(uint8_t subAddress, int16_t * destination)
+{
+    uint8_t rawData[6] = {};
+
+    // Read the six raw data registers into data array
+    readBytes(EM7180_ADDRESS, subAddress, 6, &rawData[0]);       
+
+    // Turn the MSB and LSB into a signed 16-bit value
+    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
+    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+}
+
 // ============================================================================
 
 uint8_t usfsCheckErrors(){
@@ -580,26 +593,7 @@ void usfsLoadFirmware()
 
 void usfsReadAccelerometer(int16_t * destination)
 {
-    uint8_t rawData[6];  // x/y/z accel register data stored here
-
-    // Read the six raw data registers into data array
-    readBytes(EM7180_ADDRESS, EM7180_AX, 6, &rawData[0]);       
-
-    // Turn the MSB and LSB into a signed 16-bit value
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
-}
-
-int16_t usfsReadBarometer()
-{
-    uint8_t rawData[2];  // x/y/z gyro register data stored here
-
-    // Read the two raw data registers sequentially into data array
-    readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  
-
-    // Turn the MSB and LSB into a signed 16-bit value
-    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
+    readThreeAxis(EM7180_AX, destination);
 }
 
 void usfsReadGyrometer(int16_t * destination)
@@ -642,6 +636,17 @@ void usfsReadQuaternion(float * destination)
     destination[2] = uint32_reg_to_float (&rawData[4]);
     destination[3] = uint32_reg_to_float (&rawData[8]);
     destination[0] = uint32_reg_to_float (&rawData[12]);   
+}
+
+int16_t usfsReadBarometer()
+{
+    uint8_t rawData[2];  // x/y/z gyro register data stored here
+
+    // Read the two raw data registers sequentially into data array
+    readBytes(EM7180_ADDRESS, EM7180_Baro, 2, &rawData[0]);  
+
+    // Turn the MSB and LSB into a signed 16-bit value
+    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
 }
 
 int16_t usfsReadTemperature()
