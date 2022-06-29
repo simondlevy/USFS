@@ -30,15 +30,24 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 
 static const uint8_t EM7180_ADDRESS= 0x28;
 
-
 // EM7180 SENtral register map
 // see http:;//www.emdeveloper.com/downloads/7180/EMSentral_EM7180_Register_Map_v1_3.pdf
 
-static const uint8_t EM7180_QX = 0x00;// this is a 32-bit normalized floating point number read from registers = 0x00-03
-static const uint8_t EM7180_QY = 0x04;// this is a 32-bit normalized floating point number read from registers = 0x04-07
-static const uint8_t EM7180_QZ = 0x08;// this is a 32-bit normalized floating point number read from registers = 0x08-0B
-static const uint8_t EM7180_QW = 0x0C;// this is a 32-bit normalized floating point number read from registers = 0x0C-0F
-static const uint8_t EM7180_QTIME= 0x10;// this is a 16-bit unsigned integer read from registers = 0x10-11
+// this is a 32-bit normalized floating point number read from registers = 0x00-03
+static const uint8_t EM7180_QX = 0x00;
+
+// this is a 32-bit normalized floating point number read from registers = 0x04-07
+static const uint8_t EM7180_QY = 0x04;
+
+// this is a 32-bit normalized floating point number read from registers = 0x08-0B
+static const uint8_t EM7180_QZ = 0x08;
+
+// this is a 32-bit normalized floating point number read from registers = 0x0C-0F
+static const uint8_t EM7180_QW = 0x0C;
+
+// this is a 16-bit unsigned integer read from registers = 0x10-11
+static const uint8_t EM7180_QTIME= 0x10;
+
 static const uint8_t EM7180_MX = 0x12;// int16_t from registers = 0x12-13
 static const uint8_t EM7180_MY = 0x14;// int16_t from registers = 0x14-15
 static const uint8_t EM7180_MZ = 0x16;// int16_t from registers = 0x16-17
@@ -51,11 +60,20 @@ static const uint8_t EM7180_GX = 0x22;// int16_t from registers = 0x22-23
 static const uint8_t EM7180_GY = 0x24;// int16_t from registers = 0x24-25
 static const uint8_t EM7180_GZ = 0x26;// int16_t from registers = 0x26-27
 static const uint8_t EM7180_GTIME= 0x28;// uint16_t from registers = 0x28-29
-static const uint8_t EM7180_Baro = 0x2A;// start of two-byte MS5637 pressure data, 16-bit signed interger
-static const uint8_t EM7180_BaroTIME = 0x2C;// start of two-byte MS5637 pressure timestamp, 16-bit unsigned
-static const uint8_t EM7180_Temp = 0x2E;// start of two-byte MS5637 temperature data, 16-bit signed interger
-static const uint8_t EM7180_TempTIME = 0x30;// start of two-byte MS5637 temperature timestamp, 16-bit unsigned
-static const uint8_t EM7180_QRateDivisor = 0x32;// uint8_t 
+
+// start of two-byte MS5637 pressure data, 16-bit signed interger
+static const uint8_t EM7180_Baro = 0x2A;
+
+// start of two-byte MS5637 pressure timestamp, 16-bit unsigned
+static const uint8_t EM7180_BaroTIME = 0x2C;
+
+// start of two-byte MS5637 temperature data, 16-bit signed interger
+static const uint8_t EM7180_Temp = 0x2E;
+
+// start of two-byte MS5637 temperature timestamp, 16-bit unsigned
+static const uint8_t EM7180_TempTIME = 0x30;
+
+static const uint8_t EM7180_QRateDivisor = 0x32;
 static const uint8_t EM7180_EnableEvents = 0x33;
 static const uint8_t EM7180_HostControl= 0x34;
 static const uint8_t EM7180_EventStatus= 0x35;
