@@ -296,11 +296,13 @@ static int16_t read16BitValue(uint8_t subAddress)
 
 // ============================================================================
 
+
 uint8_t usfsCheckErrors()
 {
     uint8_t c = readUsfsByte(EM7180_ErrorRegister);
     return c;
 }
+
 
 uint8_t usfsCheckStatus()
 {
@@ -308,6 +310,7 @@ uint8_t usfsCheckStatus()
     // than interrupt.  Reading clears the register and interrupt.
     return readUsfsByte(EM7180_EventStatus); 
 }
+
 
 void usfsReportChipId()
 {

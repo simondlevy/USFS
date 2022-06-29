@@ -94,12 +94,11 @@ void setup()
         }
         delay(10);
     }
-}
 
-/* End of setup */
+} // setup
 
-void loop() {
-
+void loop()
+{
     static uint32_t _interruptCount;
 
     static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
@@ -301,5 +300,4 @@ void loop() {
     digitalWrite(LED_PIN, LOW); delay(10); digitalWrite(LED_PIN, HIGH);  
     STM32.sleep();
 
-}  
-
+}  // loop
