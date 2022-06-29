@@ -658,3 +658,28 @@ bool usfsEventStatusIsError(uint8_t status)
 {
     return status & 0x02;
 }
+
+bool usfsEventStatusIsAccelerometer(uint8_t status)
+{
+    return status & 0x10;
+}
+
+bool usfsEventStatusIsGyrometer(uint8_t status)
+{
+    return status & 0x20;
+}
+
+bool usfsEventStatusIsMagnetometer(uint8_t status)
+{
+    return status & 0x08;
+}
+
+bool usfsEventStatusIsQuaternion(uint8_t status)
+{
+    return status & 0x04;
+}
+
+bool usfsEventStatusIsBarometer(uint8_t status)
+{
+    return status & 0x40;
+}

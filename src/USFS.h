@@ -67,4 +67,8 @@ int16_t usfsReadTemperature();
 
 bool usfsEventStatusIsError(uint8_t status);
 
-bool usfsErrorStatusMagnetometerFailure(uint8_t errorStatus);
+bool usfsEventStatusIsAccelerometer(uint8_t status);
+bool usfsEventStatusIsGyrometer(uint8_t status);
+bool usfsEventStatusIsMagnetometer(uint8_t status);
+bool usfsEventStatusIsQuaternion(uint8_t status);
+bool usfsEventStatusIsBarometer(uint8_t status);

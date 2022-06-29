@@ -140,7 +140,7 @@ void loop() {
             }
         }
 
-        if (eventStatus & 0x10) { 
+        if (usfsEventStatusIsAccelerometer(eventStatus)) { 
 
             int16_t accelCount[3] = {};  
 
@@ -151,7 +151,7 @@ void loop() {
             az = (float)accelCount[2] * 0.000488f;
         }
 
-        if (eventStatus & 0x20) { 
+        if (usfsEventStatusIsGyrometer(eventStatus)) { 
 
             int16_t gyroCount[3] = {};  
 
@@ -162,7 +162,7 @@ void loop() {
             gz = (float)gyroCount[2] * 0.153f;
         }
 
-        if (eventStatus & 0x08) { 
+        if (usfsEventStatusIsMagnetometer(eventStatus)) { 
 
             int16_t magCount[3] = {};  
 
@@ -173,12 +173,11 @@ void loop() {
             mz = (float)magCount[2] * 0.305176f;
         }
 
-        if (eventStatus & 0x04) { 
+        if (usfsEventStatusIsQuaternion(eventStatus)) { 
             usfsReadQuaternion(q);
         }
 
-
-        if (eventStatus & 0x40) { 
+        if (usfsEventStatusIsBarometer(eventStatus)) { 
 
             rawPressure = usfsReadBarometer();
             Pressure = (float)rawPressure * 0.01f + 1013.25f; 
@@ -224,7 +223,7 @@ void loop() {
         Serial.println(" mG");
 
         Serial.println("Hardware quaternions:");
-        Serial.print("Q0 = ");
+        Serial.print("Qw = ");
         Serial.print(q[0]);
         Serial.print(" Qx = ");
         Serial.print(q[1]);
