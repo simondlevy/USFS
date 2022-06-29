@@ -62,8 +62,7 @@ void setup()
     Serial.begin(115200);
     delay(4000);
 
-    Wire.begin(TWI_PINS_20_21); 
-    //Wire.begin(); 
+    Wire.begin(); 
     Wire.setClock(400000); 
     delay(1000);
 
