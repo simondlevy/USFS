@@ -84,7 +84,6 @@ static void readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
 
 bool USFS::begin(void)
 {
-    errorStatus = 0;
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
     for (int attempts=0; attempts<10; ++attempts) {
@@ -92,12 +91,10 @@ bool USFS::begin(void)
             if(readByte(SentralStatus) & 0x01) { }
             if(readByte(SentralStatus) & 0x02) { }
             if(readByte(SentralStatus) & 0x04) {
-                errorStatus = 0xB0;
                 return false;
             }
             if(readByte(SentralStatus) & 0x08) { }
             if(readByte(SentralStatus) & 0x10) {
-                errorStatus = 0xB0;
                 return false;
             }
             break;
@@ -108,7 +105,6 @@ bool USFS::begin(void)
 
 
     if (readByte(SentralStatus) & 0x04) {
-        errorStatus = 0xB0;
         return false;
     }
 

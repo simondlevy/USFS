@@ -111,8 +111,6 @@ class USFS {
         static const uint8_t TEMP_OUT_H       = 0x41;
         static const uint8_t TEMP_OUT_L       = 0x42;
 
-        uint8_t errorStatus;
-
     public:
 
         static const uint8_t ADDRESS = 0x28;
