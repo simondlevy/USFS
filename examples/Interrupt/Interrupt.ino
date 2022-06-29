@@ -31,13 +31,13 @@
 static const uint8_t LED_PIN       = 18; 
 static const uint8_t INTERRUPT_PIN = 12; 
 
-static const uint8_t AccBW = 0x03;
-static const uint8_t GyroBW = 0x03;
-static const uint8_t QRtDiv = 0x01;
-static const uint8_t MagRt = 0x64;
-static const uint8_t AccRt = 0x14;
-static const uint8_t GyroRt = 0x14;
-static const uint8_t BaroRt = 0x32;
+static const uint8_t AccBW = 3;
+static const uint8_t GyroBW = 3;
+static const uint8_t QRtDiv = 1;
+static const uint8_t MagRt = 100;
+static const uint8_t AccRt = 20;    // Multiply by 10 to get actual rate
+static const uint8_t GyroRt = 20; // Multiply by 10 to get actual rate
+static const uint8_t BaroRt = 50;
 
 static const uint16_t AccFS  = 0x0008;
 static const uint16_t GyroFS = 0x07D0;
@@ -231,7 +231,6 @@ void loop() {
         Serial.print(q[2]);
         Serial.print(" Qz = ");
         Serial.println(q[3]);
-
 
         float A12 =   2.0f * (q[1] * q[2] + q[0] * q[3]);
         float A22 =   q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3];
