@@ -26,6 +26,18 @@
 
 #include <stdint.h>
 
+enum {
+
+    USFS_ERROR_MAGNETOMETER       = 0x11,
+    USFS_ERROR_ACCELEROMETER      = 0x12,
+    USFS_ERROR_GYROMETER          = 0x14,
+    USFS_ERROR_MAGNETOMETER_INIT  = 0x21,
+    USFS_ERROR_ACCELEROMETER_INIT = 0x22,
+    USFS_ERROR_GYROMETER_INIT     = 0x24,
+    USFS_ERROR_MATH               = 0x30,
+    USFS_ERROR_SAMPLE_RATE        = 0x80
+};
+
 uint8_t usfsCheckErrors();
 
 uint8_t usfsCheckStatus();
@@ -55,3 +67,4 @@ int16_t usfsReadTemperature();
 
 bool usfsEventStatusIsError(uint8_t status);
 
+bool usfsErrorStatusMagnetometerFailure(uint8_t errorStatus);

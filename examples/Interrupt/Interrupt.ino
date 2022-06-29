@@ -104,38 +104,39 @@ void loop() {
 
         if (usfsEventStatusIsError(eventStatus)) { 
 
-            uint8_t errorStatus = usfsCheckErrors();
+            switch (usfsCheckErrors()) {
 
-            if (errorStatus != 0x00) { 
+                case USFS_ERROR_MAGNETOMETER:
+                    Serial.println("Magnetometer failure!");
+                    break;
 
-                Serial.print(" EM7180 sensor status = ");
-
-                Serial.println(errorStatus);
-
-                if (errorStatus == 0x11) {
-                    Serial.print("Magnetometer failure!");
-                }
-                if (errorStatus == 0x12) { 
-                    Serial.print("Accelerometer failure!");
-                }
-                if (errorStatus == 0x14) { 
-                    Serial.print("Gyro failure!");
-                }
-                if (errorStatus == 0x21) { 
-                    Serial.print("Magnetometer initialization failure!");
-                }
-                if (errorStatus == 0x22) { 
-                    Serial.print("Accelerometer initialization failure!");
-                }
-                if (errorStatus == 0x24) { 
-                    Serial.print("Gyro initialization failure!");
-                }
-                if (errorStatus == 0x30) { 
-                    Serial.print("Math error!");
-                }
-                if (errorStatus == 0x80) { 
-                    Serial.print("Invalid sample rate!");
-                }
+                case USFS_ERROR_ACCELEROMETER:
+                    Serial.println("Accelerometer failure!");
+                    break;
+                
+                case USFS_ERROR_GYROMETER:
+                    Serial.println("Gyro failure!");
+                    break;
+                
+                case USFS_ERROR_MAGNETOMETER_INIT:
+                    Serial.println("Magnetometer initialization failure!");
+                    break;
+               
+                case USFS_ERROR_ACCELEROMETER_INIT:
+                    Serial.println("Accelerometer initialization failure!");
+                    break;
+               
+                case USFS_ERROR_GYROMETER_INIT:
+                    Serial.println("Gyro initialization failure!");
+                    break;
+              
+                case USFS_ERROR_MATH:
+                    Serial.println("Math error!");
+                    break;
+            
+                case USFS_ERROR_SAMPLE_RATE:
+                    Serial.println("Invalid sample rate!");
+                    break;
             }
         }
 
