@@ -6,7 +6,7 @@
 
    Adapted from
 
-     https://raw.githubusercontent.com/kriswiner/Teensy_Flight_Controller/master/MPU9250_BMP280
+     https:
 
    This file is part of USFS.
 
@@ -20,7 +20,7 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
-   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
+   along with USFS.  If not, see <http:
 */
 
 #include <Arduino.h>
@@ -30,30 +30,28 @@
 
 static const uint8_t ADDRESS = 0x28;
 
-// SENtral register map
-// see http://www.emdeveloper.com/downloads/7180/EMSentral_USFS_Register_Map_v1_3.pdf
-static const uint8_t QX                 = 0x00;  // this is a 32-bit normalized floating point number read from registers = 0x00-03
-static const uint8_t QY                 = 0x04;  // this is a 32-bit normalized floating point number read from registers = 0x04-07
-static const uint8_t QZ                 = 0x08;  // this is a 32-bit normalized floating point number read from registers = 0x08-0B
-static const uint8_t QW                 = 0x0C;  // this is a 32-bit normalized floating point number read from registers = 0x0C-0F
-static const uint8_t QTIME              = 0x10;  // this is a 16-bit unsigned integer read from registers = 0x10-11
-static const uint8_t MX                 = 0x12;  // int16_t from registers = 0x12-13
-static const uint8_t MY                 = 0x14;  // int16_t from registers = 0x14-15
-static const uint8_t MZ                 = 0x16;  // int16_t from registers = 0x16-17
-static const uint8_t MTIME              = 0x18;  // uint16_t from registers = 0x18-19
-static const uint8_t AX                 = 0x1A;  // int16_t from registers = 0x1A-1B
-static const uint8_t AY                 = 0x1C;  // int16_t from registers = 0x1C-1D
-static const uint8_t AZ                 = 0x1E;  // int16_t from registers = 0x1E-1F
-static const uint8_t ATIME              = 0x20;  // uint16_t from registers = 0x20-21
-static const uint8_t GX                 = 0x22;  // int16_t from registers = 0x22-23
-static const uint8_t GY                 = 0x24;  // int16_t from registers = 0x24-25
-static const uint8_t GZ                 = 0x26;  // int16_t from registers = 0x26-27
-static const uint8_t GTIME              = 0x28;  // uint16_t from registers = 0x28-29
-static const uint8_t Baro               = 0x2A;  // start of two-byte MS5637 pressure data, 16-bit signed interger
-static const uint8_t BaroTIME           = 0x2C;  // start of two-byte MS5637 pressure timestamp, 16-bit unsigned
-static const uint8_t Temp               = 0x2E;  // start of two-byte MS5637 temperature data, 16-bit signed interger
-static const uint8_t TempTIME           = 0x30;  // start of two-byte MS5637 temperature timestamp, 16-bit unsigned
-static const uint8_t QRateDivisor       = 0x32;  // uint8_t 
+static const uint8_t QX                 = 0x00;  
+static const uint8_t QY                 = 0x04;  
+static const uint8_t QZ                 = 0x08;  
+static const uint8_t QW                 = 0x0C;  
+static const uint8_t QTIME              = 0x10;  
+static const uint8_t MX                 = 0x12;  
+static const uint8_t MY                 = 0x14;  
+static const uint8_t MZ                 = 0x16;  
+static const uint8_t MTIME              = 0x18;  
+static const uint8_t AX                 = 0x1A;  
+static const uint8_t AY                 = 0x1C;  
+static const uint8_t AZ                 = 0x1E;  
+static const uint8_t ATIME              = 0x20;  
+static const uint8_t GX                 = 0x22;  
+static const uint8_t GY                 = 0x24;  
+static const uint8_t GZ                 = 0x26;  
+static const uint8_t GTIME              = 0x28;  
+static const uint8_t Baro               = 0x2A;  
+static const uint8_t BaroTIME           = 0x2C;  
+static const uint8_t Temp               = 0x2E;  
+static const uint8_t TempTIME           = 0x30;  
+static const uint8_t QRateDivisor       = 0x32;  
 static const uint8_t EnableEvents       = 0x33;
 static const uint8_t HostControl        = 0x34;
 static const uint8_t EventStatus        = 0x35;
@@ -90,15 +88,15 @@ static const uint8_t RAMVersion2        = 0x73;
 static const uint8_t ProductID          = 0x90;
 static const uint8_t RevisionID         = 0x91;
 static const uint8_t RunStatus          = 0x92;
-static const uint8_t UploadAddress      = 0x94; // uint16_t registers = 0x94 (MSB)-5(LSB)
+static const uint8_t UploadAddress      = 0x94; 
 static const uint8_t UploadData         = 0x96;  
-static const uint8_t CRCHost            = 0x97; // uint32_t from registers = 0x97-9A
+static const uint8_t CRCHost            = 0x97; 
 static const uint8_t ResetRequest       = 0x9B;   
 static const uint8_t PassThruStatus     = 0x9E;   
 static const uint8_t PassThruControl    = 0xA0;
-static const uint8_t ACC_LPF_BW         = 0x5B;  //Register GP36
-static const uint8_t GYRO_LPF_BW        = 0x5C;  //Register GP37
-static const uint8_t BARO_LPF_BW        = 0x5D;  //Register GP38
+static const uint8_t ACC_LPF_BW         = 0x5B;  
+static const uint8_t GYRO_LPF_BW        = 0x5C;  
+static const uint8_t BARO_LPF_BW        = 0x5D;  
 static const uint8_t GP36               = 0x5B;
 static const uint8_t GP37               = 0x5C;
 static const uint8_t GP38               = 0x5D;
@@ -134,11 +132,11 @@ static float uint32_reg_to_float (uint8_t *buf)
 
 static void readBytes(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
-    Wire.beginTransmission(ADDRESS);   // Initialize the Tx buffer
+    Wire.beginTransmission(ADDRESS);   
     Wire.write(subAddress);
-    Wire.endTransmission(false);      // Send Tx buffer; keep connection alive
+    Wire.endTransmission(false);      
     uint32_t i = 0;
-    Wire.requestFrom((int)ADDRESS, (int)count);  // Read bytes from slave reg address 
+    Wire.requestFrom((int)ADDRESS, (int)count);  
     while (Wire.available()) {
         dest[i++] = Wire.read(); 
     } 
@@ -169,12 +167,12 @@ static void readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
 }
 
 
-// ============================================================================
+
 
 bool USFS::begin(void)
 {
 
-    // Check SENtral status, make sure EEPROM upload of firmware was accomplished
+    
     for (int attempts=0; attempts<10; ++attempts) {
         if (readByte(SentralStatus) & 0x01) {
             if(readByte(SentralStatus) & 0x01) { }
@@ -239,11 +237,11 @@ void USFS::requestReset(void)
 
 void USFS::setPassThroughMode()
 {
-    // First put SENtral in standby mode
+    
     writeByte(AlgorithmControl, 0x01);
     delay(5);
 
-    // Place SENtral in pass-through mode
+    
     writeByte(PassThruControl, 0x01);
     while (true) {
         if (readByte(PassThruStatus) & 0x01) break;
@@ -253,14 +251,14 @@ void USFS::setPassThroughMode()
 
 void USFS::setMasterMode()
 {
-    // Cancel pass-through mode
+    
     writeByte(PassThruControl, 0x00);
     while (true) {
         if (!(readByte(PassThruStatus) & 0x01)) break;
         delay(5);
     }
 
-    // Re-start algorithm
+    
     writeByte(AlgorithmControl, 0x00);
     while (true) {
         if (!(readByte(AlgorithmStatus) & 0x01)) break;
@@ -395,18 +393,18 @@ void USFS::setGyroFs(uint16_t gyro_fs)
     bytes[1] = (gyro_fs >> 8) & (0xFF);
     bytes[2] = 0x00;
     bytes[3] = 0x00;
-    writeByte(LoadParamByte0, bytes[0]); //Gyro LSB
-    writeByte(LoadParamByte1, bytes[1]); //Gyro MSB
-    writeByte(LoadParamByte2, bytes[2]); //Unused
-    writeByte(LoadParamByte3, bytes[3]); //Unused
-    writeByte(ParamRequest, 0xCB); //Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a paramter write processs
-    writeByte(AlgorithmControl, 0x80); //Request parameter transfer procedure
-    STAT = readByte(ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
+    writeByte(LoadParamByte0, bytes[0]); 
+    writeByte(LoadParamByte1, bytes[1]); 
+    writeByte(LoadParamByte2, bytes[2]); 
+    writeByte(LoadParamByte3, bytes[3]); 
+    writeByte(ParamRequest, 0xCB); 
+    writeByte(AlgorithmControl, 0x80); 
+    STAT = readByte(ParamAcknowledge); 
     while(!(STAT==0xCB)) {
         STAT = readByte(ParamAcknowledge);
     }
-    writeByte(ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    writeByte(AlgorithmControl, 0x00); // Re-start algorithm
+    writeByte(ParamRequest, 0x00); 
+    writeByte(AlgorithmControl, 0x00); 
 }
 
 void USFS::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
@@ -416,18 +414,18 @@ void USFS::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     bytes[1] = (mag_fs >> 8) & (0xFF);
     bytes[2] = acc_fs & (0xFF);
     bytes[3] = (acc_fs >> 8) & (0xFF);
-    writeByte(LoadParamByte0, bytes[0]); //Mag LSB
-    writeByte(LoadParamByte1, bytes[1]); //Mag MSB
-    writeByte(LoadParamByte2, bytes[2]); //Acc LSB
-    writeByte(LoadParamByte3, bytes[3]); //Acc MSB
-    writeByte(ParamRequest, 0xCA); //Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a paramter write processs
-    writeByte(AlgorithmControl, 0x80); //Request parameter transfer procedure
-    STAT = readByte(ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
+    writeByte(LoadParamByte0, bytes[0]); 
+    writeByte(LoadParamByte1, bytes[1]); 
+    writeByte(LoadParamByte2, bytes[2]); 
+    writeByte(LoadParamByte3, bytes[3]); 
+    writeByte(ParamRequest, 0xCA); 
+    writeByte(AlgorithmControl, 0x80); 
+    STAT = readByte(ParamAcknowledge); 
     while(!(STAT==0xCA)) {
         STAT = readByte(ParamAcknowledge);
     }
-    writeByte(ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    writeByte(AlgorithmControl, 0x00); // Re-start algorithm
+    writeByte(ParamRequest, 0x00); 
+    writeByte(AlgorithmControl, 0x00); 
 }
 
 void USFS::loadParamByte0(uint8_t value)
@@ -517,7 +515,7 @@ void USFS::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
 
 void USFS::readQuaternion(float & qw, float & qx, float & qy, float &qz)
 {
-    uint8_t rawData[16];  // x/y/z/w quaternion register data stored here (note unusual order!)
+    uint8_t rawData[16];  
 
     readBytes(QX, 16, &rawData[0]);       
 
