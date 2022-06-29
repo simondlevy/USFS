@@ -28,7 +28,6 @@
 
 #include "USFS.h"
 
-static const uint8_t LED_PIN       = 18; 
 static const uint8_t INTERRUPT_PIN = 12; 
 
 static const uint8_t ACCEL_BANDWIDTH = 3;
@@ -62,9 +61,6 @@ void setup()
 {
     Serial.begin(115200);
     delay(4000);
-
-    pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, HIGH); 
 
     Wire.begin(TWI_PINS_20_21); 
     Wire.setClock(400000); 
@@ -304,8 +300,5 @@ void loop()
         Serial.println(" feet");
         Serial.println(" ");
     } 
-
-    digitalWrite(LED_PIN, LOW); delay(10); digitalWrite(LED_PIN, HIGH);  
-    STM32.sleep();
 
 }  // loop
