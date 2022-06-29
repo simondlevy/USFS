@@ -16,105 +16,97 @@
    GNU General Public License for more details.
    You should have received a copy of the GNU General Public License
    along with USFS.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #pragma once
 
 #include <stdint.h>
 
-class USFS {
+void usfs2_algorithmControlReset(void); 
 
-    protected:
+void usfs2_algorithmControlRequestParameterTransfer(void);
 
-    public:
+bool usfs2_begin(void);
 
-        void algorithmControlReset(void); 
+void usfs2_enableEvents(uint8_t usfs2_mask);
 
-        void algorithmControlRequestParameterTransfer(void);
+uint8_t usfs2_getAlgorithmStatus(void);
 
-        bool begin(void);
+uint8_t usfs2_getErrorStatus(void);
 
-        void enableEvents(uint8_t mask);
+uint8_t usfs2_getEventStatus(void);
 
-        uint8_t getAlgorithmStatus(void);
+uint8_t usfs2_getParamAcknowledge(void);
 
-        uint8_t getErrorStatus(void);
+uint8_t usfs2_getPassThruStatus(void);
 
-        uint8_t getEventStatus(void);
+uint8_t usfs2_getProductId(void); 
 
-        uint8_t getParamAcknowledge(void);
+uint16_t usfs2_getRamVersion(void);
 
-        uint8_t getPassThruStatus(void);
+uint8_t usfs2_getRevisionId(void); 
 
-        uint8_t  getProductId(void); 
+uint16_t usfs2_getRomVersion(void);
 
-        uint16_t getRamVersion(void);
+uint8_t usfs2_getRunStatus(void);
 
-        uint8_t  getRevisionId(void); 
+uint8_t usfs2_getSensorStatus(void);
 
-        uint16_t getRomVersion(void);
+uint8_t usfs2_getSentralStatus(void);
 
-        uint8_t getRunStatus(void);
+void usfs2_loadParamByte0(uint8_t usfs2_value);
+void usfs2_loadParamByte1(uint8_t usfs2_value);
+void usfs2_loadParamByte2(uint8_t usfs2_value);
+void usfs2_loadParamByte3(uint8_t usfs2_value);
 
-        uint8_t getSensorStatus(void);
+void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
 
-        uint8_t  getSentralStatus(void);
+void usfs2_readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
-        void loadParamByte0(uint8_t value);
-        void loadParamByte1(uint8_t value);
-        void loadParamByte2(uint8_t value);
-        void loadParamByte3(uint8_t value);
+uint8_t usfs2_readSavedParamByte0(void);
+uint8_t usfs2_readSavedParamByte1(void);
+uint8_t usfs2_readSavedParamByte2(void);
+uint8_t usfs2_readSavedParamByte3(void);
 
-        void readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
+void usfs2_requestParamRead(uint8_t usfs2_param);
 
-        void readQuaternion(float & qw, float & qx, float & qy, float & qz);
+void usfs2_requestReset(void);
 
-        uint8_t readSavedParamByte0(void);
-        uint8_t readSavedParamByte1(void);
-        uint8_t readSavedParamByte2(void);
-        uint8_t readSavedParamByte3(void);
+void usfs2_setAccelLpfBandwidth(uint8_t usfs2_bw);
 
-        void    requestParamRead(uint8_t param);
+void usfs2_setAccelRate(uint8_t usfs2_rate);
 
-        void requestReset(void);
+void usfs2_setBaroRate(uint8_t usfs2_rate);
 
-        void setAccelLpfBandwidth(uint8_t bw);
+void usfs2_setGyroFs(uint16_t gyro_fs);
 
-        void setAccelRate(uint8_t rate);
+void usfs2_setGyroLpfBandwidth(uint8_t usfs2_bw);
 
-        void setBaroRate(uint8_t rate);
+void usfs2_setGyroRate(uint8_t usfs2_rate);
 
-        void setGyroFs(uint16_t gyro_fs);
+void usfs2_setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
 
-        void setGyroLpfBandwidth(uint8_t bw);
+void usfs2_setMagRate(uint8_t usfs2_rate);
 
-        void setGyroRate(uint8_t rate);
+void usfs2_setMasterMode(void);
 
-        void setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
+void usfs2_setPassThroughMode(void);
 
-        void setMagRate(uint8_t rate);
+void usfs2_setQRateDivisor(uint8_t usfs2_divisor);
 
-        void setMasterMode(void);
+void usfs2_setRunDisable(void);
 
-        void setPassThroughMode(void);
+void usfs2_setRunEnable(void);
 
-        void setQRateDivisor(uint8_t divisor);
-
-        void setRunDisable(void);
-
-        void setRunEnable(void);
-
-        void writeGp36(uint8_t value);
-        void writeGp37(uint8_t value);
-        void writeGp38(uint8_t value);
-        void writeGp39(uint8_t value);
-        void writeGp40(uint8_t value);
-        void writeGp50(uint8_t value);
-        void writeGp51(uint8_t value);
-        void writeGp52(uint8_t value);
-        void writeGp53(uint8_t value);
-        void writeGp54(uint8_t value);
-        void writeGp55(uint8_t value);
-        void writeGp56(uint8_t value);
-
-}; // class USFS
+void usfs2_writeGp36(uint8_t usfs2_value);
+void usfs2_writeGp37(uint8_t usfs2_value);
+void usfs2_writeGp38(uint8_t usfs2_value);
+void usfs2_writeGp39(uint8_t usfs2_value);
+void usfs2_writeGp40(uint8_t usfs2_value);
+void usfs2_writeGp50(uint8_t usfs2_value);
+void usfs2_writeGp51(uint8_t usfs2_value);
+void usfs2_writeGp52(uint8_t usfs2_value);
+void usfs2_writeGp53(uint8_t usfs2_value);
+void usfs2_writeGp54(uint8_t usfs2_value);
+void usfs2_writeGp55(uint8_t usfs2_value);
+void usfs2_writeGp56(uint8_t usfs2_value);

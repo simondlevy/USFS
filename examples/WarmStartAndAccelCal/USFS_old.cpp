@@ -167,9 +167,9 @@ static void readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
 }
 
 
+// ============================================================================
 
-
-bool USFS::begin(void)
+bool usfs2_begin(void)
 {
 
     
@@ -199,17 +199,17 @@ bool USFS::begin(void)
 }
 
 
-uint8_t USFS::getProductId(void) 
+uint8_t usfs2_getProductId(void) 
 {
     return readByte(ProductID);
 }
 
-uint8_t USFS::getRevisionId(void) 
+uint8_t usfs2_getRevisionId(void) 
 {
     return readByte(RevisionID);
 }
 
-uint16_t USFS::getRamVersion(void)
+uint16_t usfs2_getRamVersion(void)
 {
     uint16_t ram1 = readByte(RAMVersion1);
     uint16_t ram2 = readByte(RAMVersion2);
@@ -217,7 +217,7 @@ uint16_t USFS::getRamVersion(void)
     return ram1 << 8 | ram2;
 }
 
-uint16_t USFS::getRomVersion(void)
+uint16_t usfs2_getRomVersion(void)
 {
     uint16_t rom1 = readByte(ROMVersion1);
     uint16_t rom2 = readByte(ROMVersion2);
@@ -225,17 +225,17 @@ uint16_t USFS::getRomVersion(void)
     return rom1 << 8 | rom2;
 }
 
-uint8_t USFS::getSentralStatus(void)
+uint8_t usfs2_getSentralStatus(void)
 {
     return readByte(SentralStatus); 
 }
 
-void USFS::requestReset(void)
+void usfs2_requestReset(void)
 {
     writeByte(ResetRequest, 0x01);
 }
 
-void USFS::setPassThroughMode()
+void usfs2_setPassThroughMode()
 {
     
     writeByte(AlgorithmControl, 0x01);
@@ -249,7 +249,7 @@ void USFS::setPassThroughMode()
     }
 }
 
-void USFS::setMasterMode()
+void usfs2_setMasterMode()
 {
     
     writeByte(PassThruControl, 0x00);
@@ -266,127 +266,127 @@ void USFS::setMasterMode()
     }
 }
 
-void USFS::setRunEnable(void)
+void usfs2_setRunEnable(void)
 {
     writeByte(HostControl, 0x01); 
 }
 
-void USFS::setRunDisable(void)
+void usfs2_setRunDisable(void)
 {
     writeByte(HostControl, 0x00); 
 }
 
-void USFS::setAccelLpfBandwidth(uint8_t bw)
+void usfs2_setAccelLpfBandwidth(uint8_t bw)
 {
     writeByte(ACC_LPF_BW, bw); 
 }
 
-void USFS::setGyroLpfBandwidth(uint8_t bw)
+void usfs2_setGyroLpfBandwidth(uint8_t bw)
 {
     writeByte(GYRO_LPF_BW, bw); 
 }
 
-void USFS::setQRateDivisor(uint8_t divisor)
+void usfs2_setQRateDivisor(uint8_t divisor)
 {
     writeByte(QRateDivisor, divisor);
 }
 
-void USFS::setMagRate(uint8_t rate)
+void usfs2_setMagRate(uint8_t rate)
 {
     writeByte(MagRate, rate);
 }
 
-void USFS::setAccelRate(uint8_t rate)
+void usfs2_setAccelRate(uint8_t rate)
 {
     writeByte(AccelRate, rate);
 }
 
-void USFS::setGyroRate(uint8_t rate)
+void usfs2_setGyroRate(uint8_t rate)
 {
     writeByte(GyroRate, rate);
 }
 
-void USFS::setBaroRate(uint8_t rate)
+void usfs2_setBaroRate(uint8_t rate)
 {
     writeByte(BaroRate, rate);
 }
 
-void USFS::algorithmControlRequestParameterTransfer(void)
+void usfs2_algorithmControlRequestParameterTransfer(void)
 {
     writeByte(AlgorithmControl, 0x80);
 }
 
-void USFS::algorithmControlReset(void)
+void usfs2_algorithmControlReset(void)
 {
     writeByte(AlgorithmControl, 0x00);
 }
 
-void USFS::enableEvents(uint8_t mask)
+void usfs2_enableEvents(uint8_t mask)
 {
     writeByte(EnableEvents, mask);
 }
 
-void USFS::requestParamRead(uint8_t param)
+void usfs2_requestParamRead(uint8_t param)
 {
     writeByte(ParamRequest, param); 
 }
 
-uint8_t USFS::getParamAcknowledge(void)
+uint8_t usfs2_getParamAcknowledge(void)
 {
     return readByte(ParamAcknowledge);
 }
 
-uint8_t USFS::readSavedParamByte0(void)
+uint8_t usfs2_readSavedParamByte0(void)
 {
     return readByte(SavedParamByte0);
 }
 
-uint8_t USFS::readSavedParamByte1(void)
+uint8_t usfs2_readSavedParamByte1(void)
 {
     return readByte(SavedParamByte1);
 }
 
-uint8_t USFS::readSavedParamByte2(void)
+uint8_t usfs2_readSavedParamByte2(void)
 {
     return readByte(SavedParamByte2);
 }
 
-uint8_t USFS::readSavedParamByte3(void)
+uint8_t usfs2_readSavedParamByte3(void)
 {
     return readByte(SavedParamByte3);
 }
 
-uint8_t USFS::getRunStatus(void)
+uint8_t usfs2_getRunStatus(void)
 {
     return readByte(RunStatus);
 }
 
-uint8_t USFS::getAlgorithmStatus(void)
+uint8_t usfs2_getAlgorithmStatus(void)
 {
     return readByte(AlgorithmStatus);
 }
 
-uint8_t USFS::getPassThruStatus(void)
+uint8_t usfs2_getPassThruStatus(void)
 {
     return readByte(PassThruStatus);
 }
 
-uint8_t USFS::getEventStatus(void)
+uint8_t usfs2_getEventStatus(void)
 {
     return readByte(EventStatus);
 }
 
-uint8_t USFS::getSensorStatus(void)
+uint8_t usfs2_getSensorStatus(void)
 {
     return readByte(SensorStatus);
 }
 
-uint8_t USFS::getErrorStatus(void)
+uint8_t usfs2_getErrorStatus(void)
 {
     return readByte(ErrorRegister);
 }
 
-void USFS::setGyroFs(uint16_t gyro_fs) 
+void usfs2_setGyroFs(uint16_t gyro_fs) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
@@ -407,7 +407,7 @@ void USFS::setGyroFs(uint16_t gyro_fs)
     writeByte(AlgorithmControl, 0x00); 
 }
 
-void USFS::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
+void usfs2_setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
 {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
@@ -428,92 +428,92 @@ void USFS::setMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     writeByte(AlgorithmControl, 0x00); 
 }
 
-void USFS::loadParamByte0(uint8_t value)
+void usfs2_loadParamByte0(uint8_t value)
 {
     writeByte(LoadParamByte0, value);
 }
 
-void USFS::loadParamByte1(uint8_t value)
+void usfs2_loadParamByte1(uint8_t value)
 {
     writeByte(LoadParamByte1, value);
 }
 
-void USFS::loadParamByte2(uint8_t value)
+void usfs2_loadParamByte2(uint8_t value)
 {
     writeByte(LoadParamByte2, value);
 }
 
-void USFS::loadParamByte3(uint8_t value)
+void usfs2_loadParamByte3(uint8_t value)
 {
     writeByte(LoadParamByte3, value);
 }
 
-void USFS::writeGp36(uint8_t value)
+void usfs2_writeGp36(uint8_t value)
 {
     writeByte(GP36, value);
 }
 
-void USFS::writeGp37(uint8_t value)
+void usfs2_writeGp37(uint8_t value)
 {
     writeByte(GP37, value);
 }
 
-void USFS::writeGp38(uint8_t value)
+void usfs2_writeGp38(uint8_t value)
 {
     writeByte(GP38, value);
 }
 
-void USFS::writeGp39(uint8_t value)
+void usfs2_writeGp39(uint8_t value)
 {
     writeByte(GP39, value);
 }
 
-void USFS::writeGp40(uint8_t value)
+void usfs2_writeGp40(uint8_t value)
 {
     writeByte(GP40, value);
 }
 
-void USFS::writeGp50(uint8_t value)
+void usfs2_writeGp50(uint8_t value)
 {
     writeByte(GP50, value);
 }
 
-void USFS::writeGp51(uint8_t value)
+void usfs2_writeGp51(uint8_t value)
 {
     writeByte(GP51, value);
 }
 
-void USFS::writeGp52(uint8_t value)
+void usfs2_writeGp52(uint8_t value)
 {
     writeByte(GP52, value);
 }
 
-void USFS::writeGp53(uint8_t value)
+void usfs2_writeGp53(uint8_t value)
 {
     writeByte(GP53, value);
 }
 
-void USFS::writeGp54(uint8_t value)
+void usfs2_writeGp54(uint8_t value)
 {
     writeByte(GP54, value);
 }
 
-void USFS::writeGp55(uint8_t value)
+void usfs2_writeGp55(uint8_t value)
 {
     writeByte(GP55, value);
 }
 
-void USFS::writeGp56(uint8_t value)
+void usfs2_writeGp56(uint8_t value)
 {
     writeByte(GP56, value);
 }
 
-void USFS::readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
+void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
 {
     readThreeAxis(AX, ax, ay, az);
 }
 
-void USFS::readQuaternion(float & qw, float & qx, float & qy, float &qz)
+void usfs2_readQuaternion(float & qw, float & qx, float & qy, float &qz)
 {
     uint8_t rawData[16];  
 
@@ -524,4 +524,3 @@ void USFS::readQuaternion(float & qw, float & qx, float & qy, float &qz)
     qz = uint32_reg_to_float (&rawData[8]);
     qw = uint32_reg_to_float (&rawData[12]);
 }
-
