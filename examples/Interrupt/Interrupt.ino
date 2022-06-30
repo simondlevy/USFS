@@ -107,7 +107,7 @@ void loop()
 {
     static uint32_t _interruptCount;
 
-    static float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    
+    static float q[4] = {1, 0, 0, 0};    
     static int16_t rawPressure, rawTemperature;            
     static float Temperature, Pressure, Altitude; 
     static float ax, ay, az, gx, gy, gz, mx, my, mz; 
