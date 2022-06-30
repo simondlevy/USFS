@@ -5,38 +5,26 @@
 
    Adapted from
 
-     https://github.com/kriswiner/USFS_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
+https://github.com/kriswiner/USFS_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
 
-   This file is part of USFS.
+This file is part of USFS.
 
-   USFS is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+USFS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-   USFS is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   You should have received a copy of the GNU General Public License
-   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
+USFS is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
 
 #include <stdint.h>
-
-enum {
-
-    USFS_ERROR_MAGNETOMETER       = 0x11,
-    USFS_ERROR_ACCELEROMETER      = 0x12,
-    USFS_ERROR_GYROMETER          = 0x14,
-    USFS_ERROR_MAGNETOMETER_INIT  = 0x21,
-    USFS_ERROR_ACCELEROMETER_INIT = 0x22,
-    USFS_ERROR_GYROMETER_INIT     = 0x24,
-    USFS_ERROR_MATH               = 0x30,
-    USFS_ERROR_SAMPLE_RATE        = 0x80
-};
 
 enum {
 
@@ -85,3 +73,5 @@ bool usfsEventStatusIsGyrometer(uint8_t status);
 bool usfsEventStatusIsMagnetometer(uint8_t status);
 bool usfsEventStatusIsQuaternion(uint8_t status);
 bool usfsEventStatusIsBarometer(uint8_t status);
+
+void usfsReportError(uint8_t errorStatus);

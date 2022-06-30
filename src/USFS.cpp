@@ -703,3 +703,43 @@ bool usfsEventStatusIsBarometer(uint8_t status)
 {
     return status & 0x40;
 }
+
+void usfsReportError(uint8_t errorStatus)
+{
+
+    switch (errorStatus) {
+
+        case 0x11:
+            Serial.println("Magnetometer failure!");
+            break;
+
+        case 0x12:
+            Serial.println("Accelerometer failure!");
+            break;
+
+        case 0x14:
+            Serial.println("Gyro failure!");
+            break;
+
+        case 0x21:
+            Serial.println("Magnetometer initialization failure!");
+            break;
+
+        case 0x22:
+            Serial.println("Accelerometer initialization failure!");
+            break;
+
+        case 0x24:
+            Serial.println("Gyro initialization failure!");
+            break;
+
+        case 0x30:
+            Serial.println("Math error!");
+            break;
+
+        case 0x80:
+            Serial.println("Invalid sample rate!");
+            break;
+    }
+}
+

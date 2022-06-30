@@ -124,40 +124,7 @@ void loop()
 
         if (usfsEventStatusIsError(eventStatus)) { 
 
-            switch (usfsCheckErrors()) {
-
-                case USFS_ERROR_MAGNETOMETER:
-                    Serial.println("Magnetometer failure!");
-                    break;
-
-                case USFS_ERROR_ACCELEROMETER:
-                    Serial.println("Accelerometer failure!");
-                    break;
-                
-                case USFS_ERROR_GYROMETER:
-                    Serial.println("Gyro failure!");
-                    break;
-                
-                case USFS_ERROR_MAGNETOMETER_INIT:
-                    Serial.println("Magnetometer initialization failure!");
-                    break;
-               
-                case USFS_ERROR_ACCELEROMETER_INIT:
-                    Serial.println("Accelerometer initialization failure!");
-                    break;
-               
-                case USFS_ERROR_GYROMETER_INIT:
-                    Serial.println("Gyro initialization failure!");
-                    break;
-              
-                case USFS_ERROR_MATH:
-                    Serial.println("Math error!");
-                    break;
-            
-                case USFS_ERROR_SAMPLE_RATE:
-                    Serial.println("Invalid sample rate!");
-                    break;
-            }
+            usfsReportError(eventStatus);
         }
 
         if (usfsEventStatusIsAccelerometer(eventStatus)) { 
