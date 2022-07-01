@@ -588,51 +588,52 @@ void usfsLoadFirmware()
 
     delay(1000); // give some time to read the screen
 
-    // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    byte status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
+    bool okay = true;
 
-    if (status & 0x01)  {
-        Serial.println("EEPROM detected on the sensor bus!");
-    }
-    if (status & 0x02)  {
-        Serial.println("EEPROM uploaded config file!");
-    }
-    if (status & 0x04)  {
-        Serial.println("EEPROM CRC incorrect!");
-    }
-    if (status & 0x08)  {
-        Serial.println("EM7180 in initialized state!");
-    }
-    if (status & 0x10)  {
-        Serial.println("No EEPROM detected!");
-    }
+    for (uint8_t k=0; k<10; ++k) {
 
-    int count = 0;
-    while(!status) {
         writeUsfsByte(EM7180_ResetRequest, 0x01);
-        delay(500);  
-        count++;  
-        status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
+
+        delay(100);  
+
+        uint8_t status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
+
         if (status & 0x01)  {
             Serial.println("EEPROM detected on the sensor bus!");
         }
         if (status & 0x02)  {
             Serial.println("EEPROM uploaded config file!");
         }
+
         if (status & 0x04)  {
             Serial.println("EEPROM CRC incorrect!");
+            okay = false;
         }
+
         if (status & 0x08)  {
             Serial.println("EM7180 in initialized state!");
         }
+
         if (status & 0x10)  {
             Serial.println("No EEPROM detected!");
+            okay = false;
         }
-        if (count > 10) break;
+
+        if (okay) {
+            break;
+        }
     }
 
-    if (!(readUsfsByte(EM7180_SentralStatus) & 0x04)) {
-        Serial.println("EEPROM upload successful!");
+    if (okay) {
+        if (!(readUsfsByte(EM7180_SentralStatus) & 0x04)) {
+            Serial.println("EEPROM upload successful!");
+        }
+    }
+    else {
+        while (true) {
+            Serial.println("Failed to load firmware");
+            delay(500);
+        }
     }
 }
 
