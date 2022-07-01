@@ -37,6 +37,31 @@ enum {
     USFS_INTERRUPT_ANY = 0x40
 };
 
+typedef enum {
+
+    AFS_2G,
+    AFS_4G,
+    AFS_8G,
+    AFS_16G
+
+} ascale_t;
+
+typedef enum {
+
+    GFS_250DPS,
+    GFS_500DPS,
+    GFS_1000DPS,
+    GFS_2000DPS
+
+} gscale_t;
+
+typedef enum {
+
+    MFS_14BITS, // 0.6 mG per LSB
+    MFS_16BITS  // 0.15 mG per LSB
+
+} mscale_t;
+
 uint8_t usfsCheckErrors();
 
 uint8_t usfsCheckStatus();
@@ -51,8 +76,8 @@ void usfsBegin(
         uint16_t magScale,
         uint8_t quatDivisor,
         uint8_t magRate,
-        uint8_t accelRate,
-        uint8_t gyroRate,
+        uint8_t accelRateTenth,
+        uint8_t gyroRateTenth,
         uint8_t baroRate, 
         uint8_t interruptEnable=USFS_INTERRUPT_GYRO,
         bool verbose=false);

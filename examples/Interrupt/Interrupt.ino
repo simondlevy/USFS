@@ -29,7 +29,7 @@
 #include "USFS.h"
 
 // Set to 0 for polling version
-static const uint8_t INTERRUPT_PIN = 0 /*12*/; 
+static const uint8_t INTERRUPT_PIN = 12; 
 
 static const uint8_t ACCEL_BANDWIDTH = 3;
 static const uint8_t GYRO_BANDWIDTH  = 3;
@@ -112,7 +112,7 @@ void loop()
     static float Temperature, Pressure, Altitude; 
     static float ax, ay, az, gx, gy, gz, mx, my, mz; 
 
-    if (INTERRUPT_PIN == 0 || _gotNewData == true) { 
+    if ((INTERRUPT_PIN == 0) || _gotNewData) { 
 
         _gotNewData = false;  
 

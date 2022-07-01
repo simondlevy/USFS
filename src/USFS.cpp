@@ -359,8 +359,8 @@ void usfsBegin(
         uint16_t magScale,
         uint8_t quatDivisor,
         uint8_t magRate,
-        uint8_t accelRate,
-        uint8_t gyroRate,
+        uint8_t accelRateTenth,
+        uint8_t gyroRateTenth,
         uint8_t baroRate,
         uint8_t interruptEnable,
         bool verbose)
@@ -382,16 +382,16 @@ void usfsBegin(
     writeUsfsByte(EM7180_HostControl, 0x00); 
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
-    writeUsfsByte(EM7180_ACC_LPF_BW, accelBandwidth);   // accelBandwidth = 3 = 41Hz
-    writeUsfsByte(EM7180_GYRO_LPF_BW, gyroBandwidth); // gyroBandwidth = 3 = 41Hz
+    writeUsfsByte(EM7180_ACC_LPF_BW, accelBandwidth);   
+    writeUsfsByte(EM7180_GYRO_LPF_BW, gyroBandwidth); 
 
     // Set accel/gyro/mag desired ODR rates
-    writeUsfsByte(EM7180_QRateDivisor, quatDivisor); // quat rate = gyroRate/(1 QRTDiv)
-    writeUsfsByte(EM7180_MagRate, magRate); // 0x64 = 100 Hz
-    writeUsfsByte(EM7180_AccelRate, accelRate); // 200/10 Hz, 0x14 = 200 Hz
-    writeUsfsByte(EM7180_GyroRate, gyroRate); // 200/10 Hz, 0x14 = 200 Hz
+    writeUsfsByte(EM7180_QRateDivisor, quatDivisor); 
+    writeUsfsByte(EM7180_MagRate, magRate); 
+    writeUsfsByte(EM7180_AccelRate, accelRateTenth); 
+    writeUsfsByte(EM7180_GyroRate, gyroRateTenth); 
 
-    // Set enable bit and set Baro rate to 25 Hz, rate = baroRate/2, 0x32 = 25 Hz
+    // Set enable bit and set Baro rate
     writeUsfsByte(EM7180_BaroRate, 0x80 | baroRate);  
 
     // Configure operating mode
