@@ -444,10 +444,15 @@ void usfsBegin(
     param[1] = readUsfsByte(EM7180_SavedParamByte1);
     param[2] = readUsfsByte(EM7180_SavedParamByte2);
     param[3] = readUsfsByte(EM7180_SavedParamByte3);
+
     EM7180_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope Default Full Scale Range: +/-");
-    Serial.print(EM7180_gyro_fs);
-    Serial.println("dps");
+
+    if (verbose) {
+        Serial.print("Gyroscope Default Full Scale Range: +/-");
+        Serial.print(EM7180_gyro_fs);
+        Serial.println("dps");
+    }
+
     writeUsfsByte(EM7180_ParamRequest, 0x00); //End parameter transfer
     writeUsfsByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
@@ -505,7 +510,11 @@ void usfsBegin(
 
     // Read EM7180 status
     uint8_t runStatus = readUsfsByte(EM7180_RunStatus);
-    if (runStatus & 0x01) Serial.println("EM7180 run status = normal mode");
+    if (runStatus & 0x01) {
+        if (verbose) {
+            Serial.println("EM7180 run status = normal mode");
+        }
+    }
 
     uint8_t algoStatus = readUsfsByte(EM7180_AlgorithmStatus);
 
@@ -537,16 +546,18 @@ void usfsBegin(
 
     // Check sensor status
     uint8_t sensorStatus = readUsfsByte(EM7180_SensorStatus);
-    Serial.print("EM7180 sensor status = ");
-    Serial.println(sensorStatus);
-    if (sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
-    if (sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
-    if (sensorStatus & 0x04) Serial.print("Gyro not acknowledging!");
-    if (sensorStatus & 0x10) Serial.print("Magnetometer ID not recognized!");
-    if (sensorStatus & 0x20) Serial.print("Accelerometer ID not recognized!");
-    if (sensorStatus & 0x40) Serial.print("Gyro ID not recognized!");
 
     if (verbose) {
+
+        Serial.print("EM7180 sensor status = ");
+        Serial.println(sensorStatus);
+        if (sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
+        if (sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
+        if (sensorStatus & 0x04) Serial.print("Gyro not acknowledging!");
+        if (sensorStatus & 0x10) Serial.print("Magnetometer ID not recognized!");
+        if (sensorStatus & 0x20) Serial.print("Accelerometer ID not recognized!");
+        if (sensorStatus & 0x40) Serial.print("Gyro ID not recognized!");
+
         Serial.print("Actual MagRate = ");
         Serial.print(readUsfsByte(EM7180_ActualMagRate));
         Serial.println(" Hz"); 
@@ -562,28 +573,27 @@ void usfsBegin(
     }
 }
 
-
 void usfsLoadFirmware()
 {
     // Check which sensors can be detected by the EM7180
     uint8_t featureflag = readUsfsByte(EM7180_FeatureFlags);
     if (featureflag & 0x01)  {
-        Serial.println("A barometer is installed");
+        //Serial.println("A barometer is installed");
     }
     if (featureflag & 0x02)  {
-        Serial.println("A humidity sensor is installed");
+        //Serial.println("A humidity sensor is installed");
     }
     if (featureflag & 0x04)  {
-        Serial.println("A temperature sensor is installed");
+        //Serial.println("A temperature sensor is installed");
     }
     if (featureflag & 0x08)  {
-        Serial.println("A custom sensor is installed");
+        //Serial.println("A custom sensor is installed");
     }
     if (featureflag & 0x10)  {
-        Serial.println("A second custom sensor is installed");
+        //Serial.println("A second custom sensor is installed");
     }
     if (featureflag & 0x20)  {
-        Serial.println("A third custom sensor is installed");
+        //Serial.println("A third custom sensor is installed");
     }
 
     delay(1000); // give some time to read the screen
@@ -599,23 +609,23 @@ void usfsLoadFirmware()
         uint8_t status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
 
         if (status & 0x01)  {
-            Serial.println("EEPROM detected on the sensor bus!");
+            //Serial.println("EEPROM detected on the sensor bus!");
         }
         if (status & 0x02)  {
-            Serial.println("EEPROM uploaded config file!");
+            //Serial.println("EEPROM uploaded config file!");
         }
 
         if (status & 0x04)  {
-            Serial.println("EEPROM CRC incorrect!");
+            //Serial.println("EEPROM CRC incorrect!");
             okay = false;
         }
 
         if (status & 0x08)  {
-            Serial.println("EM7180 in initialized state!");
+            //Serial.println("EM7180 in initialized state!");
         }
 
         if (status & 0x10)  {
-            Serial.println("No EEPROM detected!");
+            //Serial.println("No EEPROM detected!");
             okay = false;
         }
 
@@ -626,7 +636,7 @@ void usfsLoadFirmware()
 
     if (okay) {
         if (!(readUsfsByte(EM7180_SentralStatus) & 0x04)) {
-            Serial.println("EEPROM upload successful!");
+            //Serial.println("EEPROM upload successful!");
         }
     }
     else {
