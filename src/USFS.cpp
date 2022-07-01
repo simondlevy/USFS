@@ -590,19 +590,20 @@ void usfsLoadFirmware()
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
     byte status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
-    if (readUsfsByte(EM7180_SentralStatus) & 0x01)  {
+
+    if (status & 0x01)  {
         Serial.println("EEPROM detected on the sensor bus!");
     }
-    if (readUsfsByte(EM7180_SentralStatus) & 0x02)  {
+    if (status & 0x02)  {
         Serial.println("EEPROM uploaded config file!");
     }
-    if (readUsfsByte(EM7180_SentralStatus) & 0x04)  {
+    if (status & 0x04)  {
         Serial.println("EEPROM CRC incorrect!");
     }
-    if (readUsfsByte(EM7180_SentralStatus) & 0x08)  {
+    if (status & 0x08)  {
         Serial.println("EM7180 in initialized state!");
     }
-    if (readUsfsByte(EM7180_SentralStatus) & 0x10)  {
+    if (status & 0x10)  {
         Serial.println("No EEPROM detected!");
     }
 
@@ -612,19 +613,19 @@ void usfsLoadFirmware()
         delay(500);  
         count++;  
         status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
-        if (readUsfsByte(EM7180_SentralStatus) & 0x01)  {
+        if (status & 0x01)  {
             Serial.println("EEPROM detected on the sensor bus!");
         }
-        if (readUsfsByte(EM7180_SentralStatus) & 0x02)  {
+        if (status & 0x02)  {
             Serial.println("EEPROM uploaded config file!");
         }
-        if (readUsfsByte(EM7180_SentralStatus) & 0x04)  {
+        if (status & 0x04)  {
             Serial.println("EEPROM CRC incorrect!");
         }
-        if (readUsfsByte(EM7180_SentralStatus) & 0x08)  {
+        if (status & 0x08)  {
             Serial.println("EM7180 in initialized state!");
         }
-        if (readUsfsByte(EM7180_SentralStatus) & 0x10)  {
+        if (status & 0x10)  {
             Serial.println("No EEPROM detected!");
         }
         if (count > 10) break;
