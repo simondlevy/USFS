@@ -902,3 +902,90 @@ void usfsRequestParamRead(uint8_t param)
 {
     usfsWriteByte(ParamRequest, param); 
 }
+
+void usfsSetAccelLpfBandwidth(uint8_t bw)
+{
+    usfsWriteByte(ACC_LPF_BW, bw); 
+}
+
+void usfsSetGyroLpfBandwidth(uint8_t bw)
+{
+    usfsWriteByte(GYRO_LPF_BW, bw); 
+}
+
+void usfsSetQRateDivisor(uint8_t divisor)
+{
+    usfsWriteByte(QRateDivisor, divisor);
+}
+
+void usfsSetMagRate(uint8_t rate)
+{
+    usfsWriteByte(MagRate, rate);
+}
+
+void usfsSetAccelRate(uint8_t rate)
+{
+    usfsWriteByte(AccelRate, rate);
+}
+
+void usfsSetGyroRate(uint8_t rate)
+{
+    usfsWriteByte(GyroRate, rate);
+}
+
+void usfsSetBaroRate(uint8_t rate)
+{
+    usfsWriteByte(BaroRate, rate);
+}
+
+void usfs2_enableEvents(uint8_t mask)
+{
+    usfsWriteByte(EnableEvents, mask);
+}
+
+uint8_t usfs2_getErrorStatus(void)
+{
+    return readUsfsByte(ErrorRegister);
+}
+
+void usfsSetGyroFs(uint16_t gyro_fs) 
+{
+    uint8_t bytes[4] = {};
+    bytes[0] = gyro_fs & (0xFF);
+    bytes[1] = (gyro_fs >> 8) & (0xFF);
+    bytes[2] = 0x00;
+    bytes[3] = 0x00;
+    usfsWriteByte(LoadParamByte0, bytes[0]); 
+    usfsWriteByte(LoadParamByte1, bytes[1]); 
+    usfsWriteByte(LoadParamByte2, bytes[2]); 
+    usfsWriteByte(LoadParamByte3, bytes[3]); 
+    usfsWriteByte(ParamRequest, 0xCB); 
+    usfsWriteByte(AlgorithmControl, 0x80); 
+    uint8_t status = readUsfsByte(ParamAcknowledge); 
+    while(!(status==0xCB)) {
+        status = readUsfsByte(ParamAcknowledge);
+    }
+    usfsWriteByte(ParamRequest, 0x00); 
+    usfsWriteByte(AlgorithmControl, 0x00); 
+}
+
+void usfsSetMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
+{
+    uint8_t bytes[4] = {};
+    bytes[0] = mag_fs & (0xFF);
+    bytes[1] = (mag_fs >> 8) & (0xFF);
+    bytes[2] = acc_fs & (0xFF);
+    bytes[3] = (acc_fs >> 8) & (0xFF);
+    usfsWriteByte(LoadParamByte0, bytes[0]); 
+    usfsWriteByte(LoadParamByte1, bytes[1]); 
+    usfsWriteByte(LoadParamByte2, bytes[2]); 
+    usfsWriteByte(LoadParamByte3, bytes[3]); 
+    usfsWriteByte(ParamRequest, 0xCA); 
+    usfsWriteByte(AlgorithmControl, 0x80); 
+    uint8_t status = readUsfsByte(ParamAcknowledge); 
+    while(!(status==0xCA)) {
+        status = readUsfsByte(ParamAcknowledge);
+    }
+    usfsWriteByte(ParamRequest, 0x00); 
+    usfsWriteByte(AlgorithmControl, 0x00); 
+}

@@ -149,3 +149,25 @@ void usfsSetRunDisable(void);
 uint8_t usfsGetParamAcknowledge(void);
 
 void usfsRequestParamRead(uint8_t param);
+
+void usfsSetAccelLpfBandwidth(uint8_t bw);
+
+void usfsSetGyroLpfBandwidth(uint8_t bw);
+
+void usfsSetQRateDivisor(uint8_t divisor);
+
+void usfsSetMagRate(uint8_t rate);
+
+void usfsSetAccelRate(uint8_t rate);
+
+void usfsSetGyroRate(uint8_t rate);
+
+void usfsSetBaroRate(uint8_t rate);
+
+void usfs2_enableEvents(uint8_t mask);
+
+uint8_t usfs2_getErrorStatus(void);
+
+void usfsSetGyroFs(uint16_t gyro_fs); 
+
+void usfsSetMagAccFs(uint16_t mag_fs, uint16_t acc_fs); 

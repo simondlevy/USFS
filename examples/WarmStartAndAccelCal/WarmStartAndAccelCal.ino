@@ -3,7 +3,7 @@
 
    Copyright (C) 2018 Simon D. Levy
 
-   Adapted from Kris Winer's sketch
+   Adapted from Kris Winer's sketch of the same name.
 
    This file is part of USFS.
 
@@ -24,7 +24,6 @@
 #include <Wire.h>
 
 #include "USFS.h"
-#include "USFS_old.h"
 
 // Calibration registers
 static const uint8_t GP36 = 0x5B;
@@ -517,21 +516,20 @@ void setup(void)
     usfsSetRunEnable();
 
     // Load Warm Start parameters
-    if (warm_start)
-    {
+    if (warm_start) {
         set_WS_params();
     }
 
     // Set SENtral in initialized state to configure registers
     usfsSetRunDisable();
 
-    usfs2_setAccelRate(0x14); // 200/10 Hz
-    usfs2_setAccelLpfBandwidth(0x03); // 41Hz
-    usfs2_setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
-    usfs2_setGyroLpfBandwidth(0x01); // 184Hz
-    usfs2_setQRateDivisor(0x02); // 100 Hz
-    usfs2_setMagRate(0x64); // 100 Hz
-    usfs2_setGyroRate(0x14); // 200/10 Hz
+    usfsSetAccelRate(0x14); // 200/10 Hz
+    usfsSetAccelLpfBandwidth(0x03); // 41Hz
+    usfsSetBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
+    usfsSetGyroLpfBandwidth(0x01); // 184Hz
+    usfsSetQRateDivisor(0x02); // 100 Hz
+    usfsSetMagRate(0x64); // 100 Hz
+    usfsSetGyroRate(0x14); // 200/10 Hz
 
     // Configure operating mode
     usfsAlgorithmControlReset(); // read scale sensor data
@@ -573,8 +571,8 @@ void setup(void)
     set_integer_param (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the USFS
-    usfs2_setMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
-    usfs2_setGyroFs(0x7D0); // 2000 dps
+    usfsSetMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
+    usfsSetGyroFs(0x7D0); // 2000 dps
 
     // Read sensor new FS values from parameter space
     readParams(0x4A, param);// Request to read  parameter 74
