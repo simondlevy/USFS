@@ -62,11 +62,16 @@ typedef enum {
 
 } mscale_t;
 
-uint8_t usfsCheckErrors();
+void usfsAlgorithmControlRequestParameterTransfer(void);
 
-uint8_t usfsCheckStatus();
+void usfsAlgorithmControlReset(void); 
 
-void  usfsReportChipId();
+bool usfsAlgorithmStatusIsStandby(uint8_t status);
+bool usfsAlgorithmStatusIsAlgorithmSlow(uint8_t status);
+bool usfsAlgorithmStatusIsStillnessMode(uint8_t status);
+bool usfsAlgorithmStatusIsCalibrationCompleted(uint8_t status);
+bool usfsAlgorithmStatusIsMagneticAnomaly(uint8_t status);
+bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status);
 
 void usfsBegin(
         uint8_t accelBandwidth,
@@ -82,7 +87,36 @@ void usfsBegin(
         uint8_t interruptEnable=USFS_INTERRUPT_GYRO,
         bool verbose=false);
 
+uint8_t usfsCheckErrors();
+
+void usfsCheckSensorStatus(uint8_t status);
+
+uint8_t usfsCheckStatus();
+
+void usfsEnableEvents(uint8_t mask);
+
+bool usfsEventStatusIsAccelerometer(uint8_t status);
+bool usfsEventStatusIsBarometer(uint8_t status);
+bool usfsEventStatusIsError(uint8_t status);
+bool usfsEventStatusIsGyrometer(uint8_t status);
+bool usfsEventStatusIsMagnetometer(uint8_t status);
+bool usfsEventStatusIsQuaternion(uint8_t status);
+bool usfsEventStatusIsReset(uint8_t status);
+
+uint8_t usfsGetAlgorithmStatus(void);
+uint8_t usfsGetEventStatus(void);
+uint8_t usfsGetParamAcknowledge(void);
+uint8_t usfsGetPassThruStatus(void);
+uint8_t usfsGetRunStatus(void);
+uint8_t usfsGetSensorStatus(void);
+uint8_t usfsGetSentralStatus(void);
+
+
+bool usfsIsInPassThroughMode(void);
+
 void usfsLoadFirmware(bool verbose = false);
+
+void usfsLoadParamBytes(uint8_t byte[4]);
 
 void    usfsReadAccelerometer(int16_t * destination);
 int16_t usfsReadBarometer();
@@ -91,68 +125,18 @@ void    usfsreadMagnetometer(int16_t * destination);
 void    usfsReadQuaternion(float * destination);
 int16_t usfsReadTemperature();
 
-bool usfsEventStatusIsError(uint8_t status);
-
-bool usfsEventStatusIsAccelerometer(uint8_t status);
-bool usfsEventStatusIsGyrometer(uint8_t status);
-bool usfsEventStatusIsMagnetometer(uint8_t status);
-bool usfsEventStatusIsQuaternion(uint8_t status);
-bool usfsEventStatusIsBarometer(uint8_t status);
-
-bool usfsAlgorithmStatusIsStandby(uint8_t status);
-bool usfsAlgorithmStatusIsAlgorithmSlow(uint8_t status);
-bool usfsAlgorithmStatusIsStillnessMode(uint8_t status);
-bool usfsAlgorithmStatusIsCalibrationCompleted(uint8_t status);
-bool usfsAlgorithmStatusIsMagneticAnomaly(uint8_t status);
-bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status);
-
-void usfsReportError(uint8_t errorStatus);
-
-bool usfsIsInPassThroughMode(void);
-
-bool usfsRunStatusIsNormal(uint8_t status);
-
-void usfsCheckSensorStatus(uint8_t status);
-
-bool usfsEventStatusIsReset(uint8_t status);
-
-void usfsLoadParamBytes(uint8_t byte[4]);
-
-void usfsWriteByte(uint8_t subAddress, uint8_t value);
+void  usfsReportChipId();
 
 void usfsReadSavedParamBytes(uint8_t bytes[4]);
 
-uint8_t usfsGetEventStatus(void);
-
-uint8_t usfsGetAlgorithmStatus(void);
-
-uint8_t usfsGetPassThruStatus(void);
-
-uint8_t usfsGetRunStatus(void);
-
-uint8_t usfsGetSensorStatus(void);
-
-uint8_t usfsGetSentralStatus(void);
-
-void usfsAlgorithmControlReset(void); 
-
-void usfsAlgorithmControlRequestParameterTransfer(void);
-
-void usfsSetMasterMode(void);
-
-void usfsSetPassThroughMode(void);
-
-void usfsSetRunEnable(void);
-
-void usfsSetRunDisable(void);
-
-uint8_t usfsGetParamAcknowledge(void);
+void usfsReportError(uint8_t errorStatus);
 
 void usfsRequestParamRead(uint8_t param);
 
-void usfsSetGyroFs(uint16_t gyro_fs); 
+bool usfsRunStatusIsNormal(uint8_t status);
 
-void usfsSetMagAccFs(uint16_t mag_fs, uint16_t acc_fs); 
+void usfsSetMasterMode(void);
+void usfsSetPassThroughMode(void);
 
 void usfsSetRatesAndBandwidths(
         uint8_t accelLpfBandwidth,
@@ -163,4 +147,9 @@ void usfsSetRatesAndBandwidths(
         uint8_t magRate,
         uint8_t quatDivisor);
 
-void usfsEnableEvents(uint8_t mask);
+void usfsSetRunEnable(void);
+void usfsSetRunDisable(void);
+
+void usfsSetScales(uint16_t accFs, uint16_t gyroFs, uint16_t magFs);
+
+void usfsWriteByte(uint8_t subAddress, uint8_t value);

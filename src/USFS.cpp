@@ -292,9 +292,9 @@ void usfsBegin(
         uint8_t interruptEnable,
         bool verbose)
 {
-    uint16_t mag_fs,
-             acc_fs,
-             gyro_fs; // EM7180 sensor full scale ranges
+    uint16_t magFs,
+             accFs,
+             gyroFs; // EM7180 sensor full scale ranges
 
     uint8_t param[4];      
 
@@ -341,15 +341,15 @@ void usfsBegin(
     
     usfsReadSavedParamBytes(param);
 
-    mag_fs = ((int16_t)(param[1]<<8) | param[0]);
-    acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+    magFs = ((int16_t)(param[1]<<8) | param[0]);
+    accFs = ((int16_t)(param[3]<<8) | param[2]);
 
     if (verbose) {
         Serial.print("Magnetometer Default Full Scale Range: +/-");
-        Serial.print(mag_fs);
+        Serial.print(magFs);
         Serial.println("uT");
         Serial.print("Accelerometer Default Full Scale Range: +/-");
-        Serial.print(acc_fs);
+        Serial.print(accFs);
         Serial.println("g");
     }
 
@@ -362,23 +362,22 @@ void usfsBegin(
     }
     usfsReadSavedParamBytes(param);
 
-    gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+    gyroFs = ((int16_t)(param[1]<<8) | param[0]);
 
     if (verbose) {
         Serial.print("Gyroscope Default Full Scale Range: +/-");
-        Serial.print(gyro_fs);
+        Serial.print(gyroFs);
         Serial.println("dps");
     }
 
     usfsWriteByte(ParamRequest, 0x00); //End parameter transfer
     usfsWriteByte(AlgorithmControl, 0x00); // re-enable algorithm
 
-    //Disable stillness mode for balancing robot application
+    // Disable stillness mode for balancing robot application
     set_integer_param (0x49, 0x00);
 
-    //Write desired sensor full scale ranges to the EM7180
-    usfsSetMagAccFs (magScale, accelScale); // 1000 uT == 0x3E8, 8 g == 0x08
-    usfsSetGyroFs (gyroScale); // 2000 dps == 0x7D0
+    // Write desired sensor full scale ranges to the EM7180
+    usfsSetScales(accelScale, gyroScale, magScale);
 
     // Read sensor new FS values from parameter space
     usfsWriteByte(ParamRequest, 0x4A); // Request to read  parameter 74
@@ -390,15 +389,15 @@ void usfsBegin(
         param_xfer = usfsGetParamAcknowledge();
     }
     usfsReadSavedParamBytes(param);
-    mag_fs = ((int16_t)(param[1]<<8) | param[0]);
-    acc_fs = ((int16_t)(param[3]<<8) | param[2]);
+    magFs = ((int16_t)(param[1]<<8) | param[0]);
+    accFs = ((int16_t)(param[3]<<8) | param[2]);
 
     if (verbose) {
         Serial.print("Magnetometer New Full Scale Range: +/-");
-        Serial.print(mag_fs);
+        Serial.print(magFs);
         Serial.println("uT");
         Serial.print("Accelerometer New Full Scale Range: +/-");
-        Serial.print(acc_fs);
+        Serial.print(accFs);
         Serial.println("g");
     }
 
@@ -408,11 +407,11 @@ void usfsBegin(
         param_xfer = usfsGetParamAcknowledge();
     }
     usfsReadSavedParamBytes(param);
-    gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
+    gyroFs = ((int16_t)(param[1]<<8) | param[0]);
 
     if (verbose) {
         Serial.print("Gyroscope New Full Scale Range: +/-");
-        Serial.print(gyro_fs);
+        Serial.print(gyroFs);
         Serial.println("dps");
     }
 
@@ -872,11 +871,11 @@ void usfsSetBaroRate(uint8_t rate)
     usfsWriteByte(BaroRate, rate);
 }
 
-void usfsSetGyroFs(uint16_t gyro_fs) 
+void usfsSetScales(uint16_t accFs, uint16_t gyroFs, uint16_t magFs)
 {
     uint8_t bytes[4] = {};
-    bytes[0] = gyro_fs & (0xFF);
-    bytes[1] = (gyro_fs >> 8) & (0xFF);
+    bytes[0] = gyroFs & (0xFF);
+    bytes[1] = (gyroFs >> 8) & (0xFF);
     bytes[2] = 0x00;
     bytes[3] = 0x00;
     usfsWriteByte(LoadParamByte0, bytes[0]); 
@@ -891,22 +890,18 @@ void usfsSetGyroFs(uint16_t gyro_fs)
     }
     usfsWriteByte(ParamRequest, 0x00); 
     usfsWriteByte(AlgorithmControl, 0x00); 
-}
 
-void usfsSetMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
-{
-    uint8_t bytes[4] = {};
-    bytes[0] = mag_fs & (0xFF);
-    bytes[1] = (mag_fs >> 8) & (0xFF);
-    bytes[2] = acc_fs & (0xFF);
-    bytes[3] = (acc_fs >> 8) & (0xFF);
+    bytes[0] = magFs & (0xFF);
+    bytes[1] = (magFs >> 8) & (0xFF);
+    bytes[2] = accFs & (0xFF);
+    bytes[3] = (accFs >> 8) & (0xFF);
     usfsWriteByte(LoadParamByte0, bytes[0]); 
     usfsWriteByte(LoadParamByte1, bytes[1]); 
     usfsWriteByte(LoadParamByte2, bytes[2]); 
     usfsWriteByte(LoadParamByte3, bytes[3]); 
     usfsWriteByte(ParamRequest, 0xCA); 
     usfsWriteByte(AlgorithmControl, 0x80); 
-    uint8_t status = readUsfsByte(ParamAcknowledge); 
+    status = readUsfsByte(ParamAcknowledge); 
     while(!(status==0xCA)) {
         status = readUsfsByte(ParamAcknowledge);
     }

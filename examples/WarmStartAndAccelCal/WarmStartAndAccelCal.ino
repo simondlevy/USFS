@@ -571,8 +571,7 @@ void setup(void)
     set_integer_param (0x49, 0x00);
 
     // Write desired sensor full scale ranges to the USFS
-    usfsSetMagAccFs (0x3E8, 0x08); // 1000 uT, 8 g
-    usfsSetGyroFs(0x7D0); // 2000 dps
+    usfsSetScales(1000, 2000, 8);
 
     // Read sensor new FS values from parameter space
     readParams(0x4A, param);// Request to read  parameter 74
