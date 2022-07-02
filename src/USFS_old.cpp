@@ -158,37 +158,6 @@ void usfs2_requestReset(void)
     usfsWriteByte(ResetRequest, 0x01);
 }
 
-void usfs2_setPassThroughMode()
-{
-    
-    usfsWriteByte(AlgorithmControl, 0x01);
-    delay(5);
-
-    
-    usfsWriteByte(PassThruControl, 0x01);
-    while (true) {
-        if (readByte(PassThruStatus) & 0x01) break;
-        delay(5);
-    }
-}
-
-void usfs2_setMasterMode()
-{
-    
-    usfsWriteByte(PassThruControl, 0x00);
-    while (true) {
-        if (!(readByte(PassThruStatus) & 0x01)) break;
-        delay(5);
-    }
-
-    
-    usfsWriteByte(AlgorithmControl, 0x00);
-    while (true) {
-        if (!(readByte(AlgorithmStatus) & 0x01)) break;
-        delay(5);
-    }
-}
-
 void usfs2_setRunEnable(void)
 {
     usfsWriteByte(HostControl, 0x01); 

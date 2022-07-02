@@ -351,13 +351,13 @@ static void Accel_cal_check(int16_t accelCount[3])
             delay(100);
 
             // Put the Sentral in pass-thru mode
-            usfs2_setPassThroughMode();
+            usfsSetPassThroughMode();
 
             // Store accelerometer calibration data to the M24512DFM I2C EEPROM
             writeAccCal();
 
             // Take Sentral out of pass-thru mode and re-start algorithm
-            usfs2_setMasterMode();
+            usfsSetMasterMode();
             accel_cal_saved++;
             if (accel_cal_saved > 6) accel_cal_saved = 0;
         }
@@ -448,13 +448,13 @@ void setup(void)
         Serial.println("!!!Warm Start active!!!");
 
         // Put the Sentral in pass-thru mode
-        usfs2_setPassThroughMode();
+        usfsSetPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        usfs2_setMasterMode();
+        usfsSetMasterMode();
     } else
     {
         Serial.println("***No Warm Start***");
@@ -481,7 +481,7 @@ void setup(void)
         Serial.println("!!!Accel Cal Active!!!");
 
         // Put the Sentral in pass-thru mode
-        usfs2_setPassThroughMode();
+        usfsSetPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readAccelCal();
@@ -499,7 +499,7 @@ void setup(void)
         Serial.println(global_conf.accZero_min[2]);
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        usfs2_setMasterMode();
+        usfsSetMasterMode();
     } else
     {
         Serial.println("***No Accel Cal***");
@@ -669,13 +669,13 @@ void loop(void)
         USFS_get_WS_params();
 
         // Put the Sentral in pass-thru mode
-        usfs2_setPassThroughMode();
+        usfsSetPassThroughMode();
 
         // Store WarmStart data to the M24512DFM I2C EEPROM
         writeSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        usfs2_setMasterMode();
+        usfsSetMasterMode();
         warm_start_saved = true;
     }
 

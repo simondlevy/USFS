@@ -862,3 +862,33 @@ void usfsAlgorithmControlReset(void)
 {
     usfsWriteByte(AlgorithmControl, 0x00);
 }
+
+void usfsSetPassThroughMode()
+{
+    
+    usfsWriteByte(AlgorithmControl, 0x01);
+    delay(5);
+
+    usfsWriteByte(PassThruControl, 0x01);
+    while (true) {
+        if (readUsfsByte(PassThruStatus) & 0x01) break;
+        delay(5);
+    }
+}
+
+void usfsSetMasterMode()
+{
+    
+    usfsWriteByte(PassThruControl, 0x00);
+    while (true) {
+        if (!(readUsfsByte(PassThruStatus) & 0x01)) break;
+        delay(5);
+    }
+
+    
+    usfsWriteByte(AlgorithmControl, 0x00);
+    while (true) {
+        if (!(readUsfsByte(AlgorithmStatus) & 0x01)) break;
+        delay(5);
+    }
+}

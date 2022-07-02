@@ -23,8 +23,5 @@ void usfs2_setMagAccFs(uint16_t mag_fs, uint16_t acc_fs);
 void usfs2_setMagRate(uint8_t usfs2_rate);
 void usfs2_setQRateDivisor(uint8_t usfs2_divisor);
 
-void usfs2_setMasterMode(void);
-void usfs2_setPassThroughMode(void);
-
 void usfs2_setRunDisable(void);
 void usfs2_setRunEnable(void);
