@@ -187,33 +187,39 @@ static void USFS_acc_cal_upload()
         unsigned char cal_num_byte[2];
     };
 
-    big_cal_num = (4096000000/(global_conf.accZero_max[0] - global_conf.accZero_min[0])) - 1000000;
+    big_cal_num = (4096000000/(global_conf.accZero_max[0] -
+                global_conf.accZero_min[0])) - 1000000;
     cal_num = (int16_t)big_cal_num;
 
     usfs2_writeGp36(cal_num_byte[0]);
     usfs2_writeGp37(cal_num_byte[1]);
 
-    big_cal_num = (4096000000/(global_conf.accZero_max[1] - global_conf.accZero_min[1])) - 1000000;
+    big_cal_num = (4096000000/(global_conf.accZero_max[1] -
+                global_conf.accZero_min[1])) - 1000000;
     cal_num = (int16_t)big_cal_num;
     usfs2_writeGp38(cal_num_byte[0]);
     usfs2_writeGp39(cal_num_byte[1]);  
 
-    big_cal_num = (4096000000/(global_conf.accZero_max[2] - global_conf.accZero_min[2])) - 1000000;
+    big_cal_num = (4096000000/(global_conf.accZero_max[2] -
+                global_conf.accZero_min[2])) - 1000000;
     cal_num = (int16_t)big_cal_num;
     usfs2_writeGp40(cal_num_byte[0]);
     usfs2_writeGp50(cal_num_byte[1]);
 
-    big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 - global_conf.accZero_min[0]))*100000)/4096;
+    big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 -
+                    global_conf.accZero_min[0]))*100000)/4096;
     cal_num = (int16_t)big_cal_num;
     usfs2_writeGp51(cal_num_byte[0]);
     usfs2_writeGp52(cal_num_byte[1]);
 
-    big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 - global_conf.accZero_min[1]))*100000)/4096;
+    big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 -
+                    global_conf.accZero_min[1]))*100000)/4096;
     cal_num = (int16_t)big_cal_num;
     usfs2_writeGp53(cal_num_byte[0]);
     usfs2_writeGp54(cal_num_byte[1]);
 
-    big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 - global_conf.accZero_min[2]))*100000)/4096;
+    big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 -
+                    global_conf.accZero_min[2]))*100000)/4096;
     cal_num = -(int16_t)big_cal_num;
     usfs2_writeGp55(cal_num_byte[0]);
     usfs2_writeGp56(cal_num_byte[1]);
