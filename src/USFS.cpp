@@ -114,10 +114,10 @@ static const uint8_t CRCHost= 0x97;// uint32_t from registers = 0x97-9A
 static const uint8_t ResetRequest = 0x9B ;
 static const uint8_t PassThruStatus = 0x9E ;
 static const uint8_t PassThruControl= 0xA0;
+
 static const uint8_t ACC_LPF_BW = 0x5B;//Register GP36;
 static const uint8_t GYRO_LPF_BW= 0x5C;//Register GP37
 static const uint8_t BARO_LPF_BW= 0x5D;//Register GP38
-
 
 static float uint32_reg_to_float (uint8_t *buf)
 {
@@ -308,18 +308,14 @@ void usfsBegin(
     // Set SENtral in initialized state to configure registers
     usfsSetRunDisable();
 
-    //Setup LPF bandwidth (BEFORE setting ODR's)
-    usfsWriteByte(ACC_LPF_BW, accelBandwidth);   
-    usfsWriteByte(GYRO_LPF_BW, gyroBandwidth); 
-
-    // Set accel/gyro/mag desired ODR rates
-    usfsWriteByte(QRateDivisor, quatDivisor); 
-    usfsWriteByte(MagRate, magRate); 
-    usfsWriteByte(AccelRate, accelRateTenth); 
-    usfsWriteByte(GyroRate, gyroRateTenth); 
-
-    // Set enable bit and set Baro rate
-    usfsWriteByte(BaroRate, 0x80 | baroRate);  
+    usfsSetRatesAndBandwidths(
+            accelBandwidth,
+            accelRateTenth,
+            baroRate,
+            gyroBandwidth,
+            gyroRateTenth,
+            magRate,
+            quatDivisor);
 
     // Configure operating mode
     usfsWriteByte(AlgorithmControl, 0x00); // read scale sensor data
@@ -928,4 +924,22 @@ void usfsSetMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     }
     usfsWriteByte(ParamRequest, 0x00); 
     usfsWriteByte(AlgorithmControl, 0x00); 
+}
+
+void usfsSetRatesAndBandwidths(
+        uint8_t accelBandwidth,
+        uint8_t accelRateTenth,
+        uint8_t baroRate,
+        uint8_t gyroBandwidth,
+        uint8_t gyroRateTenth,
+        uint8_t magRate,
+        uint8_t quatDivisor)
+{
+    usfsWriteByte(AccelRate, accelRateTenth); 
+    usfsWriteByte(ACC_LPF_BW, accelBandwidth);   
+    usfsWriteByte(BaroRate, 0x80 | baroRate);  
+    usfsWriteByte(GYRO_LPF_BW, gyroBandwidth); 
+    usfsWriteByte(QRateDivisor, quatDivisor); 
+    usfsWriteByte(MagRate, magRate); 
+    usfsWriteByte(GyroRate, gyroRateTenth); 
 }
