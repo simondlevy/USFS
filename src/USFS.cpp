@@ -201,10 +201,10 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
-    uint8_t status = readUsfsByte(ParamAcknowledge); 
+    uint8_t status = usfsGetParamAcknowledge(); 
 
     while(!(status==param)) {
-        status = readUsfsByte(ParamAcknowledge);
+        status = usfsGetParamAcknowledge();
     }
 
     // Parameter request = 0 to end parameter transfer process
@@ -231,9 +231,9 @@ static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs)
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
-    uint8_t status = readUsfsByte(ParamAcknowledge); 
+    uint8_t status = usfsGetParamAcknowledge(); 
     while(!(status==0xCA)) {
-        status = readUsfsByte(ParamAcknowledge);
+        status = usfsGetParamAcknowledge();
     }
 
     // Parameter request = 0 to end parameter transfer process
@@ -260,9 +260,9 @@ static void set_gyro_FS (uint16_t gyro_fs)
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
-    uint8_t status = readUsfsByte(ParamAcknowledge); 
+    uint8_t status = usfsGetParamAcknowledge(); 
     while(!(status==0xCB)) {
-        status = readUsfsByte(ParamAcknowledge);
+        status = usfsGetParamAcknowledge();
     }
 
     // Parameter request = 0 to end parameter transfer process
@@ -400,9 +400,9 @@ void usfsBegin(
 
     // Request parameter transfer process
     usfsWriteByte(AlgorithmControl, 0x80); 
-    byte param_xfer = readUsfsByte(ParamAcknowledge);
+    byte param_xfer = usfsGetParamAcknowledge();
     while(!(param_xfer==0x4A)) {
-        param_xfer = readUsfsByte(ParamAcknowledge);
+        param_xfer = usfsGetParamAcknowledge();
     }
     param[0] = readUsfsByte(SavedParamByte0);
     param[1] = readUsfsByte(SavedParamByte1);
@@ -423,9 +423,9 @@ void usfsBegin(
     // Request to read  parameter 75
     usfsWriteByte(ParamRequest, 0x4B); 
 
-    param_xfer = readUsfsByte(ParamAcknowledge);
+    param_xfer = usfsGetParamAcknowledge();
     while(!(param_xfer==0x4B)) {
-        param_xfer = readUsfsByte(ParamAcknowledge);
+        param_xfer = usfsGetParamAcknowledge();
     }
     param[0] = readUsfsByte(SavedParamByte0);
     param[1] = readUsfsByte(SavedParamByte1);
@@ -455,9 +455,9 @@ void usfsBegin(
 
     // Request parameter transfer process
     usfsWriteByte(AlgorithmControl, 0x80); 
-    param_xfer = readUsfsByte(ParamAcknowledge);
+    param_xfer = usfsGetParamAcknowledge();
     while(!(param_xfer==0x4A)) {
-        param_xfer = readUsfsByte(ParamAcknowledge);
+        param_xfer = usfsGetParamAcknowledge();
     }
     param[0] = readUsfsByte(SavedParamByte0);
     param[1] = readUsfsByte(SavedParamByte1);
@@ -476,9 +476,9 @@ void usfsBegin(
     }
 
     usfsWriteByte(ParamRequest, 0x4B); // Request to read  parameter 75
-    param_xfer = readUsfsByte(ParamAcknowledge);
+    param_xfer = usfsGetParamAcknowledge();
     while(!(param_xfer==0x4B)) {
-        param_xfer = readUsfsByte(ParamAcknowledge);
+        param_xfer = usfsGetParamAcknowledge();
     }
     param[0] = readUsfsByte(SavedParamByte0);
     param[1] = readUsfsByte(SavedParamByte1);
@@ -903,3 +903,7 @@ void usfsSetRunDisable(void)
     usfsWriteByte(HostControl, 0x00); 
 }
 
+uint8_t usfsGetParamAcknowledge(void)
+{
+    return readUsfsByte(ParamAcknowledge);
+}

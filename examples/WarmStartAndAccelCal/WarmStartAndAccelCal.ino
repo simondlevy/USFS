@@ -93,7 +93,7 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     while (true) {
-        if (usfs2_getParamAcknowledge() == param) break;
+        if (usfsGetParamAcknowledge() == param) break;
     }
 
     // Parameter request = 0 to end parameter transfer process
@@ -117,9 +117,9 @@ static void set_WS_params()
     usfsAlgorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = usfs2_getParamAcknowledge();
+    stat = usfsGetParamAcknowledge();
     while(!(stat==param)) {
-        stat = usfs2_getParamAcknowledge();
+        stat = usfsGetParamAcknowledge();
     }
     for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
@@ -127,10 +127,10 @@ static void set_WS_params()
         usfs2_requestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = usfs2_getParamAcknowledge();
+        stat = usfsGetParamAcknowledge();
         while(!(stat==param))
         {
-            stat = usfs2_getParamAcknowledge();
+            stat = usfsGetParamAcknowledge();
         }
     }
     // Parameter request = 0 to end parameter transfer process
@@ -150,10 +150,10 @@ static void USFS_get_WS_params()
     delay(10);
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = usfs2_getParamAcknowledge();
+    stat = usfsGetParamAcknowledge();
     while(!(stat==param))
     {
-        stat = usfs2_getParamAcknowledge();
+        stat = usfsGetParamAcknowledge();
     }
 
     // Parameter is the decimal value with the MSB set low (default) to
@@ -167,10 +167,10 @@ static void USFS_get_WS_params()
         delay(10);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = usfs2_getParamAcknowledge();
+        stat = usfsGetParamAcknowledge();
         while(!(stat==param))
         {
-            stat = usfs2_getParamAcknowledge();
+            stat = usfsGetParamAcknowledge();
         }
         usfsReadSavedParamBytes(WS_params.Sen_param[0]);
     }
@@ -399,7 +399,7 @@ static void readParams(uint8_t paramId, uint8_t param[4])
     usfs2_requestParamRead(paramId); // Request to read parameter 74
     usfsAlgorithmControlRequestParameterTransfer(); // Request parameter transfer process
     while (true) {
-        if (usfs2_getParamAcknowledge() == paramId) break;
+        if (usfsGetParamAcknowledge() == paramId) break;
     }
     usfsReadSavedParamBytes(param);
 }
@@ -542,9 +542,10 @@ void setup(void)
     // Configure operating mode
     usfsAlgorithmControlReset(); // read scale sensor data
 
-    // Enable interrupt to host upon certain events
-    // choose host interrupts when any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
-    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02), or the SENtral needs to be reset(0x01)
+    // Enable interrupt to host upon certain events choose host interrupts when
+    // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
+    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
+    // or the SENtral needs to be reset(0x01)
     usfs2_enableEvents(0x07);
 
     // Enable USFS run mode

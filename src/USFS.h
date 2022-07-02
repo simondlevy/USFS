@@ -145,3 +145,5 @@ void usfsSetPassThroughMode(void);
 void usfsSetRunEnable(void);
 
 void usfsSetRunDisable(void);
+
+uint8_t usfsGetParamAcknowledge(void);

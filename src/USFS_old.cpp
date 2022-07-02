@@ -203,11 +203,6 @@ void usfs2_requestParamRead(uint8_t param)
     usfsWriteByte(ParamRequest, param); 
 }
 
-uint8_t usfs2_getParamAcknowledge(void)
-{
-    return readByte(ParamAcknowledge);
-}
-
 uint8_t usfs2_getErrorStatus(void)
 {
     return readByte(ErrorRegister);
