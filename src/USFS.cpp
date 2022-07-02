@@ -5,21 +5,19 @@
 
    Adapted from
 
-https://github.com/kriswiner/USFS_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
+   This file is part of USFS.
 
-This file is part of USFS.
+   USFS is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-USFS is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-USFS is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with USFS.  If not, see <http://www.gnu.org/licenses/>.
+   USFS is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -213,64 +211,6 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
     usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) 
-{
-    uint8_t bytes[4] = {};
-    bytes[0] = mag_fs & (0xFF);
-    bytes[1] = (mag_fs >> 8) & (0xFF);
-    bytes[2] = acc_fs & (0xFF);
-    bytes[3] = (acc_fs >> 8) & (0xFF);
-    usfsLoadParamBytes(bytes);
-
-    // Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a
-    // paramter write processs
-    usfsWriteByte(ParamRequest, 0xCA); 
-
-    // Request parameter transfer procedure
-    usfsWriteByte(AlgorithmControl, 0x80); 
-
-    // Check the parameter acknowledge register and loop until the result
-    // matches parameter request byte
-    uint8_t status = usfsGetParamAcknowledge(); 
-    while(!(status==0xCA)) {
-        status = usfsGetParamAcknowledge();
-    }
-
-    // Parameter request = 0 to end parameter transfer process
-    usfsWriteByte(ParamRequest, 0x00); 
-
-    usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
-}
-
-static void set_gyro_FS (uint16_t gyro_fs) 
-{
-    uint8_t bytes[4] = {};
-    bytes[0] = gyro_fs & (0xFF);
-    bytes[1] = (gyro_fs >> 8) & (0xFF);
-    bytes[2] = 0x00;
-    bytes[3] = 0x00;
-    usfsLoadParamBytes(bytes);
-
-    // Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a
-    // paramter write processs
-    usfsWriteByte(ParamRequest, 0xCB); 
-
-    //Request parameter transfer procedure
-    usfsWriteByte(AlgorithmControl, 0x80); 
-
-    // Check the parameter acknowledge register and loop until the result
-    // matches parameter request byte
-    uint8_t status = usfsGetParamAcknowledge(); 
-    while(!(status==0xCB)) {
-        status = usfsGetParamAcknowledge();
-    }
-
-    // Parameter request = 0 to end parameter transfer process
-    usfsWriteByte(ParamRequest, 0x00); 
-
-    usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
-}
-
 static void readThreeAxis(uint8_t subAddress, int16_t * destination)
 {
     uint8_t rawData[6] = {};
@@ -443,8 +383,8 @@ void usfsBegin(
     set_integer_param (0x49, 0x00);
 
     //Write desired sensor full scale ranges to the EM7180
-    set_mag_acc_FS (magScale, accelScale); // 1000 uT == 0x3E8, 8 g == 0x08
-    set_gyro_FS (gyroScale); // 2000 dps == 0x7D0
+    usfsSetMagAccFs (magScale, accelScale); // 1000 uT == 0x3E8, 8 g == 0x08
+    usfsSetGyroFs (gyroScale); // 2000 dps == 0x7D0
 
     // Read sensor new FS values from parameter space
     usfsWriteByte(ParamRequest, 0x4A); // Request to read  parameter 74
