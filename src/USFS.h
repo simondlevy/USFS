@@ -133,3 +133,8 @@ uint8_t usfsGetRunStatus(void);
 uint8_t usfsGetSensorStatus(void);
 
 uint8_t usfsGetSentralStatus(void);
+
+void usfsAlgorithmControlReset(void); 
+
+void usfsAlgorithmControlRequestParameterTransfer(void);
+

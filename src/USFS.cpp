@@ -853,3 +853,12 @@ uint8_t usfsGetSentralStatus(void)
 {
     return readUsfsByte(SentralStatus); 
 }
+void usfsAlgorithmControlRequestParameterTransfer(void)
+{
+    usfsWriteByte(AlgorithmControl, 0x80);
+}
+
+void usfsAlgorithmControlReset(void)
+{
+    usfsWriteByte(AlgorithmControl, 0x00);
+}

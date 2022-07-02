@@ -89,7 +89,7 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
     usfs2_requestParamRead(param);
 
     // Request parameter transfer procedure
-    usfs2_algorithmControlRequestParameterTransfer();
+    usfsAlgorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     while (true) {
@@ -98,7 +98,7 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
 
     // Parameter request = 0 to end parameter transfer process
     usfs2_requestParamRead(0x00);
-    usfs2_algorithmControlReset(); // Re-start algorithm
+    usfsAlgorithmControlReset(); // Re-start algorithm
 }
 
 static void set_WS_params()
@@ -114,7 +114,7 @@ static void set_WS_params()
     usfs2_requestParamRead(param);
 
     // Request parameter transfer procedure
-    usfs2_algorithmControlRequestParameterTransfer();
+    usfsAlgorithmControlRequestParameterTransfer();
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
     stat = usfs2_getParamAcknowledge();
@@ -146,7 +146,7 @@ static void USFS_get_WS_params()
     delay(10);
 
     // Request parameter transfer procedure
-    usfs2_algorithmControlRequestParameterTransfer();
+    usfsAlgorithmControlRequestParameterTransfer();
     delay(10);
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
@@ -178,7 +178,7 @@ static void USFS_get_WS_params()
     usfs2_requestParamRead(0x00);
 
     // Re-start algorithm
-    usfs2_algorithmControlReset();
+    usfsAlgorithmControlReset();
 }
 
 static void USFS_acc_cal_upload()
@@ -397,7 +397,7 @@ void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t d
 static void readParams(uint8_t paramId, uint8_t param[4])
 {
     usfs2_requestParamRead(paramId); // Request to read parameter 74
-    usfs2_algorithmControlRequestParameterTransfer(); // Request parameter transfer process
+    usfsAlgorithmControlRequestParameterTransfer(); // Request parameter transfer process
     while (true) {
         if (usfs2_getParamAcknowledge() == paramId) break;
     }
@@ -540,7 +540,7 @@ void setup(void)
     usfs2_setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
 
     // Configure operating mode
-    usfs2_algorithmControlReset(); // read scale sensor data
+    usfsAlgorithmControlReset(); // read scale sensor data
 
     // Enable interrupt to host upon certain events
     // choose host interrupts when any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
@@ -572,7 +572,7 @@ void setup(void)
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
     usfs2_requestParamRead(0x00);//End parameter transfer
-    usfs2_algorithmControlReset(); // re-enable algorithm
+    usfsAlgorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
     set_integer_param (0x49, 0x00);
@@ -597,7 +597,7 @@ void setup(void)
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
     usfs2_requestParamRead(0x00);//End parameter transfer
-    usfs2_algorithmControlReset(); // re-enable algorithm
+    usfsAlgorithmControlReset(); // re-enable algorithm
 
     // Read USFS status
     if (usfsRunStatusIsNormal(usfsGetRunStatus())) {

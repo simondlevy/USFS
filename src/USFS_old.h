@@ -2,9 +2,6 @@
 
 #include <stdint.h>
 
-void usfs2_algorithmControlReset(void); 
-void usfs2_algorithmControlRequestParameterTransfer(void);
-
 bool usfs2_begin(void);
 
 void usfs2_enableEvents(uint8_t usfs2_mask);

@@ -260,16 +260,6 @@ void usfs2_setBaroRate(uint8_t rate)
     usfsWriteByte(BaroRate, rate);
 }
 
-void usfs2_algorithmControlRequestParameterTransfer(void)
-{
-    usfsWriteByte(AlgorithmControl, 0x80);
-}
-
-void usfs2_algorithmControlReset(void)
-{
-    usfsWriteByte(AlgorithmControl, 0x00);
-}
-
 void usfs2_enableEvents(uint8_t mask)
 {
     usfsWriteByte(EnableEvents, mask);
