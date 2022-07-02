@@ -293,7 +293,7 @@ void usfsBegin(
         bool verbose)
 {
     uint16_t magFs,
-             accFs,
+             accelFs,
              gyroFs; // EM7180 sensor full scale ranges
 
     uint8_t param[4];      
@@ -342,14 +342,14 @@ void usfsBegin(
     usfsReadSavedParamBytes(param);
 
     magFs = ((int16_t)(param[1]<<8) | param[0]);
-    accFs = ((int16_t)(param[3]<<8) | param[2]);
+    accelFs = ((int16_t)(param[3]<<8) | param[2]);
 
     if (verbose) {
         Serial.print("Magnetometer Default Full Scale Range: +/-");
         Serial.print(magFs);
         Serial.println("uT");
         Serial.print("Accelerometer Default Full Scale Range: +/-");
-        Serial.print(accFs);
+        Serial.print(accelFs);
         Serial.println("g");
     }
 
@@ -390,14 +390,14 @@ void usfsBegin(
     }
     usfsReadSavedParamBytes(param);
     magFs = ((int16_t)(param[1]<<8) | param[0]);
-    accFs = ((int16_t)(param[3]<<8) | param[2]);
+    accelFs = ((int16_t)(param[3]<<8) | param[2]);
 
     if (verbose) {
         Serial.print("Magnetometer New Full Scale Range: +/-");
         Serial.print(magFs);
         Serial.println("uT");
         Serial.print("Accelerometer New Full Scale Range: +/-");
-        Serial.print(accFs);
+        Serial.print(accelFs);
         Serial.println("g");
     }
 
@@ -871,17 +871,16 @@ void usfsSetBaroRate(uint8_t rate)
     usfsWriteByte(BaroRate, rate);
 }
 
-void usfsSetScales(uint16_t accFs, uint16_t gyroFs, uint16_t magFs)
+void usfsSetScales(uint16_t accelFs, uint16_t gyroFs, uint16_t magFs)
 {
     uint8_t bytes[4] = {};
     bytes[0] = gyroFs & (0xFF);
     bytes[1] = (gyroFs >> 8) & (0xFF);
     bytes[2] = 0x00;
     bytes[3] = 0x00;
-    usfsWriteByte(LoadParamByte0, bytes[0]); 
-    usfsWriteByte(LoadParamByte1, bytes[1]); 
-    usfsWriteByte(LoadParamByte2, bytes[2]); 
-    usfsWriteByte(LoadParamByte3, bytes[3]); 
+
+    usfsLoadParamBytes(bytes);
+
     usfsWriteByte(ParamRequest, 0xCB); 
     usfsWriteByte(AlgorithmControl, 0x80); 
     uint8_t status = readUsfsByte(ParamAcknowledge); 
@@ -893,12 +892,9 @@ void usfsSetScales(uint16_t accFs, uint16_t gyroFs, uint16_t magFs)
 
     bytes[0] = magFs & (0xFF);
     bytes[1] = (magFs >> 8) & (0xFF);
-    bytes[2] = accFs & (0xFF);
-    bytes[3] = (accFs >> 8) & (0xFF);
-    usfsWriteByte(LoadParamByte0, bytes[0]); 
-    usfsWriteByte(LoadParamByte1, bytes[1]); 
-    usfsWriteByte(LoadParamByte2, bytes[2]); 
-    usfsWriteByte(LoadParamByte3, bytes[3]); 
+    bytes[2] = accelFs & (0xFF);
+    bytes[3] = (accelFs >> 8) & (0xFF);
+    usfsLoadParamBytes(bytes);
     usfsWriteByte(ParamRequest, 0xCA); 
     usfsWriteByte(AlgorithmControl, 0x80); 
     status = readUsfsByte(ParamAcknowledge); 
