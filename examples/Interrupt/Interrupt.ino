@@ -69,7 +69,7 @@ void setup()
 
     usfsReportChipId();        
 
-    usfsLoadFirmware(); 
+    usfsLoadFirmware(VERBOSE); 
 
     usfsBegin(
             ACCEL_BANDWIDTH,

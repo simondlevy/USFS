@@ -573,27 +573,30 @@ void usfsBegin(
     }
 }
 
-void usfsLoadFirmware()
+void usfsLoadFirmware(bool verbose)
 {
     // Check which sensors can be detected by the EM7180
     uint8_t featureflag = readUsfsByte(EM7180_FeatureFlags);
-    if (featureflag & 0x01)  {
-        //Serial.println("A barometer is installed");
-    }
-    if (featureflag & 0x02)  {
-        //Serial.println("A humidity sensor is installed");
-    }
-    if (featureflag & 0x04)  {
-        //Serial.println("A temperature sensor is installed");
-    }
-    if (featureflag & 0x08)  {
-        //Serial.println("A custom sensor is installed");
-    }
-    if (featureflag & 0x10)  {
-        //Serial.println("A second custom sensor is installed");
-    }
-    if (featureflag & 0x20)  {
-        //Serial.println("A third custom sensor is installed");
+
+    if (verbose) {
+        if (featureflag & 0x01)  {
+            Serial.println("A barometer is installed");
+        }
+        if (featureflag & 0x02)  {
+            Serial.println("A humidity sensor is installed");
+        }
+        if (featureflag & 0x04)  {
+            Serial.println("A temperature sensor is installed");
+        }
+        if (featureflag & 0x08)  {
+            Serial.println("A custom sensor is installed");
+        }
+        if (featureflag & 0x10)  {
+            Serial.println("A second custom sensor is installed");
+        }
+        if (featureflag & 0x20)  {
+            Serial.println("A third custom sensor is installed");
+        }
     }
 
     delay(1000); // give some time to read the screen
@@ -608,24 +611,26 @@ void usfsLoadFirmware()
 
         uint8_t status = (readUsfsByte(EM7180_SentralStatus) & 0x01);
 
-        if (status & 0x01)  {
-            //Serial.println("EEPROM detected on the sensor bus!");
-        }
-        if (status & 0x02)  {
-            //Serial.println("EEPROM uploaded config file!");
-        }
+        if (verbose) {
+            if (status & 0x01)  {
+                Serial.println("EEPROM detected on the sensor bus!");
+            }
+            if (status & 0x02)  {
+                Serial.println("EEPROM uploaded config file!");
+            }
 
-        if (status & 0x04)  {
-            //Serial.println("EEPROM CRC incorrect!");
-            okay = false;
-        }
+            if (status & 0x04)  {
+                Serial.println("EEPROM CRC incorrect!");
+                okay = false;
+            }
 
-        if (status & 0x08)  {
-            //Serial.println("EM7180 in initialized state!");
+            if (status & 0x08)  {
+                Serial.println("EM7180 in initialized state!");
+            }
         }
 
         if (status & 0x10)  {
-            //Serial.println("No EEPROM detected!");
+            Serial.println("No EEPROM detected!");
             okay = false;
         }
 
@@ -636,7 +641,9 @@ void usfsLoadFirmware()
 
     if (okay) {
         if (!(readUsfsByte(EM7180_SentralStatus) & 0x04)) {
-            //Serial.println("EEPROM upload successful!");
+            if (verbose) {
+                Serial.println("EEPROM upload successful!");
+            }
         }
     }
     else {

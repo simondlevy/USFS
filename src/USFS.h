@@ -82,7 +82,7 @@ void usfsBegin(
         uint8_t interruptEnable=USFS_INTERRUPT_GYRO,
         bool verbose=false);
 
-void usfsLoadFirmware();
+void usfsLoadFirmware(bool verbose = false);
 
 void    usfsReadAccelerometer(int16_t * destination);
 int16_t usfsReadBarometer();
