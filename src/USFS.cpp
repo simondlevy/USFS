@@ -533,9 +533,10 @@ void usfsBegin(
 
     uint8_t eventStatus = readUsfsByte(EM7180_EventStatus);
 
+    if (eventStatus & 0x02) Serial.println("EM7180 Error");
+
     if (verbose) {
         if (eventStatus & 0x01) Serial.println("EM7180 CPU reset");
-        if (eventStatus & 0x02) Serial.println("EM7180 Error");
         if (eventStatus & 0x04) Serial.println("EM7180 new quaternion result");
         if (eventStatus & 0x08) Serial.println("EM7180 new mag result");
         if (eventStatus & 0x10) Serial.println("EM7180 new accel result");
@@ -551,12 +552,11 @@ void usfsBegin(
 
         Serial.print("EM7180 sensor status = ");
         Serial.println(sensorStatus);
-        if (sensorStatus & 0x01) Serial.print("Magnetometer not acknowledging!");
-        if (sensorStatus & 0x02) Serial.print("Accelerometer not acknowledging!");
-        if (sensorStatus & 0x04) Serial.print("Gyro not acknowledging!");
-        if (sensorStatus & 0x10) Serial.print("Magnetometer ID not recognized!");
-        if (sensorStatus & 0x20) Serial.print("Accelerometer ID not recognized!");
-        if (sensorStatus & 0x40) Serial.print("Gyro ID not recognized!");
+    }
+
+    usfsCheckSensorStatus(sensorStatus);
+
+    if (verbose) {
 
         Serial.print("Actual MagRate = ");
         Serial.print(readUsfsByte(EM7180_ActualMagRate));
@@ -693,6 +693,11 @@ int16_t usfsReadTemperature()
     return read16BitValue(EM7180_Temp);
 }
 
+bool usfsEventStatusIsReset(uint8_t status)
+{
+    return status & 0x02;
+}
+
 bool usfsEventStatusIsError(uint8_t status)
 {
     return status & 0x02;
@@ -790,3 +795,24 @@ bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status)
 {
     return (bool)(status & 0x20);
 }
+
+bool usfsIsInPassThroughMode(void)
+{
+    return (bool)readUsfsByte(EM7180_PassThruStatus);
+}
+
+bool usfsRunStatusIsNormal(uint8_t status)
+{
+    return (bool)(status & 0x01);
+}
+
+void usfsCheckSensorStatus(uint8_t status) 
+{
+    if (status & 0x01) Serial.print("Magnetometer not acknowledging!");
+    if (status & 0x02) Serial.print("Accelerometer not acknowledging!");
+    if (status & 0x04) Serial.print("Gyro not acknowledging!");
+    if (status & 0x10) Serial.print("Magnetometer ID not recognized!");
+    if (status & 0x20) Serial.print("Accelerometer ID not recognized!");
+    if (status & 0x40) Serial.print("Gyro ID not recognized!");
+}
+

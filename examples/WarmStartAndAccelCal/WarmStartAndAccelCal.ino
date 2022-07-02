@@ -406,13 +406,6 @@ void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t d
     Wire.endTransmission();                   // Send the Tx buffer
 }
 
-static void sensorError(const char * errmsg)
-{
-    Serial.println(errmsg);
-    while (true)
-        ;
-}
-
 static void readParams(uint8_t paramId, uint8_t param[4])
 {
     usfs2_requestParamRead(paramId); // Request to read parameter 74
@@ -507,12 +500,18 @@ void setup(void)
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readAccelCal();
-        Serial.print("X-acc max: "); Serial.println(global_conf.accZero_max[0]);
-        Serial.print("Y-acc max: "); Serial.println(global_conf.accZero_max[1]);
-        Serial.print("Z-acc max: "); Serial.println(global_conf.accZero_max[2]);
-        Serial.print("X-acc min: "); Serial.println(global_conf.accZero_min[0]);
-        Serial.print("Y-acc min: "); Serial.println(global_conf.accZero_min[1]);
-        Serial.print("Z-acc min: "); Serial.println(global_conf.accZero_min[2]);
+        Serial.print("X-acc max: ");
+        Serial.println(global_conf.accZero_max[0]);
+        Serial.print("Y-acc max: ");
+        Serial.println(global_conf.accZero_max[1]);
+        Serial.print("Z-acc max: ");
+        Serial.println(global_conf.accZero_max[2]);
+        Serial.print("X-acc min: ");
+        Serial.println(global_conf.accZero_min[0]);
+        Serial.print("Y-acc min: ");
+        Serial.println(global_conf.accZero_min[1]);
+        Serial.print("Z-acc min: ");
+        Serial.println(global_conf.accZero_min[2]);
 
         // Take Sentral out of pass-thru mode and re-start algorithm
         usfs2_setMasterMode();
@@ -576,11 +575,17 @@ void setup(void)
 
     uint16_t USFS_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     uint16_t USFS_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
-    Serial.print("Magnetometer Default Full Scale Range: +/-"); Serial.print(USFS_mag_fs); Serial.println("uT");
-    Serial.print("Accelerometer Default Full Scale Range: +/-"); Serial.print(USFS_acc_fs); Serial.println("g");
+    Serial.print("Magnetometer Default Full Scale Range: +/-");
+    Serial.print(USFS_mag_fs);
+    Serial.println("uT");
+    Serial.print("Accelerometer Default Full Scale Range: +/-");
+    Serial.print(USFS_acc_fs);
+    Serial.println("g");
     readParams(0x4B, param); // Request to read  parameter 75
     uint16_t USFS_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope Default Full Scale Range: +/-"); Serial.print(USFS_gyro_fs); Serial.println("dps");
+    Serial.print("Gyroscope Default Full Scale Range: +/-");
+    Serial.print(USFS_gyro_fs);
+    Serial.println("dps");
     usfs2_requestParamRead(0x00);//End parameter transfer
     usfs2_algorithmControlReset(); // re-enable algorithm
 
@@ -595,16 +600,24 @@ void setup(void)
     readParams(0x4A, param);// Request to read  parameter 74
     USFS_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     USFS_acc_fs = ((int16_t)(param[3]<<8) | param[2]);
-    Serial.print("Magnetometer New Full Scale Range: +/-"); Serial.print(USFS_mag_fs); Serial.println("uT");
-    Serial.print("Accelerometer New Full Scale Range: +/-"); Serial.print(USFS_acc_fs); Serial.println("g");
+    Serial.print("Magnetometer New Full Scale Range: +/-");
+    Serial.print(USFS_mag_fs);
+    Serial.println("uT");
+    Serial.print("Accelerometer New Full Scale Range: +/-");
+    Serial.print(USFS_acc_fs);
+    Serial.println("g");
     readParams(0x4B, param);// Request to read  parameter 75
     USFS_gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
-    Serial.print("Gyroscope New Full Scale Range: +/-"); Serial.print(USFS_gyro_fs); Serial.println("dps");
+    Serial.print("Gyroscope New Full Scale Range: +/-");
+    Serial.print(USFS_gyro_fs);
+    Serial.println("dps");
     usfs2_requestParamRead(0x00);//End parameter transfer
     usfs2_algorithmControlReset(); // re-enable algorithm
 
     // Read USFS status
-    if (usfs2_getRunStatus() & 0x01) Serial.println(" USFS run status = normal mode");
+    if (usfsRunStatusIsNormal(usfs2_getRunStatus())) {
+        Serial.println(" USFS run status = normal mode");
+    }
 
     uint8_t algoStatus = usfs2_getAlgorithmStatus();
 
@@ -627,25 +640,23 @@ void setup(void)
         Serial.println(" USFS unreliable sensor data");
     }
 
-    if (usfs2_getPassThruStatus() & 0x01) Serial.print(" USFS in passthru mode!");
+    if (usfsIsInPassThroughMode()) Serial.print(" USFS in passthru mode!");
 
     uint8_t eventStatus = usfs2_getEventStatus();
 
-    if (eventStatus & 0x01) Serial.println(" USFS CPU reset");
-    if (eventStatus & 0x02) Serial.println(" USFS Error");
+    if (usfsEventStatusIsReset(eventStatus)) {
+        Serial.println(" USFS CPU reset");
+    }
+
+    if (usfsEventStatusIsError(eventStatus)) {
+        Serial.println(" USFS Error");
+    }
 
     // Give some time to read the screen
     delay(1000);
 
     // Check sensor status
-    uint8_t sensorStatus = usfs2_getSensorStatus();
-
-    if (sensorStatus & 0x01) sensorError("Magnetometer not acknowledging!");
-    if (sensorStatus & 0x02) sensorError("Accelerometer not acknowledging!");
-    if (sensorStatus & 0x04) sensorError("Gyro not acknowledging!");
-    if (sensorStatus & 0x10) sensorError("Magnetometer ID not recognized!");
-    if (sensorStatus & 0x20) sensorError("Accelerometer ID not recognized!");
-    if (sensorStatus & 0x40) sensorError("Gyro ID not recognized!");
+    usfsCheckSensorStatus(usfs2_getSensorStatus());
 
     // Give some time to read the screen
     delay(1000);
@@ -687,32 +698,17 @@ void loop(void)
         calibratingA = 512;
     }
 
-    // Check event status register, way to check data ready by polling rather than interrupt
-    uint8_t eventStatus = usfs2_getEventStatus(); // reading clears the register
+    // Check event status register, way to check data ready by polling rather
+    // than interrupt
+    uint8_t eventStatus = usfs2_getEventStatus(); // reading clears the
 
-    // Check for errors
-    // Error detected, what is it?
-    if (eventStatus & 0x02) { 
+    if (usfsEventStatusIsError(eventStatus)) { 
 
-        uint8_t errorStatus = usfs2_getErrorStatus();
-        if (!errorStatus)
-        {
-            Serial.print(" USFS status = "); Serial.println(errorStatus);
-            if (errorStatus == 0x11) Serial.print("Magnetometer failure!");
-            if (errorStatus == 0x12) Serial.print("Accelerometer failure!");
-            if (errorStatus == 0x14) Serial.print("Gyro failure!");
-            if (errorStatus == 0x21) Serial.print("Magnetometer initialization failure!");
-            if (errorStatus == 0x22) Serial.print("Accelerometer initialization failure!");
-            if (errorStatus == 0x24) Serial.print("Gyro initialization failure!");
-            if (errorStatus == 0x30) Serial.print("Math error!");
-            if (errorStatus == 0x80) Serial.print("Invalid sample rate!");
-        }
-        // Handle errors ToDo
+        usfsReportError(eventStatus);
     }
 
     // if no errors, see if new data is ready
-    // new acceleration data available
-    if (eventStatus & 0x10) { 
+    if (usfsEventStatusIsAccelerometer(eventStatus)) { 
 
         int16_t accelCount[3];
 
@@ -727,7 +723,7 @@ void loop(void)
         Accel_cal_check(accelCount);
     }
 
-    if (eventStatus & 0x04) {
+    if (usfsEventStatusIsQuaternion(eventStatus)) {
         usfs2_readQuaternion(Quat[0], Quat[1], Quat[2], Quat[3]);
     }
 
@@ -737,14 +733,20 @@ void loop(void)
     // update LCD once per half-second independent of read rate
     if (delt_t > 500) { 
 
-        float Yaw  = atan2(2.0f * (Quat[1] * Quat[2] + Quat[0] * Quat[3]), Quat[0] * Quat[0] + Quat[1] * Quat[1] - Quat[2] * Quat[2] - Quat[3] * Quat[3]);
+        float Yaw  = atan2(2.0f * (Quat[1] * Quat[2] + Quat[0] * Quat[3]),
+                Quat[0] * Quat[0] + Quat[1] * Quat[1] - Quat[2] * Quat[2] -
+                Quat[3] * Quat[3]);
         Yaw   *= 180.0f / PI; 
         Yaw   += MAGNETIC_DECLINATION;
         if (Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
 
-        Serial.print("ax = "); Serial.print((int)1000*ax);  
-        Serial.print(" ay = "); Serial.print((int)1000*ay); 
-        Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
+        Serial.print("ax = ");
+        Serial.print((int)1000*ax);  
+        Serial.print(" ay = ");
+        Serial.print((int)1000*ay); 
+        Serial.print(" az = ");
+        Serial.print((int)1000*az);
+        Serial.println(" mg");
         Serial.print("Hardware yaw: ");
         Serial.println(Yaw, 2);
 
@@ -755,7 +757,8 @@ void loop(void)
             Serial.println("Send '1' to store Warm Start configuration");
         }
         if (accel_cal_saved > 0) {
-            Serial.print("Accel Cals Complete:"); Serial.println(accel_cal_saved);
+            Serial.print("Accel Cals Complete:");
+            Serial.println(accel_cal_saved);
         } 
         else {
             Serial.println("Send '2' to store Accel Cal");

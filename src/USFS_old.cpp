@@ -98,7 +98,6 @@ static const uint8_t ACC_LPF_BW         = 0x5B;
 static const uint8_t GYRO_LPF_BW        = 0x5C;  
 static const uint8_t BARO_LPF_BW        = 0x5D;  
 
-
 static const uint8_t TEMP_OUT_H       = 0x41;
 static const uint8_t TEMP_OUT_L       = 0x42;
 

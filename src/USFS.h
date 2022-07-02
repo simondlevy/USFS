@@ -107,3 +107,11 @@ bool usfsAlgorithmStatusIsMagneticAnomaly(uint8_t status);
 bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status);
 
 void usfsReportError(uint8_t errorStatus);
+
+bool usfsIsInPassThroughMode(void);
+
+bool usfsRunStatusIsNormal(uint8_t status);
+
+void usfsCheckSensorStatus(uint8_t status);
+
+bool usfsEventStatusIsReset(uint8_t status);
