@@ -697,7 +697,7 @@ void loop(void)
 
         int16_t accelCount[3];
 
-        usfs2_readAccelerometer(accelCount[0], accelCount[1], accelCount[2]);
+        usfsReadAccelerometer(accelCount);
 
         // Now we'll calculate the accleration value into actual g's
         ax = (float)accelCount[0]*0.000488;  // get actual g value
@@ -709,7 +709,7 @@ void loop(void)
     }
 
     if (usfsEventStatusIsQuaternion(eventStatus)) {
-        usfs2_readQuaternion(Quat[0], Quat[1], Quat[2], Quat[3]);
+        usfsReadQuaternion(Quat);
     }
 
     // Serial print and/or display at 0.5 s rate independent of data rates

@@ -13,14 +13,9 @@ uint8_t usfs2_getParamAcknowledge(void);
 
 void usfs2_requestParamRead(uint8_t usfs2_param);
 
-uint8_t usfs2_getSentralStatus(void);
-
 void usfs2_requestReset(void);
 
 void usfs2_setAccelLpfBandwidth(uint8_t usfs2_bw);
-
-void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
-void usfs2_readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
 void usfs2_setAccelRate(uint8_t usfs2_rate);
 void usfs2_setBaroRate(uint8_t usfs2_rate);
