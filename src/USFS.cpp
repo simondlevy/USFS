@@ -305,9 +305,7 @@ void usfsBegin(
     usfsWriteByte(PassThruControl, 0x00); 
     usfsSetRunEnable();
 
-    // Set SENtral in initialized state to configure registers
-    usfsSetRunDisable();
-
+    // Set sensor rates and bandwidths
     usfsSetRatesAndBandwidths(
             accelBandwidth,
             accelRateTenth,
@@ -927,19 +925,21 @@ void usfsSetMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
 }
 
 void usfsSetRatesAndBandwidths(
-        uint8_t accelBandwidth,
+        uint8_t accelLpfBandwidth,
         uint8_t accelRateTenth,
         uint8_t baroRate,
-        uint8_t gyroBandwidth,
+        uint8_t gyroLpfBandwidth,
         uint8_t gyroRateTenth,
         uint8_t magRate,
         uint8_t quatDivisor)
 {
+    usfsSetRunDisable();
+
+    usfsWriteByte(ACC_LPF_BW, accelLpfBandwidth);   
     usfsWriteByte(AccelRate, accelRateTenth); 
-    usfsWriteByte(ACC_LPF_BW, accelBandwidth);   
     usfsWriteByte(BaroRate, 0x80 | baroRate);  
-    usfsWriteByte(GYRO_LPF_BW, gyroBandwidth); 
-    usfsWriteByte(QRateDivisor, quatDivisor); 
-    usfsWriteByte(MagRate, magRate); 
+    usfsWriteByte(GYRO_LPF_BW, gyroLpfBandwidth); 
     usfsWriteByte(GyroRate, gyroRateTenth); 
+    usfsWriteByte(MagRate, magRate); 
+    usfsWriteByte(QRateDivisor, quatDivisor); 
 }

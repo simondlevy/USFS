@@ -173,10 +173,10 @@ void usfsSetGyroFs(uint16_t gyro_fs);
 void usfsSetMagAccFs(uint16_t mag_fs, uint16_t acc_fs); 
 
 void usfsSetRatesAndBandwidths(
-        uint8_t accelBandwidth,
+        uint8_t accelLpfBandwidth,
         uint8_t accelRateTenth,
         uint8_t baroRate,
-        uint8_t gyroBandwidth,
+        uint8_t gyroLpfBandwidth,
         uint8_t gyroRateTenth,
         uint8_t magRate,
         uint8_t quatDivisor);

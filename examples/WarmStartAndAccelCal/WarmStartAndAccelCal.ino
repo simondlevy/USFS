@@ -521,15 +521,14 @@ void setup(void)
     }
 
     // Set SENtral in initialized state to configure registers
-    usfsSetRunDisable();
-
-    usfsSetAccelRate(0x14); // 200/10 Hz
-    usfsSetAccelLpfBandwidth(0x03); // 41Hz
-    usfsSetBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
-    usfsSetGyroLpfBandwidth(0x01); // 184Hz
-    usfsSetQRateDivisor(0x02); // 100 Hz
-    usfsSetMagRate(0x64); // 100 Hz
-    usfsSetGyroRate(0x14); // 200/10 Hz
+    usfsSetRatesAndBandwidths(
+            3,   // accel LPF bandwidth
+            10,  // 1/10th accel rate
+            50,  // baro rate
+            1,   // gyro LPF bandwidth
+            20,  // 1/10th gyro rate
+            100, // mag rate
+            2);  // quat rate divisor
 
     // Configure operating mode
     usfsAlgorithmControlReset(); // read scale sensor data
