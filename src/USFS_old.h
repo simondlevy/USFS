@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-uint8_t usfs2_getParamAcknowledge(void);
-
 void usfs2_requestParamRead(uint8_t usfs2_param);
 
 void usfs2_requestReset(void);
