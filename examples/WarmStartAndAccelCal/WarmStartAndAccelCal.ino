@@ -86,7 +86,7 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
 
     usfsLoadParamBytes(bytes);
 
-    usfs2_requestParamRead(param);
+    usfsRequestParamRead(param);
 
     // Request parameter transfer procedure
     usfsAlgorithmControlRequestParameterTransfer();
@@ -97,7 +97,7 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
     }
 
     // Parameter request = 0 to end parameter transfer process
-    usfs2_requestParamRead(0x00);
+    usfsRequestParamRead(0x00);
     usfsAlgorithmControlReset(); // Re-start algorithm
 }
 
@@ -111,7 +111,7 @@ static void set_WS_params()
 
     usfsLoadParamBytes(WS_params.Sen_param[0]);
 
-    usfs2_requestParamRead(param);
+    usfsRequestParamRead(param);
 
     // Request parameter transfer procedure
     usfsAlgorithmControlRequestParameterTransfer();
@@ -124,7 +124,7 @@ static void set_WS_params()
     for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
         usfsLoadParamBytes(WS_params.Sen_param[i]);
-        usfs2_requestParamRead(param);
+        usfsRequestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
         stat = usfsGetParamAcknowledge();
@@ -134,7 +134,7 @@ static void set_WS_params()
         }
     }
     // Parameter request = 0 to end parameter transfer process
-    usfs2_requestParamRead(0x00);
+    usfsRequestParamRead(0x00);
 }
 
 static void USFS_get_WS_params()
@@ -142,7 +142,7 @@ static void USFS_get_WS_params()
     uint8_t param = 1;
     uint8_t stat;
 
-    usfs2_requestParamRead(param);
+    usfsRequestParamRead(param);
     delay(10);
 
     // Request parameter transfer procedure
@@ -163,7 +163,7 @@ static void USFS_get_WS_params()
     for(uint8_t i=1; i<35; i++)
     {
         param = (i+1);
-        usfs2_requestParamRead(param);
+        usfsRequestParamRead(param);
         delay(10);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
@@ -175,7 +175,7 @@ static void USFS_get_WS_params()
         usfsReadSavedParamBytes(WS_params.Sen_param[0]);
     }
     // Parameter request = 0 to end parameter transfer process
-    usfs2_requestParamRead(0x00);
+    usfsRequestParamRead(0x00);
 
     // Re-start algorithm
     usfsAlgorithmControlReset();
@@ -396,7 +396,7 @@ void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t d
 
 static void readParams(uint8_t paramId, uint8_t param[4])
 {
-    usfs2_requestParamRead(paramId); // Request to read parameter 74
+    usfsRequestParamRead(paramId); // Request to read parameter 74
     usfsAlgorithmControlRequestParameterTransfer(); // Request parameter transfer process
     while (true) {
         if (usfsGetParamAcknowledge() == paramId) break;
@@ -572,7 +572,7 @@ void setup(void)
     Serial.print("Gyroscope Default Full Scale Range: +/-");
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
-    usfs2_requestParamRead(0x00);//End parameter transfer
+    usfsRequestParamRead(0x00);//End parameter transfer
     usfsAlgorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
@@ -597,7 +597,7 @@ void setup(void)
     Serial.print("Gyroscope New Full Scale Range: +/-");
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
-    usfs2_requestParamRead(0x00);//End parameter transfer
+    usfsRequestParamRead(0x00);//End parameter transfer
     usfsAlgorithmControlReset(); // re-enable algorithm
 
     // Read USFS status

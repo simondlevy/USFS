@@ -2,10 +2,6 @@
 
 #include <stdint.h>
 
-void usfs2_requestParamRead(uint8_t usfs2_param);
-
-void usfs2_requestReset(void);
-
 bool usfs2_begin(void);
 void usfs2_enableEvents(uint8_t usfs2_mask);
 void usfs2_setAccelLpfBandwidth(uint8_t usfs2_bw);

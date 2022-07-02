@@ -198,11 +198,6 @@ void usfs2_enableEvents(uint8_t mask)
     usfsWriteByte(EnableEvents, mask);
 }
 
-void usfs2_requestParamRead(uint8_t param)
-{
-    usfsWriteByte(ParamRequest, param); 
-}
-
 uint8_t usfs2_getErrorStatus(void)
 {
     return readByte(ErrorRegister);

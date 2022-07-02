@@ -194,7 +194,7 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
 
     usfsLoadParamBytes(bytes);
 
-    usfsWriteByte(ParamRequest, param);
+    usfsRequestParamRead(param);
 
     // Request parameter transfer procedure
     usfsWriteByte(AlgorithmControl, 0x80); 
@@ -906,4 +906,9 @@ void usfsSetRunDisable(void)
 uint8_t usfsGetParamAcknowledge(void)
 {
     return readUsfsByte(ParamAcknowledge);
+}
+
+void usfsRequestParamRead(uint8_t param)
+{
+    usfsWriteByte(ParamRequest, param); 
 }

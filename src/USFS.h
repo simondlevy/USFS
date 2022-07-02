@@ -147,3 +147,5 @@ void usfsSetRunEnable(void);
 void usfsSetRunDisable(void);
 
 uint8_t usfsGetParamAcknowledge(void);
+
+void usfsRequestParamRead(uint8_t param);
