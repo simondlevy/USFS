@@ -235,8 +235,36 @@ static int16_t read16BitValue(uint8_t subAddress)
     return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
 }
 
-// ============================================================================
+static uint8_t byte0(uint16_t shortword)
+{
+    return shortword & 0xFF;
+}
 
+static uint8_t byte1(uint16_t shortword)
+{
+    return (shortword >> 8) & 0xFF;
+}
+
+static void setScale(
+        uint16_t fs,
+        uint8_t byte2,
+        uint8_t byte3,
+        uint8_t subAddress)
+{
+    uint8_t bytes[4] = {byte0(fs), byte1(fs), byte2, byte3};
+    usfsLoadParamBytes(bytes);
+    usfsWriteByte(ParamRequest, subAddress); 
+    usfsWriteByte(AlgorithmControl, 0x80); 
+    uint8_t status = readUsfsByte(ParamAcknowledge); 
+    while(!(status==subAddress)) {
+        status = readUsfsByte(ParamAcknowledge);
+    }
+    usfsWriteByte(ParamRequest, 0x00); 
+    usfsWriteByte(AlgorithmControl, 0x00); 
+
+}
+
+// ============================================================================
 
 uint8_t usfsCheckErrors()
 {
@@ -873,36 +901,8 @@ void usfsSetBaroRate(uint8_t rate)
 
 void usfsSetScales(uint16_t accelFs, uint16_t gyroFs, uint16_t magFs)
 {
-    uint8_t bytes[4] = {};
-    bytes[0] = gyroFs & (0xFF);
-    bytes[1] = (gyroFs >> 8) & (0xFF);
-    bytes[2] = 0x00;
-    bytes[3] = 0x00;
-
-    usfsLoadParamBytes(bytes);
-
-    usfsWriteByte(ParamRequest, 0xCB); 
-    usfsWriteByte(AlgorithmControl, 0x80); 
-    uint8_t status = readUsfsByte(ParamAcknowledge); 
-    while(!(status==0xCB)) {
-        status = readUsfsByte(ParamAcknowledge);
-    }
-    usfsWriteByte(ParamRequest, 0x00); 
-    usfsWriteByte(AlgorithmControl, 0x00); 
-
-    bytes[0] = magFs & (0xFF);
-    bytes[1] = (magFs >> 8) & (0xFF);
-    bytes[2] = accelFs & (0xFF);
-    bytes[3] = (accelFs >> 8) & (0xFF);
-    usfsLoadParamBytes(bytes);
-    usfsWriteByte(ParamRequest, 0xCA); 
-    usfsWriteByte(AlgorithmControl, 0x80); 
-    status = readUsfsByte(ParamAcknowledge); 
-    while(!(status==0xCA)) {
-        status = readUsfsByte(ParamAcknowledge);
-    }
-    usfsWriteByte(ParamRequest, 0x00); 
-    usfsWriteByte(AlgorithmControl, 0x00); 
+    setScale(gyroFs, 0x00, 0x00, 0xCB);
+    setScale(magFs, byte0(accelFs), byte1(accelFs), 0xCA);
 }
 
 void usfsSetRatesAndBandwidths(
