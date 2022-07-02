@@ -815,3 +815,11 @@ void usfsWriteByte(uint8_t subAddress, uint8_t data)
 {
     writeByte(EM7180_ADDRESS, subAddress, data);
 }
+
+void usfsReadSavedParamBytes(uint8_t bytes[4])
+{
+    bytes[0] = readUsfsByte(EM7180_SavedParamByte0);
+    bytes[1] = readUsfsByte(EM7180_SavedParamByte1);
+    bytes[2] = readUsfsByte(EM7180_SavedParamByte2);
+    bytes[3] = readUsfsByte(EM7180_SavedParamByte3);
+}

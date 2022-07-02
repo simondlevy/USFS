@@ -58,11 +58,6 @@ void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
 
 void usfs2_readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
-uint8_t usfs2_readSavedParamByte0(void);
-uint8_t usfs2_readSavedParamByte1(void);
-uint8_t usfs2_readSavedParamByte2(void);
-uint8_t usfs2_readSavedParamByte3(void);
-
 void usfs2_requestParamRead(uint8_t usfs2_param);
 
 void usfs2_requestReset(void);

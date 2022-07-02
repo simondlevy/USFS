@@ -316,26 +316,6 @@ uint8_t usfs2_getParamAcknowledge(void)
     return readByte(ParamAcknowledge);
 }
 
-uint8_t usfs2_readSavedParamByte0(void)
-{
-    return readByte(SavedParamByte0);
-}
-
-uint8_t usfs2_readSavedParamByte1(void)
-{
-    return readByte(SavedParamByte1);
-}
-
-uint8_t usfs2_readSavedParamByte2(void)
-{
-    return readByte(SavedParamByte2);
-}
-
-uint8_t usfs2_readSavedParamByte3(void)
-{
-    return readByte(SavedParamByte3);
-}
-
 uint8_t usfs2_getRunStatus(void)
 {
     return readByte(RunStatus);

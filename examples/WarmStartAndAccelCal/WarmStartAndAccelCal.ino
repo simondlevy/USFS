@@ -158,11 +158,9 @@ static void USFS_get_WS_params()
         stat = usfs2_getParamAcknowledge();
     }
 
-    // Parameter is the decimal value with the MSB set low (default) to indicate a paramter read processs
-    WS_params.Sen_param[0][0] = usfs2_readSavedParamByte0();
-    WS_params.Sen_param[0][1] = usfs2_readSavedParamByte1();
-    WS_params.Sen_param[0][2] = usfs2_readSavedParamByte2();
-    WS_params.Sen_param[0][3] = usfs2_readSavedParamByte3();
+    // Parameter is the decimal value with the MSB set low (default) to
+    // indicate a paramter read processs
+    usfsReadSavedParamBytes(WS_params.Sen_param[0]);
 
     for(uint8_t i=1; i<35; i++)
     {
@@ -176,10 +174,7 @@ static void USFS_get_WS_params()
         {
             stat = usfs2_getParamAcknowledge();
         }
-        WS_params.Sen_param[i][0] = usfs2_readSavedParamByte0();
-        WS_params.Sen_param[i][1] = usfs2_readSavedParamByte1();
-        WS_params.Sen_param[i][2] = usfs2_readSavedParamByte2();
-        WS_params.Sen_param[i][3] = usfs2_readSavedParamByte3();
+        usfsReadSavedParamBytes(WS_params.Sen_param[0]);
     }
     // Parameter request = 0 to end parameter transfer process
     usfs2_requestParamRead(0x00);
@@ -408,10 +403,7 @@ static void readParams(uint8_t paramId, uint8_t param[4])
     while (true) {
         if (usfs2_getParamAcknowledge() == paramId) break;
     }
-    param[0] = usfs2_readSavedParamByte0();
-    param[1] = usfs2_readSavedParamByte1();
-    param[2] = usfs2_readSavedParamByte2();
-    param[3] = usfs2_readSavedParamByte3();
+    usfsReadSavedParamBytes(param);
 }
 
 // ======================================================================================

@@ -119,3 +119,5 @@ bool usfsEventStatusIsReset(uint8_t status);
 void usfsLoadParamBytes(uint8_t byte[4]);
 
 void usfsWriteByte(uint8_t subAddress, uint8_t value);
+
+void usfsReadSavedParamBytes(uint8_t bytes[4]);
