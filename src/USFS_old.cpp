@@ -158,16 +158,6 @@ void usfs2_requestReset(void)
     usfsWriteByte(ResetRequest, 0x01);
 }
 
-void usfs2_setRunEnable(void)
-{
-    usfsWriteByte(HostControl, 0x01); 
-}
-
-void usfs2_setRunDisable(void)
-{
-    usfsWriteByte(HostControl, 0x00); 
-}
-
 void usfs2_setAccelLpfBandwidth(uint8_t bw)
 {
     usfsWriteByte(ACC_LPF_BW, bw); 

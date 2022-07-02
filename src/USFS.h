@@ -141,3 +141,7 @@ void usfsAlgorithmControlRequestParameterTransfer(void);
 void usfsSetMasterMode(void);
 
 void usfsSetPassThroughMode(void);
+
+void usfsSetRunEnable(void);
+
+void usfsSetRunDisable(void);

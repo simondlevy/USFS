@@ -508,7 +508,7 @@ void setup(void)
     delay(1000);
 
     // Set SENtral in initialized state to configure registers
-    usfs2_setRunDisable();
+    usfsSetRunDisable();
 
     // Load Accel Cal
     if (accel_cal)
@@ -517,7 +517,7 @@ void setup(void)
     }
 
     // Force initialize
-    usfs2_setRunEnable();
+    usfsSetRunEnable();
 
     // Load Warm Start parameters
     if (warm_start)
@@ -526,7 +526,7 @@ void setup(void)
     }
 
     // Set SENtral in initialized state to configure registers
-    usfs2_setRunDisable();
+    usfsSetRunDisable();
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
     usfs2_setAccelLpfBandwidth(0x03); // 41Hz
@@ -548,7 +548,7 @@ void setup(void)
     usfs2_enableEvents(0x07);
 
     // Enable USFS run mode
-    usfs2_setRunEnable();
+    usfsSetRunEnable();
     delay(100);
 
     // USFS parameter adjustments

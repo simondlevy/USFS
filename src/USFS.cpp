@@ -892,3 +892,14 @@ void usfsSetMasterMode()
         delay(5);
     }
 }
+
+void usfsSetRunEnable(void)
+{
+    usfsWriteByte(HostControl, 0x01); 
+}
+
+void usfsSetRunDisable(void)
+{
+    usfsWriteByte(HostControl, 0x00); 
+}
+
