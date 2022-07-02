@@ -25,6 +25,7 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <Arduino.h>
 #include <Wire.h>
 
+#include "USFS.h"
 #include "USFS_old.h"
 
 // Calibration registers
@@ -443,19 +444,7 @@ void setup(void)
     // Start USFS interaction
     usfs2_begin();
 
-    // Read SENtral device information
-    Serial.print("USFS ROM Version: 0x");
-    Serial.print(usfs2_getRomVersion(), HEX);
-    Serial.println(" (should be: 0xE609)");
-    Serial.print("USFS RAM Version: 0x"); 
-    Serial.println(usfs2_getRamVersion());
-
-    Serial.print("USFS ProductID: 0x"); 
-    Serial.print(usfs2_getProductId(), HEX);
-    Serial.println(" Should be: 0x80");
-    Serial.print("USFS RevisionID: 0x"); 
-    Serial.print(usfs2_getRevisionId(), HEX); 
-    Serial.println(" Should be: 0x02");
+    usfsReportChipId();
 
     Serial.flush();
 
@@ -463,24 +452,7 @@ void setup(void)
     delay(4000);
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    for (uint8_t k=0; k<10; ++k) {
-
-        uint8_t stat = usfs2_getSentralStatus() & 0x01;
-
-        if (stat & 0x01) Serial.println("EEPROM detected on the sensor bus!");
-        if (stat & 0x02) Serial.println("EEPROM uploaded config file!");
-        if (stat & 0x04) Serial.println("EEPROM CRC incorrect!");
-        if (stat & 0x08) Serial.println("USFS in initialized state!");
-        if (stat & 0x10) Serial.println("No EEPROM detected!");
-
-        if (stat) break;
-
-        usfs2_requestReset();
-
-        delay(500);  
-    }
-
-    if (!(usfs2_getSentralStatus() & 0x04))  Serial.println("EEPROM upload successful!");
+    usfsLoadFirmware(true);
 
     // Take user input to choose Warm Start or not...
     Serial.println("Send '1' for Warm Start, '0' for no Warm Start");
