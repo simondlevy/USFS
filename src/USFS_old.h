@@ -97,5 +97,3 @@ void usfs2_setQRateDivisor(uint8_t usfs2_divisor);
 void usfs2_setRunDisable(void);
 
 void usfs2_setRunEnable(void);
-
-void usfs2_writeByte(uint8_t subAddress, uint8_t data);

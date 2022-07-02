@@ -169,11 +169,6 @@ static void readBytes(
 }
 
 
-static void writeUsfsByte(uint8_t subAddress, uint8_t data) 
-{
-    writeByte(EM7180_ADDRESS, subAddress, data);
-}
-
 static uint8_t readUsfsByte(uint8_t subAddress) 
 {
     return readByte(EM7180_ADDRESS, subAddress);
@@ -199,10 +194,10 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
 
     usfsLoadParamBytes(bytes);
 
-    writeUsfsByte(EM7180_ParamRequest, param);
+    usfsWriteByte(EM7180_ParamRequest, param);
 
     // Request parameter transfer procedure
-    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
+    usfsWriteByte(EM7180_AlgorithmControl, 0x80); 
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
@@ -213,9 +208,9 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
     }
 
     // Parameter request = 0 to end parameter transfer process
-    writeUsfsByte(EM7180_ParamRequest, 0x00); 
+    usfsWriteByte(EM7180_ParamRequest, 0x00); 
 
-    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    usfsWriteByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
 static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) 
@@ -229,10 +224,10 @@ static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs)
 
     // Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a
     // paramter write processs
-    writeUsfsByte(EM7180_ParamRequest, 0xCA); 
+    usfsWriteByte(EM7180_ParamRequest, 0xCA); 
 
     // Request parameter transfer procedure
-    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
+    usfsWriteByte(EM7180_AlgorithmControl, 0x80); 
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
@@ -242,9 +237,9 @@ static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs)
     }
 
     // Parameter request = 0 to end parameter transfer process
-    writeUsfsByte(EM7180_ParamRequest, 0x00); 
+    usfsWriteByte(EM7180_ParamRequest, 0x00); 
 
-    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    usfsWriteByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
 static void set_gyro_FS (uint16_t gyro_fs) 
@@ -258,10 +253,10 @@ static void set_gyro_FS (uint16_t gyro_fs)
 
     // Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a
     // paramter write processs
-    writeUsfsByte(EM7180_ParamRequest, 0xCB); 
+    usfsWriteByte(EM7180_ParamRequest, 0xCB); 
 
     //Request parameter transfer procedure
-    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
+    usfsWriteByte(EM7180_AlgorithmControl, 0x80); 
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
@@ -271,9 +266,9 @@ static void set_gyro_FS (uint16_t gyro_fs)
     }
 
     // Parameter request = 0 to end parameter transfer process
-    writeUsfsByte(EM7180_ParamRequest, 0x00); 
+    usfsWriteByte(EM7180_ParamRequest, 0x00); 
 
-    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
+    usfsWriteByte(EM7180_AlgorithmControl, 0x00); // Re-start algorithm
 }
 
 static void readThreeAxis(uint8_t subAddress, int16_t * destination)
@@ -364,36 +359,36 @@ void usfsBegin(
     uint8_t param[4];      
 
     // Enter EM7180 initialized state
-    writeUsfsByte(EM7180_HostControl, 0x00); 
+    usfsWriteByte(EM7180_HostControl, 0x00); 
 
     // Make sure pass through mode is off
-    writeUsfsByte(EM7180_PassThruControl, 0x00); 
-    writeUsfsByte(EM7180_HostControl, 0x01); // Force initialize
+    usfsWriteByte(EM7180_PassThruControl, 0x00); 
+    usfsWriteByte(EM7180_HostControl, 0x01); // Force initialize
 
     // Set SENtral in initialized state to configure registers
-    writeUsfsByte(EM7180_HostControl, 0x00); 
+    usfsWriteByte(EM7180_HostControl, 0x00); 
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
-    writeUsfsByte(EM7180_ACC_LPF_BW, accelBandwidth);   
-    writeUsfsByte(EM7180_GYRO_LPF_BW, gyroBandwidth); 
+    usfsWriteByte(EM7180_ACC_LPF_BW, accelBandwidth);   
+    usfsWriteByte(EM7180_GYRO_LPF_BW, gyroBandwidth); 
 
     // Set accel/gyro/mag desired ODR rates
-    writeUsfsByte(EM7180_QRateDivisor, quatDivisor); 
-    writeUsfsByte(EM7180_MagRate, magRate); 
-    writeUsfsByte(EM7180_AccelRate, accelRateTenth); 
-    writeUsfsByte(EM7180_GyroRate, gyroRateTenth); 
+    usfsWriteByte(EM7180_QRateDivisor, quatDivisor); 
+    usfsWriteByte(EM7180_MagRate, magRate); 
+    usfsWriteByte(EM7180_AccelRate, accelRateTenth); 
+    usfsWriteByte(EM7180_GyroRate, gyroRateTenth); 
 
     // Set enable bit and set Baro rate
-    writeUsfsByte(EM7180_BaroRate, 0x80 | baroRate);  
+    usfsWriteByte(EM7180_BaroRate, 0x80 | baroRate);  
 
     // Configure operating mode
-    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // read scale sensor data
+    usfsWriteByte(EM7180_AlgorithmControl, 0x00); // read scale sensor data
 
     // Enable interrupt to host upon certain events
-    writeUsfsByte(EM7180_EnableEvents, interruptEnable);
+    usfsWriteByte(EM7180_EnableEvents, interruptEnable);
 
     // Enable EM7180 run mode
-    writeUsfsByte(EM7180_HostControl, 0x01); // set SENtral in normal run mode
+    usfsWriteByte(EM7180_HostControl, 0x01); // set SENtral in normal run mode
     delay(100);
 
     if (verbose) {
@@ -401,10 +396,10 @@ void usfsBegin(
     }
 
     // Read sensor default FS values from parameter space
-    writeUsfsByte(EM7180_ParamRequest, 0x4A); // Request to read parameter 74
+    usfsWriteByte(EM7180_ParamRequest, 0x4A); // Request to read parameter 74
 
     // Request parameter transfer process
-    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
+    usfsWriteByte(EM7180_AlgorithmControl, 0x80); 
     byte param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A)) {
         param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
@@ -426,7 +421,7 @@ void usfsBegin(
     }
 
     // Request to read  parameter 75
-    writeUsfsByte(EM7180_ParamRequest, 0x4B); 
+    usfsWriteByte(EM7180_ParamRequest, 0x4B); 
 
     param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
@@ -445,8 +440,8 @@ void usfsBegin(
         Serial.println("dps");
     }
 
-    writeUsfsByte(EM7180_ParamRequest, 0x00); //End parameter transfer
-    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+    usfsWriteByte(EM7180_ParamRequest, 0x00); //End parameter transfer
+    usfsWriteByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
     //Disable stillness mode for balancing robot application
     set_integer_param (0x49, 0x00);
@@ -456,10 +451,10 @@ void usfsBegin(
     set_gyro_FS (gyroScale); // 2000 dps == 0x7D0
 
     // Read sensor new FS values from parameter space
-    writeUsfsByte(EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
+    usfsWriteByte(EM7180_ParamRequest, 0x4A); // Request to read  parameter 74
 
     // Request parameter transfer process
-    writeUsfsByte(EM7180_AlgorithmControl, 0x80); 
+    usfsWriteByte(EM7180_AlgorithmControl, 0x80); 
     param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4A)) {
         param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
@@ -480,7 +475,7 @@ void usfsBegin(
         Serial.println("g");
     }
 
-    writeUsfsByte(EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
+    usfsWriteByte(EM7180_ParamRequest, 0x4B); // Request to read  parameter 75
     param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
     while(!(param_xfer==0x4B)) {
         param_xfer = readUsfsByte(EM7180_ParamAcknowledge);
@@ -497,8 +492,8 @@ void usfsBegin(
         Serial.println("dps");
     }
 
-    writeUsfsByte(EM7180_ParamRequest, 0x00); //End parameter transfer
-    writeUsfsByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
+    usfsWriteByte(EM7180_ParamRequest, 0x00); //End parameter transfer
+    usfsWriteByte(EM7180_AlgorithmControl, 0x00); // re-enable algorithm
 
     // Read EM7180 status
     uint8_t runStatus = readUsfsByte(EM7180_RunStatus);
@@ -597,7 +592,7 @@ void usfsLoadFirmware(bool verbose)
 
     for (uint8_t k=0; k<10; ++k) {
 
-        writeUsfsByte(EM7180_ResetRequest, 0x01);
+        usfsWriteByte(EM7180_ResetRequest, 0x01);
 
         delay(100);  
 
@@ -810,8 +805,13 @@ void usfsCheckSensorStatus(uint8_t status)
 
 void usfsLoadParamBytes(uint8_t byte[4])
 {
-    writeUsfsByte(EM7180_LoadParamByte0, byte[0]);
-    writeUsfsByte(EM7180_LoadParamByte1, byte[1]);
-    writeUsfsByte(EM7180_LoadParamByte2, byte[2]);
-    writeUsfsByte(EM7180_LoadParamByte3, byte[3]);
+    usfsWriteByte(EM7180_LoadParamByte0, byte[0]);
+    usfsWriteByte(EM7180_LoadParamByte1, byte[1]);
+    usfsWriteByte(EM7180_LoadParamByte2, byte[2]);
+    usfsWriteByte(EM7180_LoadParamByte3, byte[3]);
+}
+
+void usfsWriteByte(uint8_t subAddress, uint8_t data) 
+{
+    writeByte(EM7180_ADDRESS, subAddress, data);
 }

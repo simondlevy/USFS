@@ -27,6 +27,7 @@
 #include <Wire.h>
 
 #include "USFS_old.h"
+#include "USFS.h"
 
 static const uint8_t ADDRESS = 0x28;
 
@@ -165,7 +166,7 @@ bool usfs2_begin(void)
             }
             break;
         }
-        usfs2_writeByte(ResetRequest, 0x01);
+        usfsWriteByte(ResetRequest, 0x01);
         delay(500);  
     }
 
@@ -211,17 +212,17 @@ uint8_t usfs2_getSentralStatus(void)
 
 void usfs2_requestReset(void)
 {
-    usfs2_writeByte(ResetRequest, 0x01);
+    usfsWriteByte(ResetRequest, 0x01);
 }
 
 void usfs2_setPassThroughMode()
 {
     
-    usfs2_writeByte(AlgorithmControl, 0x01);
+    usfsWriteByte(AlgorithmControl, 0x01);
     delay(5);
 
     
-    usfs2_writeByte(PassThruControl, 0x01);
+    usfsWriteByte(PassThruControl, 0x01);
     while (true) {
         if (readByte(PassThruStatus) & 0x01) break;
         delay(5);
@@ -231,14 +232,14 @@ void usfs2_setPassThroughMode()
 void usfs2_setMasterMode()
 {
     
-    usfs2_writeByte(PassThruControl, 0x00);
+    usfsWriteByte(PassThruControl, 0x00);
     while (true) {
         if (!(readByte(PassThruStatus) & 0x01)) break;
         delay(5);
     }
 
     
-    usfs2_writeByte(AlgorithmControl, 0x00);
+    usfsWriteByte(AlgorithmControl, 0x00);
     while (true) {
         if (!(readByte(AlgorithmStatus) & 0x01)) break;
         delay(5);
@@ -247,67 +248,67 @@ void usfs2_setMasterMode()
 
 void usfs2_setRunEnable(void)
 {
-    usfs2_writeByte(HostControl, 0x01); 
+    usfsWriteByte(HostControl, 0x01); 
 }
 
 void usfs2_setRunDisable(void)
 {
-    usfs2_writeByte(HostControl, 0x00); 
+    usfsWriteByte(HostControl, 0x00); 
 }
 
 void usfs2_setAccelLpfBandwidth(uint8_t bw)
 {
-    usfs2_writeByte(ACC_LPF_BW, bw); 
+    usfsWriteByte(ACC_LPF_BW, bw); 
 }
 
 void usfs2_setGyroLpfBandwidth(uint8_t bw)
 {
-    usfs2_writeByte(GYRO_LPF_BW, bw); 
+    usfsWriteByte(GYRO_LPF_BW, bw); 
 }
 
 void usfs2_setQRateDivisor(uint8_t divisor)
 {
-    usfs2_writeByte(QRateDivisor, divisor);
+    usfsWriteByte(QRateDivisor, divisor);
 }
 
 void usfs2_setMagRate(uint8_t rate)
 {
-    usfs2_writeByte(MagRate, rate);
+    usfsWriteByte(MagRate, rate);
 }
 
 void usfs2_setAccelRate(uint8_t rate)
 {
-    usfs2_writeByte(AccelRate, rate);
+    usfsWriteByte(AccelRate, rate);
 }
 
 void usfs2_setGyroRate(uint8_t rate)
 {
-    usfs2_writeByte(GyroRate, rate);
+    usfsWriteByte(GyroRate, rate);
 }
 
 void usfs2_setBaroRate(uint8_t rate)
 {
-    usfs2_writeByte(BaroRate, rate);
+    usfsWriteByte(BaroRate, rate);
 }
 
 void usfs2_algorithmControlRequestParameterTransfer(void)
 {
-    usfs2_writeByte(AlgorithmControl, 0x80);
+    usfsWriteByte(AlgorithmControl, 0x80);
 }
 
 void usfs2_algorithmControlReset(void)
 {
-    usfs2_writeByte(AlgorithmControl, 0x00);
+    usfsWriteByte(AlgorithmControl, 0x00);
 }
 
 void usfs2_enableEvents(uint8_t mask)
 {
-    usfs2_writeByte(EnableEvents, mask);
+    usfsWriteByte(EnableEvents, mask);
 }
 
 void usfs2_requestParamRead(uint8_t param)
 {
-    usfs2_writeByte(ParamRequest, param); 
+    usfsWriteByte(ParamRequest, param); 
 }
 
 uint8_t usfs2_getParamAcknowledge(void)
@@ -372,18 +373,18 @@ void usfs2_setGyroFs(uint16_t gyro_fs)
     bytes[1] = (gyro_fs >> 8) & (0xFF);
     bytes[2] = 0x00;
     bytes[3] = 0x00;
-    usfs2_writeByte(LoadParamByte0, bytes[0]); 
-    usfs2_writeByte(LoadParamByte1, bytes[1]); 
-    usfs2_writeByte(LoadParamByte2, bytes[2]); 
-    usfs2_writeByte(LoadParamByte3, bytes[3]); 
-    usfs2_writeByte(ParamRequest, 0xCB); 
-    usfs2_writeByte(AlgorithmControl, 0x80); 
+    usfsWriteByte(LoadParamByte0, bytes[0]); 
+    usfsWriteByte(LoadParamByte1, bytes[1]); 
+    usfsWriteByte(LoadParamByte2, bytes[2]); 
+    usfsWriteByte(LoadParamByte3, bytes[3]); 
+    usfsWriteByte(ParamRequest, 0xCB); 
+    usfsWriteByte(AlgorithmControl, 0x80); 
     STAT = readByte(ParamAcknowledge); 
     while(!(STAT==0xCB)) {
         STAT = readByte(ParamAcknowledge);
     }
-    usfs2_writeByte(ParamRequest, 0x00); 
-    usfs2_writeByte(AlgorithmControl, 0x00); 
+    usfsWriteByte(ParamRequest, 0x00); 
+    usfsWriteByte(AlgorithmControl, 0x00); 
 }
 
 void usfs2_setMagAccFs(uint16_t mag_fs, uint16_t acc_fs) 
@@ -393,18 +394,18 @@ void usfs2_setMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     bytes[1] = (mag_fs >> 8) & (0xFF);
     bytes[2] = acc_fs & (0xFF);
     bytes[3] = (acc_fs >> 8) & (0xFF);
-    usfs2_writeByte(LoadParamByte0, bytes[0]); 
-    usfs2_writeByte(LoadParamByte1, bytes[1]); 
-    usfs2_writeByte(LoadParamByte2, bytes[2]); 
-    usfs2_writeByte(LoadParamByte3, bytes[3]); 
-    usfs2_writeByte(ParamRequest, 0xCA); 
-    usfs2_writeByte(AlgorithmControl, 0x80); 
+    usfsWriteByte(LoadParamByte0, bytes[0]); 
+    usfsWriteByte(LoadParamByte1, bytes[1]); 
+    usfsWriteByte(LoadParamByte2, bytes[2]); 
+    usfsWriteByte(LoadParamByte3, bytes[3]); 
+    usfsWriteByte(ParamRequest, 0xCA); 
+    usfsWriteByte(AlgorithmControl, 0x80); 
     STAT = readByte(ParamAcknowledge); 
     while(!(STAT==0xCA)) {
         STAT = readByte(ParamAcknowledge);
     }
-    usfs2_writeByte(ParamRequest, 0x00); 
-    usfs2_writeByte(AlgorithmControl, 0x00); 
+    usfsWriteByte(ParamRequest, 0x00); 
+    usfsWriteByte(AlgorithmControl, 0x00); 
 }
 
 void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
@@ -422,12 +423,4 @@ void usfs2_readQuaternion(float & qw, float & qx, float & qy, float &qz)
     qy = uint32_reg_to_float (&rawData[4]);
     qz = uint32_reg_to_float (&rawData[8]);
     qw = uint32_reg_to_float (&rawData[12]);
-}
-
-void usfs2_writeByte(uint8_t subAddress, uint8_t data)
-{
-    Wire.beginTransmission(ADDRESS);
-    Wire.write(subAddress);
-    Wire.write(data);
-    Wire.endTransmission();
 }
