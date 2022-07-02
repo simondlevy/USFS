@@ -407,26 +407,6 @@ void usfs2_setMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     usfs2_writeByte(AlgorithmControl, 0x00); 
 }
 
-void usfs2_loadParamByte0(uint8_t value)
-{
-    usfs2_writeByte(LoadParamByte0, value);
-}
-
-void usfs2_loadParamByte1(uint8_t value)
-{
-    usfs2_writeByte(LoadParamByte1, value);
-}
-
-void usfs2_loadParamByte2(uint8_t value)
-{
-    usfs2_writeByte(LoadParamByte2, value);
-}
-
-void usfs2_loadParamByte3(uint8_t value)
-{
-    usfs2_writeByte(LoadParamByte3, value);
-}
-
 void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
 {
     readThreeAxis(AX, ax, ay, az);

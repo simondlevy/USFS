@@ -85,10 +85,9 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
 
     // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
     param = param | 0x80;
-    usfs2_loadParamByte0(bytes[0]); //Param LSB
-    usfs2_loadParamByte1(bytes[1]);
-    usfs2_loadParamByte2(bytes[2]);
-    usfs2_loadParamByte3(bytes[3]); //Param MSB
+
+    usfsLoadParamBytes(bytes);
+
     usfs2_requestParamRead(param);
 
     // Request parameter transfer procedure
@@ -111,10 +110,9 @@ static void set_WS_params()
 
     // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
     param = param | 0x80;
-    usfs2_loadParamByte0(WS_params.Sen_param[0][0]);
-    usfs2_loadParamByte1(WS_params.Sen_param[0][1]);
-    usfs2_loadParamByte2(WS_params.Sen_param[0][2]);
-    usfs2_loadParamByte3(WS_params.Sen_param[0][3]);
+
+    usfsLoadParamBytes(WS_params.Sen_param[0]);
+
     usfs2_requestParamRead(param);
 
     // Request parameter transfer procedure
@@ -127,10 +125,7 @@ static void set_WS_params()
     }
     for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
-        usfs2_loadParamByte0(WS_params.Sen_param[i][0]);
-        usfs2_loadParamByte1(WS_params.Sen_param[i][1]);
-        usfs2_loadParamByte2(WS_params.Sen_param[i][2]);
-        usfs2_loadParamByte3(WS_params.Sen_param[i][3]);
+        usfsLoadParamBytes(WS_params.Sen_param[i]);
         usfs2_requestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte

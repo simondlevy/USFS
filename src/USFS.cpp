@@ -197,10 +197,8 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
     // paramter write processs
     param = param | 0x80; 
 
-    writeUsfsByte(EM7180_LoadParamByte0, bytes[0]); // Param LSB
-    writeUsfsByte(EM7180_LoadParamByte1, bytes[1]);
-    writeUsfsByte(EM7180_LoadParamByte2, bytes[2]);
-    writeUsfsByte(EM7180_LoadParamByte3, bytes[3]); // Param MSB
+    usfsLoadParamBytes(bytes);
+
     writeUsfsByte(EM7180_ParamRequest, param);
 
     // Request parameter transfer procedure
@@ -227,10 +225,7 @@ static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs)
     bytes[1] = (mag_fs >> 8) & (0xFF);
     bytes[2] = acc_fs & (0xFF);
     bytes[3] = (acc_fs >> 8) & (0xFF);
-    writeUsfsByte(EM7180_LoadParamByte0, bytes[0]); // Mag LSB
-    writeUsfsByte(EM7180_LoadParamByte1, bytes[1]); // Mag MSB
-    writeUsfsByte(EM7180_LoadParamByte2, bytes[2]); // Acc LSB
-    writeUsfsByte(EM7180_LoadParamByte3, bytes[3]); // Acc MSB
+    usfsLoadParamBytes(bytes);
 
     // Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a
     // paramter write processs
@@ -259,10 +254,7 @@ static void set_gyro_FS (uint16_t gyro_fs)
     bytes[1] = (gyro_fs >> 8) & (0xFF);
     bytes[2] = 0x00;
     bytes[3] = 0x00;
-    writeUsfsByte(EM7180_LoadParamByte0, bytes[0]); //Gyro LSB
-    writeUsfsByte(EM7180_LoadParamByte1, bytes[1]); //Gyro MSB
-    writeUsfsByte(EM7180_LoadParamByte2, bytes[2]); //Unused
-    writeUsfsByte(EM7180_LoadParamByte3, bytes[3]); //Unused
+    usfsLoadParamBytes(bytes);
 
     // Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a
     // paramter write processs
@@ -816,3 +808,10 @@ void usfsCheckSensorStatus(uint8_t status)
     if (status & 0x40) Serial.print("Gyro ID not recognized!");
 }
 
+void usfsLoadParamBytes(uint8_t byte[4])
+{
+    writeUsfsByte(EM7180_LoadParamByte0, byte[0]);
+    writeUsfsByte(EM7180_LoadParamByte1, byte[1]);
+    writeUsfsByte(EM7180_LoadParamByte2, byte[2]);
+    writeUsfsByte(EM7180_LoadParamByte3, byte[3]);
+}

@@ -115,3 +115,5 @@ bool usfsRunStatusIsNormal(uint8_t status);
 void usfsCheckSensorStatus(uint8_t status);
 
 bool usfsEventStatusIsReset(uint8_t status);
+
+void usfsLoadParamBytes(uint8_t byte[4]);
