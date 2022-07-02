@@ -102,22 +102,6 @@ static const uint8_t BARO_LPF_BW        = 0x5D;
 static const uint8_t TEMP_OUT_H       = 0x41;
 static const uint8_t TEMP_OUT_L       = 0x42;
 
-
-static float uint32_reg_to_float (uint8_t *buf)
-{
-    union {
-        uint32_t ui32;
-        float f;
-    } u;
-
-    u.ui32 = (((uint32_t)buf[0]) +
-            (((uint32_t)buf[1]) <<  8) +
-            (((uint32_t)buf[2]) << 16) +
-            (((uint32_t)buf[3]) << 24));
-    return u.f;
-}
-
-
 static void readBytes(uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
     Wire.beginTransmission(ADDRESS);   
@@ -136,16 +120,6 @@ static uint8_t readByte(uint8_t subAddress)
     readBytes(subAddress, 1, &data);
     return data;                       
 }
-
-static void readThreeAxis(uint8_t xreg, int16_t & x, int16_t & y, int16_t & z)
-{
-    uint8_t rawData[6]; 
-    readBytes(xreg, 6, &rawData[0]);  
-    x = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);
-    y = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    z = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
-}
-
 
 // ============================================================================
 
@@ -320,21 +294,4 @@ void usfs2_setMagAccFs(uint16_t mag_fs, uint16_t acc_fs)
     }
     usfsWriteByte(ParamRequest, 0x00); 
     usfsWriteByte(AlgorithmControl, 0x00); 
-}
-
-void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az)
-{
-    readThreeAxis(AX, ax, ay, az);
-}
-
-void usfs2_readQuaternion(float & qw, float & qx, float & qy, float &qz)
-{
-    uint8_t rawData[16];  
-
-    readBytes(QX, 16, &rawData[0]);       
-
-    qx = uint32_reg_to_float (&rawData[0]);
-    qy = uint32_reg_to_float (&rawData[4]);
-    qz = uint32_reg_to_float (&rawData[8]);
-    qw = uint32_reg_to_float (&rawData[12]);
 }
