@@ -596,7 +596,7 @@ void usfsLoadFirmware(bool verbose)
 
         delay(100);  
 
-        uint8_t status = readUsfsByte(SentralStatus);
+        uint8_t status = usfsGetSentralStatus();
 
         if (verbose) {
             if (status & 0x01)  {
@@ -627,7 +627,7 @@ void usfsLoadFirmware(bool verbose)
     }
 
     if (okay) {
-        if (!(readUsfsByte(SentralStatus) & 0x04)) {
+        if (!(usfsGetSentralStatus() & 0x04)) {
             if (verbose) {
                 Serial.println("EEPROM upload successful!");
             }
