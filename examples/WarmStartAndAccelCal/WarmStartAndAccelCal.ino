@@ -420,7 +420,8 @@ void setup(void)
     delay(1000);
 
     // Start USFS interaction
-    usfs2_begin();
+    // usfs2_begin();
+    usfsLoadFirmware();
 
     usfsReportChipId();
 
