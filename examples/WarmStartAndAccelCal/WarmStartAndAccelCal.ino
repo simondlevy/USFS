@@ -533,11 +533,12 @@ void setup(void)
     // Configure operating mode
     usfsAlgorithmControlReset(); // read scale sensor data
 
-    // Enable interrupt to host upon certain events choose host interrupts when
-    // any sensor updated (0x40), new gyro data (0x20), new accel data (0x10),
-    // new mag data (0x08), quaternions updated (0x04), an error occurs (0x02),
-    // or the SENtral needs to be reset(0x01)
-    usfs2_enableEvents(0x07);
+    // Enable essential interrupts
+    usfsEnableEvents(
+            USFS_INTERRUPT_RESET_REQUIRED |
+            USFS_INTERRUPT_ERROR |
+            USFS_INTERRUPT_QUAT 
+            );
 
     // Enable USFS run mode
     usfsSetRunEnable();

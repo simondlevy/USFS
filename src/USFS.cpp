@@ -319,7 +319,7 @@ void usfsBegin(
     usfsWriteByte(AlgorithmControl, 0x00); // read scale sensor data
 
     // Enable interrupt to host upon certain events
-    usfsWriteByte(EnableEvents, interruptEnable);
+    usfsEnableEvents(interruptEnable);
 
     // Enable EM7180 run mode
     usfsSetRunEnable();
@@ -872,16 +872,6 @@ void usfsSetBaroRate(uint8_t rate)
     usfsWriteByte(BaroRate, rate);
 }
 
-void usfs2_enableEvents(uint8_t mask)
-{
-    usfsWriteByte(EnableEvents, mask);
-}
-
-uint8_t usfs2_getErrorStatus(void)
-{
-    return readUsfsByte(ErrorRegister);
-}
-
 void usfsSetGyroFs(uint16_t gyro_fs) 
 {
     uint8_t bytes[4] = {};
@@ -942,4 +932,9 @@ void usfsSetRatesAndBandwidths(
     usfsWriteByte(GyroRate, gyroRateTenth); 
     usfsWriteByte(MagRate, magRate); 
     usfsWriteByte(QRateDivisor, quatDivisor); 
+}
+
+void usfsEnableEvents(uint8_t mask)
+{
+    usfsWriteByte(EnableEvents, mask);
 }
