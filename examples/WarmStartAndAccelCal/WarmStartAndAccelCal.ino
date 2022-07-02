@@ -27,6 +27,20 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "USFS_old.h"
 
+// Calibration registers
+static const uint8_t GP36 = 0x5B;
+static const uint8_t GP37 = 0x5C;
+static const uint8_t GP38 = 0x5D;
+static const uint8_t GP39 = 0x5E;
+static const uint8_t GP40 = 0x5F;
+static const uint8_t GP50 = 0x69;
+static const uint8_t GP51 = 0x6A;
+static const uint8_t GP52 = 0x6B;
+static const uint8_t GP53 = 0x6C;
+static const uint8_t GP54 = 0x6D;
+static const uint8_t GP55 = 0x6E;
+static const uint8_t GP56 = 0x6F;
+
 static const uint8_t M24512DFM_DATA_ADDRESS   = 0x50;   // Address of the 500 page M24512DRC EEPROM data buffer, 1024 bits (128 8-bit bytes) per page
 
 static const float MAGNETIC_DECLINATION =  13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
@@ -181,8 +195,7 @@ static void USFS_get_WS_params()
 static void USFS_acc_cal_upload()
 {
     int64_t big_cal_num;
-    union
-    {
+    union {
         int16_t cal_num;
         unsigned char cal_num_byte[2];
     };
@@ -191,38 +204,43 @@ static void USFS_acc_cal_upload()
                 global_conf.accZero_min[0])) - 1000000;
     cal_num = (int16_t)big_cal_num;
 
-    usfs2_writeGp36(cal_num_byte[0]);
-    usfs2_writeGp37(cal_num_byte[1]);
+    usfs2_writeByte(GP36, cal_num_byte[0]);
+    usfs2_writeByte(GP37, cal_num_byte[1]);
 
     big_cal_num = (4096000000/(global_conf.accZero_max[1] -
                 global_conf.accZero_min[1])) - 1000000;
     cal_num = (int16_t)big_cal_num;
-    usfs2_writeGp38(cal_num_byte[0]);
-    usfs2_writeGp39(cal_num_byte[1]);  
+
+    usfs2_writeByte(GP38, cal_num_byte[0]);
+    usfs2_writeByte(GP39, cal_num_byte[1]);  
 
     big_cal_num = (4096000000/(global_conf.accZero_max[2] -
                 global_conf.accZero_min[2])) - 1000000;
     cal_num = (int16_t)big_cal_num;
-    usfs2_writeGp40(cal_num_byte[0]);
-    usfs2_writeGp50(cal_num_byte[1]);
+
+    usfs2_writeByte(GP40, cal_num_byte[0]);
+    usfs2_writeByte(GP50, cal_num_byte[1]);
 
     big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 -
                     global_conf.accZero_min[0]))*100000)/4096;
     cal_num = (int16_t)big_cal_num;
-    usfs2_writeGp51(cal_num_byte[0]);
-    usfs2_writeGp52(cal_num_byte[1]);
+
+    usfs2_writeByte(GP51, cal_num_byte[0]);
+    usfs2_writeByte(GP52, cal_num_byte[1]);
 
     big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 -
                     global_conf.accZero_min[1]))*100000)/4096;
     cal_num = (int16_t)big_cal_num;
-    usfs2_writeGp53(cal_num_byte[0]);
-    usfs2_writeGp54(cal_num_byte[1]);
+
+    usfs2_writeByte(GP53, cal_num_byte[0]);
+    usfs2_writeByte(GP54, cal_num_byte[1]);
 
     big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 -
                     global_conf.accZero_min[2]))*100000)/4096;
     cal_num = -(int16_t)big_cal_num;
-    usfs2_writeGp55(cal_num_byte[0]);
-    usfs2_writeGp56(cal_num_byte[1]);
+
+    usfs2_writeByte(GP55, cal_num_byte[0]);
+    usfs2_writeByte(GP56, cal_num_byte[1]);
 }
 
 static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)

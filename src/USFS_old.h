@@ -98,15 +98,4 @@ void usfs2_setRunDisable(void);
 
 void usfs2_setRunEnable(void);
 
-void usfs2_writeGp36(uint8_t usfs2_value);
-void usfs2_writeGp37(uint8_t usfs2_value);
-void usfs2_writeGp38(uint8_t usfs2_value);
-void usfs2_writeGp39(uint8_t usfs2_value);
-void usfs2_writeGp40(uint8_t usfs2_value);
-void usfs2_writeGp50(uint8_t usfs2_value);
-void usfs2_writeGp51(uint8_t usfs2_value);
-void usfs2_writeGp52(uint8_t usfs2_value);
-void usfs2_writeGp53(uint8_t usfs2_value);
-void usfs2_writeGp54(uint8_t usfs2_value);
-void usfs2_writeGp55(uint8_t usfs2_value);
-void usfs2_writeGp56(uint8_t usfs2_value);
+void usfs2_writeByte(uint8_t subAddress, uint8_t data);
