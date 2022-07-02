@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 
-bool usfs2_begin(void);
 void usfs2_enableEvents(uint8_t usfs2_mask);
 
 void usfs2_setAccelRate(uint8_t usfs2_rate);

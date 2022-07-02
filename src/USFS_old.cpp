@@ -123,34 +123,6 @@ static uint8_t readByte(uint8_t subAddress)
 
 // ============================================================================
 
-bool usfs2_begin(void)
-{
-    for (int attempts=0; attempts<10; ++attempts) {
-        if (readByte(SentralStatus) & 0x01) {
-            if(readByte(SentralStatus) & 0x01) { }
-            if(readByte(SentralStatus) & 0x02) { }
-            if(readByte(SentralStatus) & 0x04) {
-                return false;
-            }
-            if(readByte(SentralStatus) & 0x08) { }
-            if(readByte(SentralStatus) & 0x10) {
-                return false;
-            }
-            break;
-        }
-        usfsWriteByte(ResetRequest, 0x01);
-        delay(500);  
-    }
-
-
-    if (readByte(SentralStatus) & 0x04) {
-        return false;
-    }
-
-    return true;
-}
-
-
 void usfs2_setAccelLpfBandwidth(uint8_t bw)
 {
     usfsWriteByte(ACC_LPF_BW, bw); 

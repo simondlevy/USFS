@@ -419,10 +419,6 @@ void setup(void)
     Serial.begin(115200);
     delay(1000);
 
-    // Start USFS interaction
-    // usfs2_begin();
-    usfsLoadFirmware();
-
     usfsReportChipId();
 
     Serial.flush();
