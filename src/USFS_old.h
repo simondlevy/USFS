@@ -54,11 +54,6 @@ uint8_t usfs2_getSensorStatus(void);
 
 uint8_t usfs2_getSentralStatus(void);
 
-void usfs2_loadParamByte0(uint8_t usfs2_value);
-void usfs2_loadParamByte1(uint8_t usfs2_value);
-void usfs2_loadParamByte2(uint8_t usfs2_value);
-void usfs2_loadParamByte3(uint8_t usfs2_value);
-
 void usfs2_readAccelerometer(int16_t & ax, int16_t & ay, int16_t & az);
 
 void usfs2_readQuaternion(float & qw, float & qx, float & qy, float & qz);
