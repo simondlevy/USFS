@@ -596,7 +596,7 @@ void usfsLoadFirmware(bool verbose)
 
         delay(100);  
 
-        uint8_t status = (readUsfsByte(SentralStatus) & 0x01);
+        uint8_t status = readUsfsByte(SentralStatus);
 
         if (verbose) {
             if (status & 0x01)  {
