@@ -833,3 +833,18 @@ uint8_t usfsGetAlgorithmStatus(void)
 {
     return readUsfsByte(AlgorithmStatus);
 }
+
+uint8_t usfsGetRunStatus(void)
+{
+    return readUsfsByte(RunStatus);
+}
+
+uint8_t usfsGetPassThruStatus(void)
+{
+    return readUsfsByte(PassThruStatus);
+}
+
+uint8_t usfsGetSensorStatus(void)
+{
+    return readUsfsByte(SensorStatus);
+}

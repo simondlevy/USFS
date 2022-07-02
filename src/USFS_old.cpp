@@ -179,32 +179,6 @@ bool usfs2_begin(void)
 }
 
 
-uint8_t usfs2_getProductId(void) 
-{
-    return readByte(ProductID);
-}
-
-uint8_t usfs2_getRevisionId(void) 
-{
-    return readByte(RevisionID);
-}
-
-uint16_t usfs2_getRamVersion(void)
-{
-    uint16_t ram1 = readByte(RAMVersion1);
-    uint16_t ram2 = readByte(RAMVersion2);
-
-    return ram1 << 8 | ram2;
-}
-
-uint16_t usfs2_getRomVersion(void)
-{
-    uint16_t rom1 = readByte(ROMVersion1);
-    uint16_t rom2 = readByte(ROMVersion2);
-
-    return rom1 << 8 | rom2;
-}
-
 uint8_t usfs2_getSentralStatus(void)
 {
     return readByte(SentralStatus); 
@@ -314,21 +288,6 @@ void usfs2_requestParamRead(uint8_t param)
 uint8_t usfs2_getParamAcknowledge(void)
 {
     return readByte(ParamAcknowledge);
-}
-
-uint8_t usfs2_getRunStatus(void)
-{
-    return readByte(RunStatus);
-}
-
-uint8_t usfs2_getPassThruStatus(void)
-{
-    return readByte(PassThruStatus);
-}
-
-uint8_t usfs2_getSensorStatus(void)
-{
-    return readByte(SensorStatus);
 }
 
 uint8_t usfs2_getErrorStatus(void)

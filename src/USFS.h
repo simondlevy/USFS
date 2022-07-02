@@ -125,3 +125,9 @@ void usfsReadSavedParamBytes(uint8_t bytes[4]);
 uint8_t usfsGetEventStatus(void);
 
 uint8_t usfsGetAlgorithmStatus(void);
+
+uint8_t usfsGetPassThruStatus(void);
+
+uint8_t usfsGetRunStatus(void);
+
+uint8_t usfsGetSensorStatus(void);

@@ -10,23 +10,7 @@ bool usfs2_begin(void);
 
 void usfs2_enableEvents(uint8_t usfs2_mask);
 
-uint8_t usfs2_getAlgorithmStatus(void);
-
 uint8_t usfs2_getParamAcknowledge(void);
-
-uint8_t usfs2_getPassThruStatus(void);
-
-uint8_t usfs2_getProductId(void); 
-
-uint16_t usfs2_getRamVersion(void);
-
-uint8_t usfs2_getRevisionId(void); 
-
-uint16_t usfs2_getRomVersion(void);
-
-uint8_t usfs2_getRunStatus(void);
-
-uint8_t usfs2_getSensorStatus(void);
 
 uint8_t usfs2_getSentralStatus(void);
 
