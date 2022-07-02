@@ -404,10 +404,9 @@ void usfsBegin(
     while(!(param_xfer==0x4A)) {
         param_xfer = usfsGetParamAcknowledge();
     }
-    param[0] = readUsfsByte(SavedParamByte0);
-    param[1] = readUsfsByte(SavedParamByte1);
-    param[2] = readUsfsByte(SavedParamByte2);
-    param[3] = readUsfsByte(SavedParamByte3);
+    
+    usfsReadSavedParamBytes(param);
+
     mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     acc_fs = ((int16_t)(param[3]<<8) | param[2]);
 
@@ -427,10 +426,7 @@ void usfsBegin(
     while(!(param_xfer==0x4B)) {
         param_xfer = usfsGetParamAcknowledge();
     }
-    param[0] = readUsfsByte(SavedParamByte0);
-    param[1] = readUsfsByte(SavedParamByte1);
-    param[2] = readUsfsByte(SavedParamByte2);
-    param[3] = readUsfsByte(SavedParamByte3);
+    usfsReadSavedParamBytes(param);
 
     gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
 
@@ -459,10 +455,7 @@ void usfsBegin(
     while(!(param_xfer==0x4A)) {
         param_xfer = usfsGetParamAcknowledge();
     }
-    param[0] = readUsfsByte(SavedParamByte0);
-    param[1] = readUsfsByte(SavedParamByte1);
-    param[2] = readUsfsByte(SavedParamByte2);
-    param[3] = readUsfsByte(SavedParamByte3);
+    usfsReadSavedParamBytes(param);
     mag_fs = ((int16_t)(param[1]<<8) | param[0]);
     acc_fs = ((int16_t)(param[3]<<8) | param[2]);
 
@@ -480,10 +473,7 @@ void usfsBegin(
     while(!(param_xfer==0x4B)) {
         param_xfer = usfsGetParamAcknowledge();
     }
-    param[0] = readUsfsByte(SavedParamByte0);
-    param[1] = readUsfsByte(SavedParamByte1);
-    param[2] = readUsfsByte(SavedParamByte2);
-    param[3] = readUsfsByte(SavedParamByte3);
+    usfsReadSavedParamBytes(param);
     gyro_fs = ((int16_t)(param[1]<<8) | param[0]);
 
     if (verbose) {

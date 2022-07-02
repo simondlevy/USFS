@@ -528,16 +528,13 @@ void setup(void)
     // Set SENtral in initialized state to configure registers
     usfsSetRunDisable();
 
-    //Setup LPF bandwidth (BEFORE setting ODR's)
+    usfs2_setAccelRate(0x14); // 200/10 Hz
     usfs2_setAccelLpfBandwidth(0x03); // 41Hz
+    usfs2_setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
     usfs2_setGyroLpfBandwidth(0x01); // 184Hz
-
-    // Set accel/gyro/mage desired ODR rates
     usfs2_setQRateDivisor(0x02); // 100 Hz
     usfs2_setMagRate(0x64); // 100 Hz
-    usfs2_setAccelRate(0x14); // 200/10 Hz
     usfs2_setGyroRate(0x14); // 200/10 Hz
-    usfs2_setBaroRate(0x80 | 0x32);  // set enable bit and set Baro rate to 25 Hz
 
     // Configure operating mode
     usfsAlgorithmControlReset(); // read scale sensor data

@@ -125,8 +125,6 @@ static uint8_t readByte(uint8_t subAddress)
 
 bool usfs2_begin(void)
 {
-
-    
     for (int attempts=0; attempts<10; ++attempts) {
         if (readByte(SentralStatus) & 0x01) {
             if(readByte(SentralStatus) & 0x01) { }
@@ -152,11 +150,6 @@ bool usfs2_begin(void)
     return true;
 }
 
-
-void usfs2_requestReset(void)
-{
-    usfsWriteByte(ResetRequest, 0x01);
-}
 
 void usfs2_setAccelLpfBandwidth(uint8_t bw)
 {
