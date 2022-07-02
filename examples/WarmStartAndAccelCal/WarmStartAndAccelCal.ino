@@ -606,7 +606,7 @@ void setup(void)
         Serial.println(" USFS run status = normal mode");
     }
 
-    uint8_t algoStatus = usfs2_getAlgorithmStatus();
+    uint8_t algoStatus = usfsGetAlgorithmStatus();
 
     if (usfsAlgorithmStatusIsStandby(algoStatus)) {
         Serial.println(" USFS standby status");
@@ -629,7 +629,7 @@ void setup(void)
 
     if (usfsIsInPassThroughMode()) Serial.print(" USFS in passthru mode!");
 
-    uint8_t eventStatus = usfs2_getEventStatus();
+    uint8_t eventStatus = usfsGetEventStatus();
 
     if (usfsEventStatusIsReset(eventStatus)) {
         Serial.println(" USFS CPU reset");
@@ -687,7 +687,7 @@ void loop(void)
 
     // Check event status register, way to check data ready by polling rather
     // than interrupt
-    uint8_t eventStatus = usfs2_getEventStatus(); // reading clears the
+    uint8_t eventStatus = usfsGetEventStatus(); // reading clears the
 
     if (usfsEventStatusIsError(eventStatus)) { 
 

@@ -823,3 +823,13 @@ void usfsReadSavedParamBytes(uint8_t bytes[4])
     bytes[2] = readUsfsByte(EM7180_SavedParamByte2);
     bytes[3] = readUsfsByte(EM7180_SavedParamByte3);
 }
+
+uint8_t usfsGetEventStatus(void)
+{
+    return readUsfsByte(EM7180_EventStatus);
+}
+
+uint8_t usfsGetAlgorithmStatus(void)
+{
+    return readUsfsByte(EM7180_AlgorithmStatus);
+}

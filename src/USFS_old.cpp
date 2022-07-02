@@ -321,19 +321,9 @@ uint8_t usfs2_getRunStatus(void)
     return readByte(RunStatus);
 }
 
-uint8_t usfs2_getAlgorithmStatus(void)
-{
-    return readByte(AlgorithmStatus);
-}
-
 uint8_t usfs2_getPassThruStatus(void)
 {
     return readByte(PassThruStatus);
-}
-
-uint8_t usfs2_getEventStatus(void)
-{
-    return readByte(EventStatus);
 }
 
 uint8_t usfs2_getSensorStatus(void)
