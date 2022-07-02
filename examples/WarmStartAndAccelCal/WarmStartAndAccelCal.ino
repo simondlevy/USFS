@@ -5,21 +5,21 @@
 
    Adapted from
 
-     https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/USFS_MPU9250_BMP280
+https://github.com/kriswiner/Teensy_Flight_Controller/blob/master/USFS_MPU9250_BMP280
 
-   This file is part of USFS.
+This file is part of USFS.
 
-   USFS is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+USFS is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-   USFS is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   You should have received a copy of the GNU General Public License
-   along with USFS.  If not, see <http://www.gnu.org/licenses/>.
+USFS is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with USFS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <Arduino.h>
@@ -34,13 +34,13 @@ static const float MAGNETIC_DECLINATION =  13.8f; // Declination at Danville, Ca
 
 struct acc_cal
 {
-  int16_t accZero_max[3];
-  int16_t accZero_min[3];
+    int16_t accZero_max[3];
+    int16_t accZero_min[3];
 };
 
 struct Sentral_WS_params
 {
-  uint8_t Sen_param[35][4];
+    uint8_t Sen_param[35][4];
 };
 
 /*************************************************************************************************/
@@ -187,75 +187,34 @@ static void USFS_acc_cal_upload()
         unsigned char cal_num_byte[2];
     };
 
-    if (!accel_cal)
-    {
-        cal_num_byte[0] = 0;
-        cal_num_byte[1] = 0;
-    } else
-    {
-        big_cal_num = (4096000000/(global_conf.accZero_max[0] - global_conf.accZero_min[0])) - 1000000;
-        cal_num = (int16_t)big_cal_num;
-    }
+    big_cal_num = (4096000000/(global_conf.accZero_max[0] - global_conf.accZero_min[0])) - 1000000;
+    cal_num = (int16_t)big_cal_num;
+
     usfs2_writeGp36(cal_num_byte[0]);
     usfs2_writeGp37(cal_num_byte[1]);
 
-    if (!accel_cal)
-    {
-        cal_num_byte[0] = 0;
-        cal_num_byte[1] = 0;
-    } else
-    {
-        big_cal_num = (4096000000/(global_conf.accZero_max[1] - global_conf.accZero_min[1])) - 1000000;
-        cal_num = (int16_t)big_cal_num;
-    }
+    big_cal_num = (4096000000/(global_conf.accZero_max[1] - global_conf.accZero_min[1])) - 1000000;
+    cal_num = (int16_t)big_cal_num;
     usfs2_writeGp38(cal_num_byte[0]);
     usfs2_writeGp39(cal_num_byte[1]);  
 
-    if (!accel_cal)
-    {
-        cal_num_byte[0] = 0;
-        cal_num_byte[1] = 0;
-    } else
-    {
-        big_cal_num = (4096000000/(global_conf.accZero_max[2] - global_conf.accZero_min[2])) - 1000000;
-        cal_num = (int16_t)big_cal_num;
-    }
+    big_cal_num = (4096000000/(global_conf.accZero_max[2] - global_conf.accZero_min[2])) - 1000000;
+    cal_num = (int16_t)big_cal_num;
     usfs2_writeGp40(cal_num_byte[0]);
     usfs2_writeGp50(cal_num_byte[1]);
 
-    if (!accel_cal)
-    {
-        cal_num_byte[0] = 0;
-        cal_num_byte[1] = 0;
-    } else
-    {
-        big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 - global_conf.accZero_min[0]))*100000)/4096;
-        cal_num = (int16_t)big_cal_num;
-    }
+    big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 - global_conf.accZero_min[0]))*100000)/4096;
+    cal_num = (int16_t)big_cal_num;
     usfs2_writeGp51(cal_num_byte[0]);
     usfs2_writeGp52(cal_num_byte[1]);
 
-    if (!accel_cal)
-    {
-        cal_num_byte[0] = 0;
-        cal_num_byte[1] = 0;
-    } else
-    {
-        big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 - global_conf.accZero_min[1]))*100000)/4096;
-        cal_num = (int16_t)big_cal_num;
-    }
+    big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 - global_conf.accZero_min[1]))*100000)/4096;
+    cal_num = (int16_t)big_cal_num;
     usfs2_writeGp53(cal_num_byte[0]);
     usfs2_writeGp54(cal_num_byte[1]);
 
-    if (!accel_cal)
-    {
-        cal_num_byte[0] = 0;
-        cal_num_byte[1] = 0;
-    } else
-    {
-        big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 - global_conf.accZero_min[2]))*100000)/4096;
-        cal_num = -(int16_t)big_cal_num;
-    }
+    big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 - global_conf.accZero_min[2]))*100000)/4096;
+    cal_num = -(int16_t)big_cal_num;
     usfs2_writeGp55(cal_num_byte[0]);
     usfs2_writeGp56(cal_num_byte[1]);
 }
@@ -538,10 +497,10 @@ void setup(void)
     }
     if (serial_input == '2')
     {
-        accel_cal = 1;
+        accel_cal = true;
     } else
     {
-        accel_cal = 0;
+        accel_cal = false;
     }
     if (accel_cal)
     {
