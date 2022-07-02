@@ -605,15 +605,32 @@ void setup(void)
 
     // Read USFS status
     if (usfs2_getRunStatus() & 0x01) Serial.println(" USFS run status = normal mode");
+
     uint8_t algoStatus = usfs2_getAlgorithmStatus();
-    if (algoStatus & 0x01) Serial.println(" USFS standby status");
-    if (algoStatus & 0x02) Serial.println(" USFS algorithm slow");
-    if (algoStatus & 0x04) Serial.println(" USFS in stillness mode");
-    if (algoStatus & 0x08) Serial.println(" USFS mag calibration completed");
-    if (algoStatus & 0x10) Serial.println(" USFS magnetic anomaly detected");
-    if (algoStatus & 0x20) Serial.println(" USFS unreliable sensor data");
+
+    if (usfsAlgorithmStatusIsStandby(algoStatus)) {
+        Serial.println(" USFS standby status");
+    }
+    if (usfsAlgorithmStatusIsAlgorithmSlow(algoStatus)) {
+        Serial.println(" USFS algorithm slow");
+    }
+    if (usfsAlgorithmStatusIsStillnessMode(algoStatus)) {
+        Serial.println(" USFS in stillness mode");
+    }
+    if (usfsAlgorithmStatusIsCalibrationCompleted(algoStatus)) {
+        Serial.println(" USFS mag calibration completed");
+    }
+    if (usfsAlgorithmStatusIsMagneticAnomaly(algoStatus)) {
+        Serial.println(" USFS magnetic anomaly detected");
+    }
+    if (usfsAlgorithmStatusIsSensorUnreliable(algoStatus)) {
+        Serial.println(" USFS unreliable sensor data");
+    }
+
     if (usfs2_getPassThruStatus() & 0x01) Serial.print(" USFS in passthru mode!");
+
     uint8_t eventStatus = usfs2_getEventStatus();
+
     if (eventStatus & 0x01) Serial.println(" USFS CPU reset");
     if (eventStatus & 0x02) Serial.println(" USFS Error");
 
@@ -622,6 +639,7 @@ void setup(void)
 
     // Check sensor status
     uint8_t sensorStatus = usfs2_getSensorStatus();
+
     if (sensorStatus & 0x01) sensorError("Magnetometer not acknowledging!");
     if (sensorStatus & 0x02) sensorError("Accelerometer not acknowledging!");
     if (sensorStatus & 0x04) sensorError("Gyro not acknowledging!");

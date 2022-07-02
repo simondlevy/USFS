@@ -761,4 +761,32 @@ void usfsReportError(uint8_t errorStatus)
             break;
     }
 }
+bool usfsAlgorithmStatusIsStandby(uint8_t status)
+{
+    return (bool)(status & 0x01);
+}
 
+bool usfsAlgorithmStatusIsAlgorithmSlow(uint8_t status)
+{
+    return (bool)(status & 0x02);
+}
+
+bool usfsAlgorithmStatusIsStillnessMode(uint8_t status)
+{
+    return (bool)(status & 0x04);
+}
+
+bool usfsAlgorithmStatusIsCalibrationCompleted(uint8_t status)
+{
+    return (bool)(status & 0x08);
+}
+
+bool usfsAlgorithmStatusIsMagneticAnomaly(uint8_t status)
+{
+    return (bool)(status & 0x10);
+}
+
+bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status)
+{
+    return (bool)(status & 0x20);
+}

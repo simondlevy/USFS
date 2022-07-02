@@ -99,4 +99,11 @@ bool usfsEventStatusIsMagnetometer(uint8_t status);
 bool usfsEventStatusIsQuaternion(uint8_t status);
 bool usfsEventStatusIsBarometer(uint8_t status);
 
+bool usfsAlgorithmStatusIsStandby(uint8_t status);
+bool usfsAlgorithmStatusIsAlgorithmSlow(uint8_t status);
+bool usfsAlgorithmStatusIsStillnessMode(uint8_t status);
+bool usfsAlgorithmStatusIsCalibrationCompleted(uint8_t status);
+bool usfsAlgorithmStatusIsMagneticAnomaly(uint8_t status);
+bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status);
+
 void usfsReportError(uint8_t errorStatus);
