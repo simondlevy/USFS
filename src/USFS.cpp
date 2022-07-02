@@ -359,14 +359,14 @@ void usfsBegin(
     uint8_t param[4];      
 
     // Enter EM7180 initialized state
-    usfsWriteByte(HostControl, 0x00); 
+    usfsSetRunDisable();
 
     // Make sure pass through mode is off
     usfsWriteByte(PassThruControl, 0x00); 
-    usfsWriteByte(HostControl, 0x01); // Force initialize
+    usfsSetRunEnable();
 
     // Set SENtral in initialized state to configure registers
-    usfsWriteByte(HostControl, 0x00); 
+    usfsSetRunDisable();
 
     //Setup LPF bandwidth (BEFORE setting ODR's)
     usfsWriteByte(ACC_LPF_BW, accelBandwidth);   
@@ -388,7 +388,7 @@ void usfsBegin(
     usfsWriteByte(EnableEvents, interruptEnable);
 
     // Enable EM7180 run mode
-    usfsWriteByte(HostControl, 0x01); // set SENtral in normal run mode
+    usfsSetRunEnable();
     delay(100);
 
     if (verbose) {
