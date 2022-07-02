@@ -131,3 +131,5 @@ uint8_t usfsGetPassThruStatus(void);
 uint8_t usfsGetRunStatus(void);
 
 uint8_t usfsGetSensorStatus(void);
+
+uint8_t usfsGetSentralStatus(void);

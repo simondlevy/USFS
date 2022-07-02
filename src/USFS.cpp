@@ -848,3 +848,8 @@ uint8_t usfsGetSensorStatus(void)
 {
     return readUsfsByte(SensorStatus);
 }
+
+uint8_t usfsGetSentralStatus(void)
+{
+    return readUsfsByte(SentralStatus); 
+}

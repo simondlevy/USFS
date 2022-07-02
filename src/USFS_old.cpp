@@ -179,11 +179,6 @@ bool usfs2_begin(void)
 }
 
 
-uint8_t usfs2_getSentralStatus(void)
-{
-    return readByte(SentralStatus); 
-}
-
 void usfs2_requestReset(void)
 {
     usfsWriteByte(ResetRequest, 0x01);
