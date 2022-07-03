@@ -479,9 +479,9 @@ void usfsBegin(
         if (eventStatus & 0x08) Serial.println("EM7180 new mag result");
         if (eventStatus & 0x10) Serial.println("EM7180 new accel result");
         if (eventStatus & 0x20) Serial.println("EM7180 new gyro result"); 
+        delay(1000); // give some time to read the screen
     }
 
-    delay(1000); // give some time to read the screen
 
     // Check sensor status
     uint8_t sensorStatus = readUsfsByte(SensorStatus);
@@ -535,9 +535,9 @@ void usfsLoadFirmware(bool verbose)
         if (featureflag & 0x20)  {
             Serial.println("A third custom sensor is installed");
         }
+        delay(1000); // give some time to read the screen
     }
 
-    delay(1000); // give some time to read the screen
 
     bool okay = true;
 
