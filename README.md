@@ -41,18 +41,5 @@ To try the library out in Python, cd to the <b>extras/python</b> folder and do
 <tt>python3 mastertest.py</tt>.  To install the library for access from other
 directories, do <tt>sudo python3 setup.py install</tt>.
 
-## C++ on Raspberry Pi, NVIDIA Jetston
-
-RaspberryPi users should download and install [WiringPi](http://wiringpi.com/),
-then cd to <b>extras/wiringpi</b>, and run <b>make</b>
-to build the examples.  You may have to run the example as root: <tt>sudo ./MasterTest</tt>.
-
-Users of NVIDIA Jetson and other Linux-based boards should install I<sup>2</sup>C support by running the command:
-<pre>
-  sudo apt-get install libi2c-dev i2c-tools
-</pre>
-You can then can cd to <b>extras/i2cdev</b>, and run
-<b>make</b>. You may have to run the example as root: <tt>sudo ./MasterTest</tt>.
-
 An asynchronous [version](https://github.com/bmegli/EM7180.git) of this library is also available for Teensy 3.5.
 
