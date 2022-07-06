@@ -221,43 +221,33 @@ void loop()
         if (yaw < 0) yaw   += 360.0f ; 
         roll  *= 180.0f / M_PI;
 
-        Serial.print("Hardware yaw, pitch, roll: ");
-        Serial.print(yaw, 2);
+        Serial.print("Hardware roll, pitch, yaw: ");
+        Serial.print(roll, 2);
         Serial.print(", ");
         Serial.print(pitch, 2);
         Serial.print(", ");
-        Serial.println(roll, 2);
+        Serial.print(yaw, 2);
+        Serial.println(" deg");
 
-        Serial.print("Hardware Grav_x, Grav_y, Grav_z: ");
-        Serial.print(-A31 * 1000, 2);
-        Serial.print(", ");
-        Serial.print(-A32 * 1000, 2);
-        Serial.print(", ");
-        Serial.print(A33 * 1000, 2);
-        Serial.println(" mg");
         Serial.print("Hardware ax, ay, az: ");
         Serial.print(ax * 1000, 2);
         Serial.print(", ");
         Serial.print(ay * 1000, 2);
         Serial.print(", ");
         Serial.print(az * 1000, 2);
-        Serial.println(" mg");
+        Serial.println(" g");
 
         Serial.println("MS5637:");
         Serial.print("Altimeter temperature = ");
         Serial.print(Temperature, 2);
         Serial.println(" C"); 
-        Serial.print("Altimeter temperature = ");
-        Serial.print(9.0f * Temperature / 5.0f + 32.0f, 2);
-        Serial.println(" F"); 
         Serial.print("Altimeter pressure = ");
         Serial.print(Pressure, 2);
         Serial.println(" mbar");
-        Altitude = 145366.45f * (1.0f - pow(((Pressure) / 1013.25f), 0.190284f));
+        Altitude = 44307 * (1.0f - pow(((Pressure) / 1013.25f), 0.190284f));
         Serial.print("Altitude = ");
         Serial.print(Altitude, 2);
-        Serial.println(" feet");
-        Serial.println(" ");
-    } 
+        Serial.println(" m");
+     } 
 
 }  // loop
