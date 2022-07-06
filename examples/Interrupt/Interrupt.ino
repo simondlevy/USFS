@@ -181,7 +181,7 @@ void loop()
         Serial.print((int)1000 * ay);
         Serial.print(" Az = ");
         Serial.print((int)1000 * az);
-        Serial.println(" mg");
+        Serial.println(" g");
         Serial.print("Gx = ");
         Serial.print( gx, 2);
         Serial.print(" Gy = ");

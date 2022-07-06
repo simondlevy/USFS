@@ -593,10 +593,10 @@ void usfsLoadFirmware(bool verbose)
     }
 }
 
-// Returns scaled values (mGs)
+// Returns scaled values (G)
 void usfsReadAccelerometer(float & x, float & y, float & z)
 {
-    readThreeAxis(AX, 0.000488f, x, y, z);
+    readThreeAxis(AX, 4.88e-7, x, y, z);
 }
 
 // Returns scaled values (degrees per second)
