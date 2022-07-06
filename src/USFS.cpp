@@ -597,9 +597,14 @@ void usfsReadAccelerometer(int16_t * destination)
     readThreeAxis(AX, destination);
 }
 
-void usfsReadGyrometer(int16_t * destination)
+void usfsReadGyrometer(float & dpsX, float & dpsY, float & dpsZ)
 {
-    readThreeAxis(GX, destination);
+    int16_t raw[3] = {};
+    readThreeAxis(GX, raw);
+
+    dpsX = raw[0] * 0.153;
+    dpsY = raw[1] * 0.153;
+    dpsZ = raw[2] * 0.153;
 }
 
 void usfsreadMagnetometer(int16_t * destination)

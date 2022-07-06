@@ -119,10 +119,15 @@ void usfsLoadFirmware(bool verbose = false);
 void usfsLoadParamBytes(uint8_t byte[4]);
 
 void    usfsReadAccelerometer(int16_t * destination);
+
 int16_t usfsReadBarometer();
-void    usfsReadGyrometer(int16_t * destination);
+
+void usfsReadGyrometer(float & dpsX, float & dpsY, float & dpsZ);
+
 void    usfsreadMagnetometer(int16_t * destination);
+
 void    usfsReadQuaternion(float * destination);
+
 int16_t usfsReadTemperature();
 
 void  usfsReportChipId();

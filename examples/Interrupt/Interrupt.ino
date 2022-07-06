@@ -140,13 +140,7 @@ void loop()
 
         if (usfsEventStatusIsGyrometer(eventStatus)) { 
 
-            int16_t gyroCount[3] = {};  
-
-            usfsReadGyrometer(gyroCount);
-
-            gx = (float)gyroCount[0] * 0.153f; 
-            gy = (float)gyroCount[1] * 0.153f;
-            gz = (float)gyroCount[2] * 0.153f;
+            usfsReadGyrometer(gx, gy, gz);
         }
 
         if (usfsEventStatusIsMagnetometer(eventStatus)) { 
