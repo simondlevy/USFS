@@ -128,7 +128,7 @@ void usfsReadGyrometer(float & x, float & y, float & z);
 
 void usfsreadMagnetometer(float & x, float & y, float & z);
 
-void usfsReadQuaternion(float * destination);
+void usfsReadQuaternion(float & qw, float & qx, float & qy, float & qz);
 
 int16_t usfsReadTemperature();
 

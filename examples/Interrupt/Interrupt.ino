@@ -107,10 +107,12 @@ void loop()
 {
     static uint32_t _interruptCount;
 
-    static float q[4] = {1, 0, 0, 0};    
     static int16_t rawPressure, rawTemperature;            
     static float Temperature, Pressure, Altitude; 
-    static float ax, ay, az, gx, gy, gz, mx, my, mz; 
+    static float ax, ay, az;
+    static float gx, gy, gz;
+    static float mx, my, mz; 
+    static float qw, qx, qy, qz;
 
     if ((INTERRUPT_PIN == 0) || _gotNewData) { 
 
@@ -144,7 +146,7 @@ void loop()
         }
 
         if (usfsEventStatusIsQuaternion(eventStatus)) { 
-            usfsReadQuaternion(q);
+            usfsReadQuaternion(qw, qx, qy, qz);
         }
 
         if (usfsEventStatusIsBarometer(eventStatus)) { 
@@ -197,19 +199,19 @@ void loop()
 
         Serial.println("Hardware quaternions:");
         Serial.print("Qw = ");
-        Serial.print(q[0]);
+        Serial.print(qw);
         Serial.print(" Qx = ");
-        Serial.print(q[1]);
+        Serial.print(qx);
         Serial.print(" Qy = ");
-        Serial.print(q[2]);
+        Serial.print(qy);
         Serial.print(" Qz = ");
-        Serial.println(q[3]);
+        Serial.println(qz);
 
-        float A12 =   2.0f * (q[1] * q[2] + q[0] * q[3]);
-        float A22 =   q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3];
-        float A31 =   2.0f * (q[0] * q[1] + q[2] * q[3]);
-        float A32 =   2.0f * (q[1] * q[3] - q[0] * q[2]);
-        float A33 =   q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3];
+        float A12 =   2.0f * (qx * qy + qw * qz);
+        float A22 =   qw * qw + qx * qx - qy * qy - qz * qz;
+        float A31 =   2.0f * (qw * qx + qy * qz);
+        float A32 =   2.0f * (qx * qz - qw * qy);
+        float A33 =   qw * qw - qx * qx - qy * qy + qz * qz;
         pitch = -asinf(A32);
         roll  = atan2f(A31, A33);
         yaw   = atan2f(A12, A22);

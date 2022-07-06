@@ -611,18 +611,18 @@ void usfsreadMagnetometer(float & x, float & y, float & z)
     readThreeAxis(MX, 0.305176f, x, y, z);
 }
 
-void usfsReadQuaternion(float * destination)
+void usfsReadQuaternion(float & qw, float & qx, float & qy, float & qz)
 {
     uint8_t rawData[16];  // x/y/z quaternion register data stored here
 
     // Read the sixteen raw data registers into data array
     readUsfsBytes(QX, 16, &rawData[0]); 
 
-    // SENtral stores quats as qx, qy, qz, q0!
-    destination[1] = uint32_reg_to_float (&rawData[0]);
-    destination[2] = uint32_reg_to_float (&rawData[4]);
-    destination[3] = uint32_reg_to_float (&rawData[8]);
-    destination[0] = uint32_reg_to_float (&rawData[12]);   
+    // SENtral stores quats as qx, qy, qz, qw!
+    qx = uint32_reg_to_float (&rawData[0]);
+    qy = uint32_reg_to_float (&rawData[4]);
+    qz =  uint32_reg_to_float (&rawData[8]);
+    qw = uint32_reg_to_float (&rawData[12]);   
 }
 
 int16_t usfsReadBarometer()
