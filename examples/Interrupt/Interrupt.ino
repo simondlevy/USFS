@@ -107,8 +107,7 @@ void loop()
 {
     static uint32_t _interruptCount;
 
-    static int16_t rawPressure, rawTemperature;            
-    static float Temperature, Pressure, Altitude; 
+    static float temperature, pressure;
     static float ax, ay, az;
     static float gx, gy, gz;
     static float mx, my, mz; 
@@ -150,12 +149,8 @@ void loop()
         }
 
         if (usfsEventStatusIsBarometer(eventStatus)) { 
-
-            rawPressure = usfsReadBarometer();
-            Pressure = (float)rawPressure * 0.01f + 1013.25f; 
-
-            rawTemperature = usfsReadTemperature();
-            Temperature = (float) rawTemperature * 0.01f; 
+            pressure = usfsReadBarometer() * 0.01f + 1013.25f; 
+            temperature = usfsReadTemperature() * 0.01f; 
         }
     } 
 
@@ -239,15 +234,14 @@ void loop()
 
         Serial.println("MS5637:");
         Serial.print("Altimeter temperature = ");
-        Serial.print(Temperature, 2);
+        Serial.print(temperature, 2);
         Serial.println(" C"); 
         Serial.print("Altimeter pressure = ");
-        Serial.print(Pressure, 2);
+        Serial.print(pressure, 2);
         Serial.println(" mbar");
-        Altitude = 44307 * (1.0f - pow(((Pressure) / 1013.25f), 0.190284f));
         Serial.print("Altitude = ");
-        Serial.print(Altitude, 2);
-        Serial.println(" m");
+        Serial.print(44307 * (1.0f - pow(((pressure) / 1013.25f), 0.190284f)));
+        Serial.println(" m\n");
      } 
 
 }  // loop
