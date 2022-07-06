@@ -118,15 +118,17 @@ void usfsLoadFirmware(bool verbose = false);
 
 void usfsLoadParamBytes(uint8_t byte[4]);
 
-void    usfsReadAccelerometer(int16_t * destination);
+// Returns Gs
+void usfsReadAccelerometer(float & x, float & y, float & z);
 
 int16_t usfsReadBarometer();
 
-void usfsReadGyrometer(float & dpsX, float & dpsY, float & dpsZ);
+// Returns degrees per second
+void usfsReadGyrometer(float & x, float & y, float & z);
 
-void    usfsreadMagnetometer(int16_t * destination);
+void usfsreadMagnetometer(float & x, float & y, float & z);
 
-void    usfsReadQuaternion(float * destination);
+void usfsReadQuaternion(float * destination);
 
 int16_t usfsReadTemperature();
 

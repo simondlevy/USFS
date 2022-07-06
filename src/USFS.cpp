@@ -592,24 +592,37 @@ void usfsLoadFirmware(bool verbose)
     }
 }
 
-void usfsReadAccelerometer(int16_t * destination)
+// Returns scaled values (mGs)
+void usfsReadAccelerometer(float & x, float & y, float & z)
 {
-    readThreeAxis(AX, destination);
+    int16_t raw[3] = {};
+    readThreeAxis(AX, raw);
+
+    x = (float)raw[0] * 0.000488f; 
+    y = (float)raw[1] * 0.000488f;
+    z = (float)raw[2] * 0.000488f;
 }
 
-void usfsReadGyrometer(float & dpsX, float & dpsY, float & dpsZ)
+// Returns scaled values (degrees per second)
+void usfsReadGyrometer(float & x, float & y, float & z)
 {
     int16_t raw[3] = {};
     readThreeAxis(GX, raw);
 
-    dpsX = raw[0] * 0.153;
-    dpsY = raw[1] * 0.153;
-    dpsZ = raw[2] * 0.153;
+    x = raw[0] * 0.153;
+    y = raw[1] * 0.153;
+    z = raw[2] * 0.153;
 }
 
-void usfsreadMagnetometer(int16_t * destination)
+// Returns scaled values (mGauss)
+void usfsreadMagnetometer(float & x, float & y, float & z)
 {
-    readThreeAxis(MX, destination);
+    int16_t raw[3] = {};
+    readThreeAxis(MX, raw);
+
+    x = (float)raw[0] * 0.305176f; 
+    y = (float)raw[1] * 0.305176f;
+    z = (float)raw[2] * 0.305176f;
 }
 
 void usfsReadQuaternion(float * destination)

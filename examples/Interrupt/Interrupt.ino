@@ -129,13 +129,7 @@ void loop()
 
         if (usfsEventStatusIsAccelerometer(eventStatus)) { 
 
-            int16_t accelCount[3] = {};  
-
-            usfsReadAccelerometer(accelCount);
-
-            ax = (float)accelCount[0] * 0.000488f; 
-            ay = (float)accelCount[1] * 0.000488f;
-            az = (float)accelCount[2] * 0.000488f;
+            usfsReadAccelerometer(ax, ay, az);
         }
 
         if (usfsEventStatusIsGyrometer(eventStatus)) { 
@@ -145,13 +139,8 @@ void loop()
 
         if (usfsEventStatusIsMagnetometer(eventStatus)) { 
 
-            int16_t magCount[3] = {};  
+            usfsreadMagnetometer(mx, my, mz);
 
-            usfsreadMagnetometer(magCount);
-
-            mx = (float)magCount[0] * 0.305176f; 
-            my = (float)magCount[1] * 0.305176f;
-            mz = (float)magCount[2] * 0.305176f;
         }
 
         if (usfsEventStatusIsQuaternion(eventStatus)) { 
