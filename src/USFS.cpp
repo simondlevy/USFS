@@ -211,7 +211,8 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
     usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void readThreeAxis(uint8_t subAddress, int16_t * destination)
+static void readThreeAxis(uint8_t subAddress, float scale,
+        float & x, float & y, float & z)
 {
     uint8_t rawData[6] = {};
 
@@ -219,9 +220,9 @@ static void readThreeAxis(uint8_t subAddress, int16_t * destination)
     readUsfsBytes(subAddress, 6, &rawData[0]);       
 
     // Turn the MSB and LSB into a signed 16-bit value
-    destination[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
-    destination[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    destination[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+    x = scale * (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
+    y = scale * (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+    z = scale * (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
 }
 
 static int16_t read16BitValue(uint8_t subAddress)
@@ -595,34 +596,19 @@ void usfsLoadFirmware(bool verbose)
 // Returns scaled values (mGs)
 void usfsReadAccelerometer(float & x, float & y, float & z)
 {
-    int16_t raw[3] = {};
-    readThreeAxis(AX, raw);
-
-    x = (float)raw[0] * 0.000488f; 
-    y = (float)raw[1] * 0.000488f;
-    z = (float)raw[2] * 0.000488f;
+    readThreeAxis(AX, 0.000488f, x, y, z);
 }
 
 // Returns scaled values (degrees per second)
 void usfsReadGyrometer(float & x, float & y, float & z)
 {
-    int16_t raw[3] = {};
-    readThreeAxis(GX, raw);
-
-    x = raw[0] * 0.153;
-    y = raw[1] * 0.153;
-    z = raw[2] * 0.153;
+    readThreeAxis(GX, 0.153, x, y, z);
 }
 
 // Returns scaled values (mGauss)
 void usfsreadMagnetometer(float & x, float & y, float & z)
 {
-    int16_t raw[3] = {};
-    readThreeAxis(MX, raw);
-
-    x = (float)raw[0] * 0.305176f; 
-    y = (float)raw[1] * 0.305176f;
-    z = (float)raw[2] * 0.305176f;
+    readThreeAxis(MX, 0.305176f, x, y, z);
 }
 
 void usfsReadQuaternion(float * destination)
