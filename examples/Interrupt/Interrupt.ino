@@ -39,10 +39,6 @@ static const uint8_t ACCEL_RATE      = 20; // Multiply by 10 to get actual rate
 static const uint8_t GYRO_RATE       = 100; // Multiply by 10 to get actual rate
 static const uint8_t BARO_RATE       = 50;
 
-static const uint16_t ACCEL_SCALE = 8;
-static const uint16_t GYRO_SCALE  = 2000;
-static const uint16_t MAG_SCALE   = 1000;
-
 static const uint8_t INTERRUPT_ENABLE = USFS_INTERRUPT_RESET_REQUIRED |
                                         USFS_INTERRUPT_ERROR |
                                         USFS_INTERRUPT_QUAT;
@@ -74,9 +70,6 @@ void setup()
     usfsBegin(
             ACCEL_BANDWIDTH,
             GYRO_BANDWIDTH,
-            ACCEL_SCALE,
-            GYRO_SCALE,
-            MAG_SCALE,
             QUAT_DIVISOR,
             MAG_RATE,
             ACCEL_RATE,

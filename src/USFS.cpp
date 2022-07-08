@@ -211,8 +211,7 @@ static void set_integer_param (uint8_t param, uint32_t param_val)
     usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void readThreeAxis(uint8_t subAddress, float scale,
-        float & x, float & y, float & z)
+static void readThreeAxisRaw(uint8_t subAddress, int16_t counts[3])
 {
     uint8_t rawData[6] = {};
 
@@ -220,50 +219,77 @@ static void readThreeAxis(uint8_t subAddress, float scale,
     readUsfsBytes(subAddress, 6, &rawData[0]);       
 
     // Turn the MSB and LSB into a signed 16-bit value
-    x = scale * (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
-    y = scale * (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
-    z = scale * (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+    counts[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
+    counts[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+    counts[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+}
+
+
+static void readThreeAxisScaled(uint8_t subAddress, float scale,
+        float & x, float & y, float & z)
+{
+    int16_t counts[3] = {};
+
+    // Read the six raw data registers into data array
+    readThreeAxisRaw(subAddress, counts);       
+
+    // Turn the MSB and LSB into a signed 16-bit value
+    x = scale * counts[0];
+    y = scale * counts[1];
+    z = scale * counts[2];
 }
 
 static int16_t read16BitValue(uint8_t subAddress)
 {
-    uint8_t rawData[2] = {};
+    uint8_t counts[2] = {};
 
     // Read the two raw data registers sequentially into data array
-    readUsfsBytes(subAddress, 2, &rawData[0]);  
+    readUsfsBytes(subAddress, 2, &counts[0]);  
 
     // Turn the MSB and LSB into a signed 16-bit value
-    return  (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);   
+    return  (int16_t) (((int16_t)counts[1] << 8) | counts[0]);   
 }
 
-static uint8_t byte0(uint16_t shortword)
-{
-    return shortword & 0xFF;
-}
-
-static uint8_t byte1(uint16_t shortword)
-{
-    return (shortword >> 8) & 0xFF;
-}
-
-static void setScale(
-        uint16_t fs,
-        uint8_t byte2,
-        uint8_t byte3,
-        uint8_t subAddress)
-{
-    uint8_t bytes[4] = {byte0(fs), byte1(fs), byte2, byte3};
-    usfsLoadParamBytes(bytes);
-    usfsWriteByte(ParamRequest, subAddress); 
-    usfsWriteByte(AlgorithmControl, 0x80); 
-    uint8_t status = readUsfsByte(ParamAcknowledge); 
-    while(!(status==subAddress)) {
-        status = readUsfsByte(ParamAcknowledge);
+static void set_gyro_FS (uint16_t gyro_fs) {
+    uint8_t bytes[4], STAT;
+    bytes[0] = gyro_fs & (0xFF);
+    bytes[1] = (gyro_fs >> 8) & (0xFF);
+    bytes[2] = 0x00;
+    bytes[3] = 0x00;
+    writeByte(ADDRESS, LoadParamByte0, bytes[0]); //Gyro LSB
+    writeByte(ADDRESS, LoadParamByte1, bytes[1]); //Gyro MSB
+    writeByte(ADDRESS, LoadParamByte2, bytes[2]); //Unused
+    writeByte(ADDRESS, LoadParamByte3, bytes[3]); //Unused
+    writeByte(ADDRESS, ParamRequest, 0xCB); //Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a paramter write processs
+    writeByte(ADDRESS, AlgorithmControl, 0x80); //Request parameter transfer procedure
+    STAT = readByte(ADDRESS, ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
+    while(!(STAT==0xCB)) {
+        STAT = readByte(ADDRESS, ParamAcknowledge);
     }
-    usfsWriteByte(ParamRequest, 0x00); 
-    usfsWriteByte(AlgorithmControl, 0x00); 
-
+    writeByte(ADDRESS, ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
+    writeByte(ADDRESS, AlgorithmControl, 0x00); // Re-start algorithm
 }
+
+static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
+    uint8_t bytes[4], STAT;
+    bytes[0] = mag_fs & (0xFF);
+    bytes[1] = (mag_fs >> 8) & (0xFF);
+    bytes[2] = acc_fs & (0xFF);
+    bytes[3] = (acc_fs >> 8) & (0xFF);
+    writeByte(ADDRESS, LoadParamByte0, bytes[0]); //Mag LSB
+    writeByte(ADDRESS, LoadParamByte1, bytes[1]); //Mag MSB
+    writeByte(ADDRESS, LoadParamByte2, bytes[2]); //Acc LSB
+    writeByte(ADDRESS, LoadParamByte3, bytes[3]); //Acc MSB
+    writeByte(ADDRESS, ParamRequest, 0xCA); //Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a paramter write processs
+    writeByte(ADDRESS, AlgorithmControl, 0x80); //Request parameter transfer procedure
+    STAT = readByte(ADDRESS, ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
+    while(!(STAT==0xCA)) {
+        STAT = readByte(ADDRESS, ParamAcknowledge);
+    }
+    writeByte(ADDRESS, ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
+    writeByte(ADDRESS, AlgorithmControl, 0x00); // Re-start algorithm
+}
+
 
 // ============================================================================
 
@@ -310,9 +336,6 @@ void usfsReportChipId()
 void usfsBegin(
         uint8_t accelBandwidth,
         uint8_t gyroBandwidth,
-        uint16_t accelScale,
-        uint16_t gyroScale,
-        uint16_t magScale,
         uint8_t quatDivisor,
         uint8_t magRate,
         uint8_t accelRateTenth,
@@ -405,8 +428,9 @@ void usfsBegin(
     // Disable stillness mode for balancing robot application
     set_integer_param (0x49, 0x00);
 
-    // Write desired sensor full scale ranges to the EM7180
-    usfsSetScales(accelScale, gyroScale, magScale);
+    // Full-scale ranges are fixed
+    set_mag_acc_FS (1000, 8); // 1000 uT, 8 g
+    set_gyro_FS (2000);       // 2000 dps
 
     // Read sensor new FS values from parameter space
     usfsWriteByte(ParamRequest, 0x4A); // Request to read  parameter 74
@@ -593,36 +617,41 @@ void usfsLoadFirmware(bool verbose)
     }
 }
 
+void usfsReadAccelerometerRaw(int16_t counts[3])
+{
+    readThreeAxisRaw(AX, counts);
+}
+
 // Returns scaled values (G)
 void usfsReadAccelerometer(float & x, float & y, float & z)
 {
-    readThreeAxis(AX, 4.88e-7, x, y, z);
+    readThreeAxisScaled(AX, 4.88e-7, x, y, z);
 }
 
 // Returns scaled values (degrees per second)
 void usfsReadGyrometer(float & x, float & y, float & z)
 {
-    readThreeAxis(GX, 0.153, x, y, z);
+    readThreeAxisScaled(GX, 0.153, x, y, z);
 }
 
 // Returns scaled values (mGauss)
 void usfsreadMagnetometer(float & x, float & y, float & z)
 {
-    readThreeAxis(MX, 0.305176f, x, y, z);
+    readThreeAxisScaled(MX, 0.305176f, x, y, z);
 }
 
 void usfsReadQuaternion(float & qw, float & qx, float & qy, float & qz)
 {
-    uint8_t rawData[16];  // x/y/z quaternion register data stored here
+    uint8_t counts[16];  // x/y/z quaternion register data stored here
 
     // Read the sixteen raw data registers into data array
-    readUsfsBytes(QX, 16, &rawData[0]); 
+    readUsfsBytes(QX, 16, &counts[0]); 
 
     // SENtral stores quats as qx, qy, qz, qw!
-    qx = uint32_reg_to_float (&rawData[0]);
-    qy = uint32_reg_to_float (&rawData[4]);
-    qz =  uint32_reg_to_float (&rawData[8]);
-    qw = uint32_reg_to_float (&rawData[12]);   
+    qx = uint32_reg_to_float (&counts[0]);
+    qy = uint32_reg_to_float (&counts[4]);
+    qz =  uint32_reg_to_float (&counts[8]);
+    qw = uint32_reg_to_float (&counts[12]);   
 }
 
 int16_t usfsReadBarometer()
@@ -901,12 +930,6 @@ void usfsSetGyroRate(uint8_t rate)
 void usfsSetBaroRate(uint8_t rate)
 {
     usfsWriteByte(BaroRate, rate);
-}
-
-void usfsSetScales(uint16_t accelFs, uint16_t gyroFs, uint16_t magFs)
-{
-    setScale(gyroFs, 0x00, 0x00, 0xCB);
-    setScale(magFs, byte0(accelFs), byte1(accelFs), 0xCA);
 }
 
 void usfsSetRatesAndBandwidths(

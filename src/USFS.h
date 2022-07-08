@@ -76,9 +76,6 @@ bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status);
 void usfsBegin(
         uint8_t accelBandwidth,
         uint8_t gyroBandwidth,
-        uint16_t accelScale,
-        uint16_t gyroScale,
-        uint16_t magScale,
         uint8_t quatDivisor,
         uint8_t magRate,
         uint8_t accelRateTenth,
@@ -118,8 +115,12 @@ void usfsLoadFirmware(bool verbose = false);
 
 void usfsLoadParamBytes(uint8_t byte[4]);
 
+// For calibration only
+void usfsReadAccelerometerRaw(int16_t counts[3]);
+
 // Returns Gs
 void usfsReadAccelerometer(float & x, float & y, float & z);
+
 
 int16_t usfsReadBarometer();
 
@@ -156,7 +157,5 @@ void usfsSetRatesAndBandwidths(
 
 void usfsSetRunEnable(void);
 void usfsSetRunDisable(void);
-
-void usfsSetScales(uint16_t accFs, uint16_t gyroFs, uint16_t magFs);
 
 void usfsWriteByte(uint8_t subAddress, uint8_t value);

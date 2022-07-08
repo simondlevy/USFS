@@ -570,9 +570,6 @@ void setup(void)
     // Disable stillness mode
     set_integer_param (0x49, 0x00);
 
-    // Write desired sensor full scale ranges to the USFS
-    usfsSetScales(1000, 2000, 8);
-
     // Read sensor new FS values from parameter space
     readParams(0x4A, param);// Request to read  parameter 74
     USFS_mag_fs = ((int16_t)(param[1]<<8) | param[0]);
@@ -647,7 +644,7 @@ void loop(void)
     static uint32_t delt_t;
     static uint32_t count;
 
-    static float Quat[4];
+    static float qw, qx, qy, qz;
 
     static float ax;
     static float ay;
@@ -689,7 +686,7 @@ void loop(void)
 
         int16_t accelCount[3];
 
-        usfsReadAccelerometer(accelCount);
+        usfsReadAccelerometerRaw(accelCount);
 
         // Now we'll calculate the accleration value into actual g's
         ax = (float)accelCount[0]*0.000488;  // get actual g value
@@ -701,7 +698,7 @@ void loop(void)
     }
 
     if (usfsEventStatusIsQuaternion(eventStatus)) {
-        usfsReadQuaternion(Quat);
+        usfsReadQuaternion(qw, qx, qy, qz);
     }
 
     // Serial print and/or display at 0.5 s rate independent of data rates
@@ -710,9 +707,8 @@ void loop(void)
     // update LCD once per half-second independent of read rate
     if (delt_t > 500) { 
 
-        float Yaw  = atan2(2.0f * (Quat[1] * Quat[2] + Quat[0] * Quat[3]),
-                Quat[0] * Quat[0] + Quat[1] * Quat[1] - Quat[2] * Quat[2] -
-                Quat[3] * Quat[3]);
+        float Yaw  = atan2(2.0f * (qx * qy + qw * qz),
+                qw * qw + qx * qx - qy * qy - qz * qz);
         Yaw   *= 180.0f / PI; 
         Yaw   += MAGNETIC_DECLINATION;
         if (Yaw < 0) Yaw   += 360.0f ; // Ensure yaw stays between 0 and 360
