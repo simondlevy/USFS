@@ -250,7 +250,7 @@ static int16_t read16BitValue(uint8_t subAddress)
     return  (int16_t) (((int16_t)counts[1] << 8) | counts[0]);   
 }
 
-static void set_gyro_FS (uint16_t gyro_fs) {
+static void setGyroFullScale(uint16_t gyro_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = gyro_fs & (0xFF);
     bytes[1] = (gyro_fs >> 8) & (0xFF);
@@ -270,7 +270,7 @@ static void set_gyro_FS (uint16_t gyro_fs) {
     writeByte(ADDRESS, AlgorithmControl, 0x00); // Re-start algorithm
 }
 
-static void set_mag_acc_FS (uint16_t mag_fs, uint16_t acc_fs) {
+static void setMagAccFullScale (uint16_t mag_fs, uint16_t acc_fs) {
     uint8_t bytes[4], STAT;
     bytes[0] = mag_fs & (0xFF);
     bytes[1] = (mag_fs >> 8) & (0xFF);
@@ -429,8 +429,8 @@ void usfsBegin(
     set_integer_param (0x49, 0x00);
 
     // Full-scale ranges are fixed
-    set_mag_acc_FS (1000, 8); // 1000 uT, 8 g
-    set_gyro_FS (2000);       // 2000 dps
+    setMagAccFullScale (1000, 8); // 1000 uT, 8 g
+    setGyroFullScale(2000);       // 2000 dps
 
     // Read sensor new FS values from parameter space
     usfsWriteByte(ParamRequest, 0x4A); // Request to read  parameter 74
