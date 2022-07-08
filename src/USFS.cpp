@@ -250,44 +250,46 @@ static int16_t read16BitValue(uint8_t subAddress)
     return  (int16_t) (((int16_t)counts[1] << 8) | counts[0]);   
 }
 
-static void setGyroFullScale(uint16_t gyro_fs) {
-    uint8_t bytes[4], STAT;
-    bytes[0] = gyro_fs & (0xFF);
-    bytes[1] = (gyro_fs >> 8) & (0xFF);
-    bytes[2] = 0x00;
-    bytes[3] = 0x00;
-    writeByte(ADDRESS, LoadParamByte0, bytes[0]); //Gyro LSB
-    writeByte(ADDRESS, LoadParamByte1, bytes[1]); //Gyro MSB
-    writeByte(ADDRESS, LoadParamByte2, bytes[2]); //Unused
-    writeByte(ADDRESS, LoadParamByte3, bytes[3]); //Unused
-    writeByte(ADDRESS, ParamRequest, 0xCB); //Parameter 75; 0xCB is 75 decimal with the MSB set high to indicate a paramter write processs
-    writeByte(ADDRESS, AlgorithmControl, 0x80); //Request parameter transfer procedure
-    STAT = readByte(ADDRESS, ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
-    while(!(STAT==0xCB)) {
-        STAT = readByte(ADDRESS, ParamAcknowledge);
+static void setFullScale(
+        uint8_t byte0,
+        uint8_t byte1,
+        uint8_t byte2,
+        uint8_t byte3,
+        uint8_t request)
+{
+    uint8_t bytes[4] = {byte0, byte1, byte2, byte3};
+    writeByte(ADDRESS, LoadParamByte0, bytes[0]); 
+    writeByte(ADDRESS, LoadParamByte1, bytes[1]); 
+    writeByte(ADDRESS, LoadParamByte2, bytes[2]); 
+    writeByte(ADDRESS, LoadParamByte3, bytes[3]); 
+    writeByte(ADDRESS, ParamRequest, request); 
+    writeByte(ADDRESS, AlgorithmControl, 0x80); 
+    uint8_t status = readByte(ADDRESS, ParamAcknowledge); 
+    while (status!=request) {
+        status = readByte(ADDRESS, ParamAcknowledge);
     }
-    writeByte(ADDRESS, ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    writeByte(ADDRESS, AlgorithmControl, 0x00); // Re-start algorithm
+    writeByte(ADDRESS, ParamRequest, 0x00); 
+    writeByte(ADDRESS, AlgorithmControl, 0x00); 
 }
 
-static void setMagAccFullScale (uint16_t mag_fs, uint16_t acc_fs) {
-    uint8_t bytes[4], STAT;
-    bytes[0] = mag_fs & (0xFF);
-    bytes[1] = (mag_fs >> 8) & (0xFF);
-    bytes[2] = acc_fs & (0xFF);
-    bytes[3] = (acc_fs >> 8) & (0xFF);
-    writeByte(ADDRESS, LoadParamByte0, bytes[0]); //Mag LSB
-    writeByte(ADDRESS, LoadParamByte1, bytes[1]); //Mag MSB
-    writeByte(ADDRESS, LoadParamByte2, bytes[2]); //Acc LSB
-    writeByte(ADDRESS, LoadParamByte3, bytes[3]); //Acc MSB
-    writeByte(ADDRESS, ParamRequest, 0xCA); //Parameter 74; 0xCA is 74 decimal with the MSB set high to indicate a paramter write processs
-    writeByte(ADDRESS, AlgorithmControl, 0x80); //Request parameter transfer procedure
-    STAT = readByte(ADDRESS, ParamAcknowledge); //Check the parameter acknowledge register and loop until the result matches parameter request byte
-    while(!(STAT==0xCA)) {
-        STAT = readByte(ADDRESS, ParamAcknowledge);
-    }
-    writeByte(ADDRESS, ParamRequest, 0x00); //Parameter request = 0 to end parameter transfer process
-    writeByte(ADDRESS, AlgorithmControl, 0x00); // Re-start algorithm
+static void setGyroFullScale(uint16_t gyro_fs)
+{
+    uint8_t byte0 = gyro_fs & (0xFF);
+    uint8_t byte1 = (gyro_fs >> 8) & (0xFF);
+    uint8_t byte2 = 0x00;
+    uint8_t byte3 = 0x00;
+
+    setFullScale(byte0, byte1, byte2, byte3, 0xCB);
+}
+
+static void setMagAccFullScale (uint16_t mag_fs, uint16_t acc_fs)
+{
+    uint8_t byte0 = mag_fs & (0xFF);
+    uint8_t byte1 = (mag_fs >> 8) & (0xFF);
+    uint8_t byte2 = acc_fs & (0xFF);
+    uint8_t byte3 = (acc_fs >> 8) & (0xFF);
+
+    setFullScale(byte0, byte1, byte2, byte3, 0xCA);
 }
 
 
