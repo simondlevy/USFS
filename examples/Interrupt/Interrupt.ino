@@ -123,17 +123,17 @@ void loop()
 
         if (usfsEventStatusIsAccelerometer(eventStatus)) { 
 
-            usfsReadAccelerometer(ax, ay, az);
+            usfsReadAccelerometerScaled(ax, ay, az);
         }
 
         if (usfsEventStatusIsGyrometer(eventStatus)) { 
 
-            usfsReadGyrometer(gx, gy, gz);
+            usfsReadGyrometerScaled(gx, gy, gz);
         }
 
         if (usfsEventStatusIsMagnetometer(eventStatus)) { 
 
-            usfsreadMagnetometer(mx, my, mz);
+            usfsreadMagnetometerScaled(mx, my, mz);
 
         }
 
@@ -142,8 +142,8 @@ void loop()
         }
 
         if (usfsEventStatusIsBarometer(eventStatus)) { 
-            pressure = usfsReadBarometer() * 0.01f + 1013.25f; 
-            temperature = usfsReadTemperature() * 0.01f; 
+            pressure = usfsReadBarometerRaw() * 0.01f + 1013.25f; 
+            temperature = usfsReadTemperatureRaw() * 0.01f; 
         }
     } 
 

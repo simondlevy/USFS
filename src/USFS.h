@@ -62,6 +62,10 @@ typedef enum {
 
 } mscale_t;
 
+// Full-scale ranges are fixed in master mode
+static const float USFS_GYRO_SCALE  = 1.53e-1;
+static const float USFS_ACCEL_SCALE = 4.88e-4;
+
 void usfsAlgorithmControlRequestParameterTransfer(void);
 
 void usfsAlgorithmControlReset(void); 
@@ -115,24 +119,23 @@ void usfsLoadFirmware(bool verbose = false);
 
 void usfsLoadParamBytes(uint8_t byte[4]);
 
+int16_t usfsReadBarometerRaw();
+
 void usfsReadAccelerometerRaw(int16_t counts[3]);
 
 void usfsReadGyrometerRaw(int16_t counts[3]);
 
 // Returns Gs
-void usfsReadAccelerometer(float & x, float & y, float & z);
-
-
-int16_t usfsReadBarometer();
+void usfsReadAccelerometerScaled(float & x, float & y, float & z);
 
 // Returns degrees per second
-void usfsReadGyrometer(float & x, float & y, float & z);
+void usfsReadGyrometerScaled(float & x, float & y, float & z);
 
-void usfsreadMagnetometer(float & x, float & y, float & z);
+void usfsreadMagnetometerScaled(float & x, float & y, float & z);
 
 void usfsReadQuaternion(float & qw, float & qx, float & qy, float & qz);
 
-int16_t usfsReadTemperature();
+int16_t usfsReadTemperatureRaw();
 
 void  usfsReportChipId();
 

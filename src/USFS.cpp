@@ -630,19 +630,19 @@ void usfsReadGyrometerRaw(int16_t counts[3])
 }
 
 // Returns scaled values (G)
-void usfsReadAccelerometer(float & x, float & y, float & z)
+void usfsReadAccelerometerScaled(float & x, float & y, float & z)
 {
-    readThreeAxisScaled(AX, 4.88e-7, x, y, z);
+    readThreeAxisScaled(AX, USFS_ACCEL_SCALE, x, y, z);
 }
 
 // Returns scaled values (degrees per second)
-void usfsReadGyrometer(float & x, float & y, float & z)
+void usfsReadGyrometerScaled(float & x, float & y, float & z)
 {
-    readThreeAxisScaled(GX, 0.153, x, y, z);
+    readThreeAxisScaled(GX, USFS_GYRO_SCALE, x, y, z);
 }
 
 // Returns scaled values (mGauss)
-void usfsreadMagnetometer(float & x, float & y, float & z)
+void usfsreadMagnetometerScaled(float & x, float & y, float & z)
 {
     readThreeAxisScaled(MX, 0.305176f, x, y, z);
 }
@@ -661,12 +661,12 @@ void usfsReadQuaternion(float & qw, float & qx, float & qy, float & qz)
     qw = uint32_reg_to_float (&counts[12]);   
 }
 
-int16_t usfsReadBarometer()
+int16_t usfsReadBarometerRaw()
 {
     return read16BitValue(Baro);
 }
 
-int16_t usfsReadTemperature()
+int16_t usfsReadTemperatureRaw()
 {
     return read16BitValue(Temp);
 }

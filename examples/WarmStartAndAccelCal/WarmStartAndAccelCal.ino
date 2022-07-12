@@ -689,9 +689,9 @@ void loop(void)
         usfsReadAccelerometerRaw(accelCount);
 
         // Now we'll calculate the accleration value into actual g's
-        ax = (float)accelCount[0]*0.000488;  // get actual g value
-        ay = (float)accelCount[1]*0.000488;    
-        az = (float)accelCount[2]*0.000488;
+        ax = (float)accelCount[0]*USFS_ACCEL_SCALE;
+        ay = (float)accelCount[1]*USFS_ACCEL_SCALE;
+        az = (float)accelCount[2]*USFS_ACCEL_SCALE;
 
         // Manages accelerometer calibration; is active when calibratingA > 0
         Accel_cal_check(accelCount);
