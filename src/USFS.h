@@ -115,8 +115,9 @@ void usfsLoadFirmware(bool verbose = false);
 
 void usfsLoadParamBytes(uint8_t byte[4]);
 
-// For calibration only
 void usfsReadAccelerometerRaw(int16_t counts[3]);
+
+void usfsReadGyrometerRaw(int16_t counts[3]);
 
 // Returns Gs
 void usfsReadAccelerometer(float & x, float & y, float & z);

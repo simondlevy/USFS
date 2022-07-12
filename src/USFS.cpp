@@ -624,6 +624,11 @@ void usfsReadAccelerometerRaw(int16_t counts[3])
     readThreeAxisRaw(AX, counts);
 }
 
+void usfsReadGyrometerRaw(int16_t counts[3])
+{
+    readThreeAxisRaw(GX, counts);
+}
+
 // Returns scaled values (G)
 void usfsReadAccelerometer(float & x, float & y, float & z)
 {
