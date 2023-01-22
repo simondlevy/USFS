@@ -631,6 +631,11 @@ class Usfs {
             return readUsfsByte(EventStatus); 
         }
 
+        static bool eventStatusIsError(uint8_t status)
+        {
+            return status & 0x02;
+        }
+
 
 }; // class Usfs
 

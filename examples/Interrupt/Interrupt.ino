@@ -116,9 +116,9 @@ void loop()
             _interruptCount++;
         }
 
-        uint8_t eventStatus = usfsCheckStatus(); 
+        uint8_t eventStatus = usfs.checkStatus(); 
 
-        if (usfsEventStatusIsError(eventStatus)) { 
+        if (Usfs::eventStatusIsError(eventStatus)) { 
 
             usfsReportError(eventStatus);
         }
