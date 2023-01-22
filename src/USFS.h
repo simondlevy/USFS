@@ -535,7 +535,7 @@ class Usfs {
             Serial.println(" Should be: 0x02");
         }    
 
-        void loadFirmware(bool verbose)
+        void loadFirmware(bool verbose=false)
         {
             // Check which sensors can be detected by the EM7180
             uint8_t featureflag = readByte(FeatureFlags);
