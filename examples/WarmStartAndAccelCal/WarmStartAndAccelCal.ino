@@ -158,7 +158,7 @@ static void USFS_get_WS_params()
 
     // Parameter is the decimal value with the MSB set low (default) to
     // indicate a paramter read processs
-    usfsReadSavedParamBytes(WS_params.Sen_param[0]);
+    Usfs::readSavedParamBytes(WS_params.Sen_param[0]);
 
     for(uint8_t i=1; i<35; i++)
     {
@@ -172,7 +172,7 @@ static void USFS_get_WS_params()
         {
             stat = usfsGetParamAcknowledge();
         }
-        usfsReadSavedParamBytes(WS_params.Sen_param[0]);
+        Usfs::readSavedParamBytes(WS_params.Sen_param[0]);
     }
     // Parameter request = 0 to end parameter transfer process
     usfsRequestParamRead(0x00);
@@ -401,7 +401,7 @@ static void readParams(uint8_t paramId, uint8_t param[4])
     while (true) {
         if (usfsGetParamAcknowledge() == paramId) break;
     }
-    usfsReadSavedParamBytes(param);
+    Usfs::readSavedParamBytes(param);
 }
 
 // ======================================================================================
@@ -619,11 +619,11 @@ void setup(void)
 
     uint8_t eventStatus = usfsGetEventStatus();
 
-    if (usfsEventStatusIsReset(eventStatus)) {
+    if (Usfs::eventStatusIsReset(eventStatus)) {
         Serial.println(" USFS CPU reset");
     }
 
-    if (usfsEventStatusIsError(eventStatus)) {
+    if (Usfs::eventStatusIsError(eventStatus)) {
         Serial.println(" USFS Error");
     }
 
@@ -677,17 +677,17 @@ void loop(void)
     // than interrupt
     uint8_t eventStatus = usfsGetEventStatus(); // reading clears the
 
-    if (usfsEventStatusIsError(eventStatus)) { 
+    if (Usfs::eventStatusIsError(eventStatus)) { 
 
         usfsReportError(eventStatus);
     }
 
     // if no errors, see if new data is ready
-    if (usfsEventStatusIsAccelerometer(eventStatus)) { 
+    if (Usfs::eventStatusIsAccelerometer(eventStatus)) { 
 
         int16_t accelCount[3];
 
-        usfsReadAccelerometerRaw(accelCount);
+        Usfs::readAccelerometerRaw(accelCount);
 
         // Now we'll calculate the accleration value into actual g's
         ax = (float)accelCount[0]*USFS_ACCEL_SCALE;
@@ -698,8 +698,8 @@ void loop(void)
         Accel_cal_check(accelCount);
     }
 
-    if (usfsEventStatusIsQuaternion(eventStatus)) {
-        usfsReadQuaternion(qw, qx, qy, qz);
+    if (Usfs::eventStatusIsQuaternion(eventStatus)) {
+        usfs.readQuaternion(qw, qx, qy, qz);
     }
 
     // Serial print and/or display at 0.5 s rate independent of data rates

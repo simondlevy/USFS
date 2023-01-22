@@ -411,15 +411,15 @@ class Usfs {
             return  (int16_t) (((int16_t)counts[1] << 8) | counts[0]);   
         }
 
-        void readSavedParamBytes(uint8_t bytes[4])
+    public:
+
+        static void readSavedParamBytes(uint8_t bytes[4])
         {
             bytes[0] = readUsfsByte(SavedParamByte0);
             bytes[1] = readUsfsByte(SavedParamByte1);
             bytes[2] = readUsfsByte(SavedParamByte2);
             bytes[3] = readUsfsByte(SavedParamByte3);
         }
-
-    public:
 
         void reportChipId(void)
         {
@@ -741,6 +741,11 @@ class Usfs {
             return status & 0x02;
         }
 
+        static bool eventStatusIsReset(uint8_t status)
+        {
+            return status & 0x02;
+        }
+
         static void reportError(uint8_t errorStatus)
         {
 
@@ -861,6 +866,11 @@ class Usfs {
             readThreeAxisScaled(MX, 0.305176f, x, y, z);
         }
 
+        static void readAccelerometerRaw(int16_t counts[3])
+        {
+            readThreeAxisRaw(AX, counts);
+        }
+
         int16_t readBarometerRaw()
         {
             return read16BitValue(Baro);
@@ -883,6 +893,19 @@ class Usfs {
             qy = uint32_reg_to_float (&counts[4]);
             qz =  uint32_reg_to_float (&counts[8]);
             qw = uint32_reg_to_float (&counts[12]);   
+        }
+
+        static void setPassThroughMode()
+        {
+
+            usfsWriteByte(AlgorithmControl, 0x01);
+            delay(5);
+
+            usfsWriteByte(PassThruControl, 0x01);
+            while (true) {
+                if (readUsfsByte(PassThruStatus) & 0x01) break;
+                delay(5);
+            }
         }
 
 }; // class Usfs
