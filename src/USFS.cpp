@@ -306,32 +306,6 @@ uint8_t usfsCheckStatus()
     return readUsfsByte(EventStatus); 
 }
 
-
-void usfsReportChipId()
-{
-    // Read SENtral device information
-    uint16_t ROM1 = readUsfsByte(ROMVersion1);
-    uint16_t ROM2 = readUsfsByte(ROMVersion2);
-    Serial.print("EM7180 ROM Version: 0x");
-    Serial.print(ROM1, HEX);
-    Serial.println(ROM2, HEX);
-    Serial.println("Should be: 0xE609");
-    uint16_t RAM1 = readUsfsByte(RAMVersion1);
-    uint16_t RAM2 = readUsfsByte(RAMVersion2);
-    Serial.print("EM7180 RAM Version: 0x");
-    Serial.print(RAM1);
-    Serial.println(RAM2);
-    uint8_t PID = readUsfsByte(ProductID);
-    Serial.print("EM7180 ProductID: 0x");
-    Serial.print(PID, HEX);
-    Serial.println(" Should be: 0x80");
-    uint8_t RID = readUsfsByte(RevisionID);
-    Serial.print("EM7180 RevisionID: 0x");
-    Serial.print(RID, HEX);
-    Serial.println(" Should be: 0x02");
-}
-
-
 void usfsBegin(
         uint8_t accelBandwidth,
         uint8_t gyroBandwidth,
@@ -532,87 +506,6 @@ void usfsBegin(
         Serial.print("Actual BaroRate = ");
         Serial.print(readUsfsByte(ActualBaroRate));
         Serial.println(" Hz"); 
-    }
-}
-
-void usfsLoadFirmware(bool verbose)
-{
-    // Check which sensors can be detected by the EM7180
-    uint8_t featureflag = readUsfsByte(FeatureFlags);
-
-    if (verbose) {
-        if (featureflag & 0x01)  {
-            Serial.println("A barometer is installed");
-        }
-        if (featureflag & 0x02)  {
-            Serial.println("A humidity sensor is installed");
-        }
-        if (featureflag & 0x04)  {
-            Serial.println("A temperature sensor is installed");
-        }
-        if (featureflag & 0x08)  {
-            Serial.println("A custom sensor is installed");
-        }
-        if (featureflag & 0x10)  {
-            Serial.println("A second custom sensor is installed");
-        }
-        if (featureflag & 0x20)  {
-            Serial.println("A third custom sensor is installed");
-        }
-        delay(1000); // give some time to read the screen
-    }
-
-
-    bool okay = true;
-
-    for (uint8_t k=0; k<10; ++k) {
-
-        usfsWriteByte(ResetRequest, 0x01);
-
-        delay(100);  
-
-        uint8_t status = usfsGetSentralStatus();
-
-        if (verbose) {
-            if (status & 0x01)  {
-                Serial.println("EEPROM detected on the sensor bus!");
-            }
-            if (status & 0x02)  {
-                Serial.println("EEPROM uploaded config file!");
-            }
-
-            if (status & 0x04)  {
-                Serial.println("EEPROM CRC incorrect!");
-                okay = false;
-            }
-
-            if (status & 0x08)  {
-                Serial.println("EM7180 in initialized state!");
-            }
-        }
-
-        if (status & 0x10)  {
-            Serial.println("No EEPROM detected!");
-            okay = false;
-        }
-
-        if (okay) {
-            break;
-        }
-    }
-
-    if (okay) {
-        if (!(usfsGetSentralStatus() & 0x04)) {
-            if (verbose) {
-                Serial.println("EEPROM upload successful!");
-            }
-        }
-    }
-    else {
-        while (true) {
-            Serial.println("Failed to load firmware");
-            delay(500);
-        }
     }
 }
 

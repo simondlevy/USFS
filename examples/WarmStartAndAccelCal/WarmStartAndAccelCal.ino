@@ -43,6 +43,7 @@ static const uint8_t M24512DFM_DATA_ADDRESS   = 0x50;   // Address of the 500 pa
 
 static const float MAGNETIC_DECLINATION =  13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
 
+static Usfs usfs;
 
 struct acc_cal
 {
@@ -418,7 +419,7 @@ void setup(void)
     Serial.begin(115200);
     delay(1000);
 
-    usfsReportChipId();
+    usfs.reportChipId();
 
     Serial.flush();
 
@@ -426,7 +427,7 @@ void setup(void)
     delay(4000);
 
     // Check SENtral status, make sure EEPROM upload of firmware was accomplished
-    usfsLoadFirmware(true);
+    usfs.loadFirmware(true);
 
     // Take user input to choose Warm Start or not...
     Serial.println("Send '1' for Warm Start, '0' for no Warm Start");

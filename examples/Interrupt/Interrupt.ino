@@ -54,7 +54,7 @@ static void interruptHandler()
     _gotNewData = true;
 }
 
-Usfs usfs;
+static Usfs usfs;
 
 void setup()
 {
@@ -65,9 +65,9 @@ void setup()
     Wire.setClock(400000); 
     delay(1000);
 
-    usfsReportChipId();        
+    usfs.reportChipId();        
 
-    usfsLoadFirmware(VERBOSE); 
+    usfs.loadFirmware(VERBOSE); 
 
     usfsBegin(
             ACCEL_BANDWIDTH,

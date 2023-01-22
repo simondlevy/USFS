@@ -257,5 +257,86 @@ class Usfs {
             Serial.println(" Should be: 0x02");
         }    
 
+        void loadFirmware(bool verbose)
+        {
+            // Check which sensors can be detected by the EM7180
+            uint8_t featureflag = readUsfsByte(FeatureFlags);
+
+            if (verbose) {
+                if (featureflag & 0x01)  {
+                    Serial.println("A barometer is installed");
+                }
+                if (featureflag & 0x02)  {
+                    Serial.println("A humidity sensor is installed");
+                }
+                if (featureflag & 0x04)  {
+                    Serial.println("A temperature sensor is installed");
+                }
+                if (featureflag & 0x08)  {
+                    Serial.println("A custom sensor is installed");
+                }
+                if (featureflag & 0x10)  {
+                    Serial.println("A second custom sensor is installed");
+                }
+                if (featureflag & 0x20)  {
+                    Serial.println("A third custom sensor is installed");
+                }
+                delay(1000); // give some time to read the screen
+            }
+
+
+            bool okay = true;
+
+            for (uint8_t k=0; k<10; ++k) {
+
+                usfsWriteByte(ResetRequest, 0x01);
+
+                delay(100);  
+
+                uint8_t status = usfsGetSentralStatus();
+
+                if (verbose) {
+                    if (status & 0x01)  {
+                        Serial.println("EEPROM detected on the sensor bus!");
+                    }
+                    if (status & 0x02)  {
+                        Serial.println("EEPROM uploaded config file!");
+                    }
+
+                    if (status & 0x04)  {
+                        Serial.println("EEPROM CRC incorrect!");
+                        okay = false;
+                    }
+
+                    if (status & 0x08)  {
+                        Serial.println("EM7180 in initialized state!");
+                    }
+                }
+
+                if (status & 0x10)  {
+                    Serial.println("No EEPROM detected!");
+                    okay = false;
+                }
+
+                if (okay) {
+                    break;
+                }
+            }
+
+            if (okay) {
+                if (!(usfsGetSentralStatus() & 0x04)) {
+                    if (verbose) {
+                        Serial.println("EEPROM upload successful!");
+                    }
+                }
+            }
+            else {
+                while (true) {
+                    Serial.println("Failed to load firmware");
+                    delay(500);
+                }
+            }
+        }
+
 }; // class Usfs
 
