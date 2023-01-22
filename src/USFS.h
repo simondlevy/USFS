@@ -26,9 +26,8 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdint.h>
 
-class Usfs {
-
-}; // class Usfs
+#include <Arduino.h>
+#include <Wire.h>
 
 enum {
 
@@ -167,3 +166,96 @@ void usfsSetRunEnable(void);
 void usfsSetRunDisable(void);
 
 void usfsWriteByte(uint8_t subAddress, uint8_t value);
+
+class Usfs {
+
+    private:
+
+        static const uint8_t ADDRESS= 0x28;
+
+        static const uint8_t QRateDivisor = 0x32;
+        static const uint8_t EnableEvents = 0x33;
+        static const uint8_t HostControl= 0x34;
+        static const uint8_t EventStatus= 0x35;
+        static const uint8_t SensorStatus = 0x36;
+        static const uint8_t SentralStatus= 0x37;
+        static const uint8_t AlgorithmStatus= 0x38;
+        static const uint8_t FeatureFlags = 0x39;
+        static const uint8_t ParamAcknowledge = 0x3A;
+        static const uint8_t SavedParamByte0= 0x3B;
+        static const uint8_t SavedParamByte1= 0x3C;
+        static const uint8_t SavedParamByte2= 0x3D;
+        static const uint8_t SavedParamByte3= 0x3E;
+        static const uint8_t ActualMagRate= 0x45;
+        static const uint8_t ActualAccelRate= 0x46;
+        static const uint8_t ActualGyroRate = 0x47;
+        static const uint8_t ActualBaroRate = 0x48;
+        static const uint8_t ActualTempRate = 0x49;
+        static const uint8_t ErrorRegister= 0x50;
+        static const uint8_t AlgorithmControl = 0x54;
+        static const uint8_t MagRate= 0x55;
+        static const uint8_t AccelRate= 0x56;
+        static const uint8_t GyroRate = 0x57;
+        static const uint8_t BaroRate = 0x58;
+        static const uint8_t TempRate = 0x59;
+        static const uint8_t LoadParamByte0 = 0x60;
+        static const uint8_t LoadParamByte1 = 0x61;
+        static const uint8_t LoadParamByte2 = 0x62;
+        static const uint8_t LoadParamByte3 = 0x63;
+        static const uint8_t ParamRequest = 0x64;
+        static const uint8_t ROMVersion1= 0x70;
+        static const uint8_t ROMVersion2= 0x71;
+        static const uint8_t RAMVersion1= 0x72;
+        static const uint8_t RAMVersion2= 0x73;
+        static const uint8_t ProductID= 0x90;
+        static const uint8_t RevisionID = 0x91;
+        static const uint8_t RunStatus= 0x92;
+        static const uint8_t UploadAddress= 0x94 ;// uint16_t registers = 0x94 (MSB)-5(LSB);
+        static const uint8_t UploadData = 0x96;
+        static const uint8_t CRCHost= 0x97;// uint32_t from registers = 0x97-9A
+        static const uint8_t ResetRequest = 0x9B ;
+        static const uint8_t PassThruStatus = 0x9E ;
+        static const uint8_t PassThruControl= 0xA0;
+
+        static uint8_t readByte(uint8_t address, uint8_t subAddress) 
+        {
+            Wire.beginTransmission(address);
+            Wire.write(subAddress);
+            Wire.endTransmission();
+            Wire.requestFrom((int)address, (int)1);
+            return Wire.read();
+        }
+
+        static uint8_t readUsfsByte(uint8_t subAddress) 
+        {
+            return readByte(ADDRESS, subAddress);
+        }
+
+    public:
+
+        void reportChipId(void)
+        {
+            // Read SENtral device information
+            uint16_t ROM1 = readUsfsByte(ROMVersion1);
+            uint16_t ROM2 = readUsfsByte(ROMVersion2);
+            Serial.print("EM7180 ROM Version: 0x");
+            Serial.print(ROM1, HEX);
+            Serial.println(ROM2, HEX);
+            Serial.println("Should be: 0xE609");
+            uint16_t RAM1 = readUsfsByte(RAMVersion1);
+            uint16_t RAM2 = readUsfsByte(RAMVersion2);
+            Serial.print("EM7180 RAM Version: 0x");
+            Serial.print(RAM1);
+            Serial.println(RAM2);
+            uint8_t PID = readUsfsByte(ProductID);
+            Serial.print("EM7180 ProductID: 0x");
+            Serial.print(PID, HEX);
+            Serial.println(" Should be: 0x80");
+            uint8_t RID = readUsfsByte(RevisionID);
+            Serial.print("EM7180 RevisionID: 0x");
+            Serial.print(RID, HEX);
+            Serial.println(" Should be: 0x02");
+        }    
+
+}; // class Usfs
+

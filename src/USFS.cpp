@@ -21,9 +21,6 @@
  */
 
 
-#include <Arduino.h>
-#include <Wire.h>
-
 #include "USFS.h"
 
 static const uint8_t ADDRESS= 0x28;
