@@ -86,7 +86,7 @@ void setup()
     }
 
     // Clear interrupts
-    usfsCheckStatus();
+    usfs.checkStatus();
 
     Serial.println("Enter '1' to proceed...");
     while (true) {

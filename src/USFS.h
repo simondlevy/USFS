@@ -520,109 +520,117 @@ class Usfs {
             setMagAccFullScale (1000, 8); // 1000 uT, 8 g
             setGyroFullScale(2000);       // 2000 dps
 
-    // Read sensor new FS values from parameter space
-    usfsWriteByte(ParamRequest, 0x4A); // Request to read  parameter 74
+            // Read sensor new FS values from parameter space
+            usfsWriteByte(ParamRequest, 0x4A); // Request to read  parameter 74
 
-    // Request parameter transfer process
-    usfsWriteByte(AlgorithmControl, 0x80); 
-    param_xfer = usfsGetParamAcknowledge();
-    while(!(param_xfer==0x4A)) {
-        param_xfer = usfsGetParamAcknowledge();
-    }
-    usfsReadSavedParamBytes(param);
-    magFs = ((int16_t)(param[1]<<8) | param[0]);
-    accelFs = ((int16_t)(param[3]<<8) | param[2]);
+            // Request parameter transfer process
+            usfsWriteByte(AlgorithmControl, 0x80); 
+            param_xfer = usfsGetParamAcknowledge();
+            while(!(param_xfer==0x4A)) {
+                param_xfer = usfsGetParamAcknowledge();
+            }
+            usfsReadSavedParamBytes(param);
+            magFs = ((int16_t)(param[1]<<8) | param[0]);
+            accelFs = ((int16_t)(param[3]<<8) | param[2]);
 
-    if (verbose) {
-        Serial.print("Magnetometer New Full Scale Range: +/-");
-        Serial.print(magFs);
-        Serial.println("uT");
-        Serial.print("Accelerometer New Full Scale Range: +/-");
-        Serial.print(accelFs);
-        Serial.println("g");
-    }
+            if (verbose) {
+                Serial.print("Magnetometer New Full Scale Range: +/-");
+                Serial.print(magFs);
+                Serial.println("uT");
+                Serial.print("Accelerometer New Full Scale Range: +/-");
+                Serial.print(accelFs);
+                Serial.println("g");
+            }
 
-    usfsWriteByte(ParamRequest, 0x4B); // Request to read  parameter 75
-    param_xfer = usfsGetParamAcknowledge();
-    while(!(param_xfer==0x4B)) {
-        param_xfer = usfsGetParamAcknowledge();
-    }
-    usfsReadSavedParamBytes(param);
-    gyroFs = ((int16_t)(param[1]<<8) | param[0]);
+            usfsWriteByte(ParamRequest, 0x4B); // Request to read  parameter 75
+            param_xfer = usfsGetParamAcknowledge();
+            while(!(param_xfer==0x4B)) {
+                param_xfer = usfsGetParamAcknowledge();
+            }
+            usfsReadSavedParamBytes(param);
+            gyroFs = ((int16_t)(param[1]<<8) | param[0]);
 
-    if (verbose) {
-        Serial.print("Gyroscope New Full Scale Range: +/-");
-        Serial.print(gyroFs);
-        Serial.println("dps");
-    }
+            if (verbose) {
+                Serial.print("Gyroscope New Full Scale Range: +/-");
+                Serial.print(gyroFs);
+                Serial.println("dps");
+            }
 
-    usfsWriteByte(ParamRequest, 0x00); //End parameter transfer
-    usfsWriteByte(AlgorithmControl, 0x00); // re-enable algorithm
+            usfsWriteByte(ParamRequest, 0x00); //End parameter transfer
+            usfsWriteByte(AlgorithmControl, 0x00); // re-enable algorithm
 
-    // Read EM7180 status
-    uint8_t runStatus = readUsfsByte(RunStatus);
-    if (runStatus & 0x01) {
-        if (verbose) {
-            Serial.println("EM7180 run status = normal mode");
+            // Read EM7180 status
+            uint8_t runStatus = readUsfsByte(RunStatus);
+            if (runStatus & 0x01) {
+                if (verbose) {
+                    Serial.println("EM7180 run status = normal mode");
+                }
+            }
+
+            uint8_t algoStatus = readUsfsByte(AlgorithmStatus);
+
+            if (verbose) {
+                if (algoStatus & 0x01) Serial.println("EM7180 standby status");
+                if (algoStatus & 0x02) Serial.println("EM7180 algorithm slow");
+                if (algoStatus & 0x04) Serial.println("EM7180 in stillness mode");
+                if (algoStatus & 0x08) Serial.println("EM7180 mag calibration completed");
+                if (algoStatus & 0x10) Serial.println("EM7180 magnetic anomaly detected");
+                if (algoStatus & 0x20) Serial.println("EM7180 unreliable sensor data");
+            }
+
+            uint8_t passthruStatus = readUsfsByte(PassThruStatus);
+
+            if (passthruStatus & 0x01) Serial.print("EM7180 in passthru mode!");
+
+            uint8_t eventStatus = readUsfsByte(EventStatus);
+
+            if (eventStatus & 0x02) Serial.println("EM7180 Error");
+
+            if (verbose) {
+                if (eventStatus & 0x01) Serial.println("EM7180 CPU reset");
+                if (eventStatus & 0x04) Serial.println("EM7180 new quaternion result");
+                if (eventStatus & 0x08) Serial.println("EM7180 new mag result");
+                if (eventStatus & 0x10) Serial.println("EM7180 new accel result");
+                if (eventStatus & 0x20) Serial.println("EM7180 new gyro result"); 
+                delay(1000); // give some time to read the screen
+            }
+
+
+            // Check sensor status
+            uint8_t sensorStatus = readUsfsByte(SensorStatus);
+
+            if (verbose) {
+
+                Serial.print("EM7180 sensor status = ");
+                Serial.println(sensorStatus);
+            }
+
+            usfsCheckSensorStatus(sensorStatus);
+
+            if (verbose) {
+
+                Serial.print("Actual MagRate = ");
+                Serial.print(readUsfsByte(ActualMagRate));
+                Serial.println(" Hz"); 
+                Serial.print("Actual AccelRate = ");
+                Serial.print(10*readUsfsByte(ActualAccelRate));
+                Serial.println(" Hz"); 
+                Serial.print("Actual GyroRate = ");
+                Serial.print(10*readUsfsByte(ActualGyroRate));
+                Serial.println(" Hz"); 
+                Serial.print("Actual BaroRate = ");
+                Serial.print(readUsfsByte(ActualBaroRate));
+                Serial.println(" Hz"); 
+            }
         }
-    }
 
-    uint8_t algoStatus = readUsfsByte(AlgorithmStatus);
+        uint8_t checkStatus()
+        {
+            // Check event status register, way to check data ready by polling rather
+            // than interrupt.  Reading clears the register and interrupt.
+            return readUsfsByte(EventStatus); 
+        }
 
-    if (verbose) {
-        if (algoStatus & 0x01) Serial.println("EM7180 standby status");
-        if (algoStatus & 0x02) Serial.println("EM7180 algorithm slow");
-        if (algoStatus & 0x04) Serial.println("EM7180 in stillness mode");
-        if (algoStatus & 0x08) Serial.println("EM7180 mag calibration completed");
-        if (algoStatus & 0x10) Serial.println("EM7180 magnetic anomaly detected");
-        if (algoStatus & 0x20) Serial.println("EM7180 unreliable sensor data");
-    }
-
-    uint8_t passthruStatus = readUsfsByte(PassThruStatus);
-
-    if (passthruStatus & 0x01) Serial.print("EM7180 in passthru mode!");
-
-    uint8_t eventStatus = readUsfsByte(EventStatus);
-
-    if (eventStatus & 0x02) Serial.println("EM7180 Error");
-
-    if (verbose) {
-        if (eventStatus & 0x01) Serial.println("EM7180 CPU reset");
-        if (eventStatus & 0x04) Serial.println("EM7180 new quaternion result");
-        if (eventStatus & 0x08) Serial.println("EM7180 new mag result");
-        if (eventStatus & 0x10) Serial.println("EM7180 new accel result");
-        if (eventStatus & 0x20) Serial.println("EM7180 new gyro result"); 
-        delay(1000); // give some time to read the screen
-    }
-
-
-    // Check sensor status
-    uint8_t sensorStatus = readUsfsByte(SensorStatus);
-
-    if (verbose) {
-
-        Serial.print("EM7180 sensor status = ");
-        Serial.println(sensorStatus);
-    }
-
-    usfsCheckSensorStatus(sensorStatus);
-
-    if (verbose) {
-
-        Serial.print("Actual MagRate = ");
-        Serial.print(readUsfsByte(ActualMagRate));
-        Serial.println(" Hz"); 
-        Serial.print("Actual AccelRate = ");
-        Serial.print(10*readUsfsByte(ActualAccelRate));
-        Serial.println(" Hz"); 
-        Serial.print("Actual GyroRate = ");
-        Serial.print(10*readUsfsByte(ActualGyroRate));
-        Serial.println(" Hz"); 
-        Serial.print("Actual BaroRate = ");
-        Serial.print(readUsfsByte(ActualBaroRate));
-        Serial.println(" Hz"); 
-    }
-}
 
 }; // class Usfs
 
