@@ -99,13 +99,13 @@ uint8_t usfsCheckStatus();
 
 void usfsEnableEvents(uint8_t mask);
 
-bool usfsEventStatusIsAccelerometer(uint8_t status);
-bool usfsEventStatusIsBarometer(uint8_t status);
-bool usfsEventStatusIsError(uint8_t status);
-bool usfsEventStatusIsGyrometer(uint8_t status);
-bool usfsEventStatusIsMagnetometer(uint8_t status);
-bool usfsEventStatusIsQuaternion(uint8_t status);
-bool usfsEventStatusIsReset(uint8_t status);
+static bool eventStatusIsAccelerometer(uint8_t status);
+static bool eventStatusIsBarometer(uint8_t status);
+static bool eventStatusIsError(uint8_t status);
+static bool eventStatusIsGyrometer(uint8_t status);
+static bool eventStatusIsMagnetometer(uint8_t status);
+static bool eventStatusIsQuaternion(uint8_t status);
+static bool eventStatusIsReset(uint8_t status);
 
 uint8_t usfsGetAlgorithmStatus(void);
 uint8_t usfsGetEventStatus(void);
@@ -234,9 +234,31 @@ class Usfs {
             return Wire.read();
         }
 
+        static void readBytes(
+                uint8_t address,
+                uint8_t subAddress,
+                uint8_t count,
+                uint8_t * dst)
+        {  
+            Wire.beginTransmission(address);   
+            Wire.write(subAddress);
+            Wire.endTransmission(false);      
+            uint32_t i = 0;
+            Wire.requestFrom((int)address, (int)count);
+            while (Wire.available()) {
+                dst[i++] = Wire.read(); 
+            } 
+        }
+
+
         static uint8_t readUsfsByte(uint8_t subAddress) 
         {
             return readByte(ADDRESS, subAddress);
+        }
+
+        static void readUsfsBytes( uint8_t subAddress, uint8_t count, uint8_t * dest) 
+        {
+            readBytes(ADDRESS, subAddress, count, dest);
         }
 
         static void set_integer_param (uint8_t param, uint32_t param_val) 
@@ -312,6 +334,19 @@ class Usfs {
             }
             writeByte(ADDRESS, ParamRequest, 0x00); 
             writeByte(ADDRESS, AlgorithmControl, 0x00); 
+        }
+
+        static void readThreeAxisRaw(uint8_t subAddress, int16_t counts[3])
+        {
+            uint8_t rawData[6] = {};
+
+            // Read the six raw data registers into data array
+            readUsfsBytes(subAddress, 6, &rawData[0]);       
+
+            // Turn the MSB and LSB into a signed 16-bit value
+            counts[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
+            counts[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
+            counts[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
         }
 
     public:
@@ -636,6 +671,107 @@ class Usfs {
             return status & 0x02;
         }
 
+        static void reportError(uint8_t errorStatus)
+        {
+
+            switch (errorStatus) {
+
+                case 0x11:
+                    Serial.println("Magnetometer failure!");
+                    break;
+
+                case 0x12:
+                    Serial.println("Accelerometer failure!");
+                    break;
+
+                case 0x14:
+                    Serial.println("Gyro failure!");
+                    break;
+
+                case 0x21:
+                    Serial.println("Magnetometer initialization failure!");
+                    break;
+
+                case 0x22:
+                    Serial.println("Accelerometer initialization failure!");
+                    break;
+
+                case 0x24:
+                    Serial.println("Gyro initialization failure!");
+                    break;
+
+                case 0x30:
+                    Serial.println("Math error!");
+                    break;
+
+                case 0x80:
+                    Serial.println("Invalid sample rate!");
+                    break;
+            }
+        }
+        void usfsReportError(uint8_t errorStatus)
+        {
+
+            switch (errorStatus) {
+
+                case 0x11:
+                    Serial.println("Magnetometer failure!");
+                    break;
+
+                case 0x12:
+                    Serial.println("Accelerometer failure!");
+                    break;
+
+                case 0x14:
+                    Serial.println("Gyro failure!");
+                    break;
+
+                case 0x21:
+                    Serial.println("Magnetometer initialization failure!");
+                    break;
+
+                case 0x22:
+                    Serial.println("Accelerometer initialization failure!");
+                    break;
+
+                case 0x24:
+                    Serial.println("Gyro initialization failure!");
+                    break;
+
+                case 0x30:
+                    Serial.println("Math error!");
+                    break;
+
+                case 0x80:
+                    Serial.println("Invalid sample rate!");
+                    break;
+            }
+        }
+
+        static bool eventStatusIsAccelerometer(uint8_t status)
+        {
+            return status & 0x10;
+        }
+
+        static bool eventStatusIsGyrometer(uint8_t status)
+        {
+            return status & 0x20;
+        }
+
+        static bool eventStatusIsMagnetometer(uint8_t status)
+        {
+            return status & 0x08;
+        }
+
+        static bool eventStatusIsQuaternion(uint8_t status)
+        {
+            return status & 0x04;
+        }
+
+        static bool eventStatusIsBarometer(uint8_t status)
+        {
+            return status & 0x40;
+        }
 
 }; // class Usfs
 

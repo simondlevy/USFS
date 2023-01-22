@@ -120,30 +120,29 @@ void loop()
 
         if (Usfs::eventStatusIsError(eventStatus)) { 
 
-            usfsReportError(eventStatus);
+            Usfs::reportError(eventStatus);
         }
 
-        if (usfsEventStatusIsAccelerometer(eventStatus)) { 
+        if (Usfs::eventStatusIsAccelerometer(eventStatus)) { 
 
             usfsReadAccelerometerScaled(ax, ay, az);
         }
 
-        if (usfsEventStatusIsGyrometer(eventStatus)) { 
+        if (Usfs::eventStatusIsGyrometer(eventStatus)) { 
 
             usfsReadGyrometerScaled(gx, gy, gz);
         }
 
-        if (usfsEventStatusIsMagnetometer(eventStatus)) { 
+        if (Usfs::eventStatusIsMagnetometer(eventStatus)) { 
 
             usfsreadMagnetometerScaled(mx, my, mz);
-
         }
 
-        if (usfsEventStatusIsQuaternion(eventStatus)) { 
+        if (Usfs::eventStatusIsQuaternion(eventStatus)) { 
             usfsReadQuaternion(qw, qx, qy, qz);
         }
 
-        if (usfsEventStatusIsBarometer(eventStatus)) { 
+        if (Usfs::eventStatusIsBarometer(eventStatus)) { 
             pressure = usfsReadBarometerRaw() * 0.01f + 1013.25f; 
             temperature = usfsReadTemperatureRaw() * 0.01f; 
         }
