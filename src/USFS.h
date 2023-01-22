@@ -69,8 +69,6 @@ typedef enum {
 static const float USFS_GYRO_SCALE  = 1.53e-1;
 static const float USFS_ACCEL_SCALE = 4.88e-4;
 
-void usfsAlgorithmControlRequestParameterTransfer(void);
-
 void usfsAlgorithmControlReset(void); 
 
 bool usfsAlgorithmStatusIsStandby(uint8_t status);
@@ -143,8 +141,6 @@ void  usfsReportChipId();
 void readSavedParamBytes(uint8_t bytes[4]);
 
 void usfsReportError(uint8_t errorStatus);
-
-void usfsRequestParamRead(uint8_t param);
 
 bool usfsRunStatusIsNormal(uint8_t status);
 
@@ -378,6 +374,16 @@ class Usfs {
 
     public:
 
+        static void algorithmControlRequestParameterTransfer(void)
+        {
+            usfsWriteByte(AlgorithmControl, 0x80);
+        }
+
+        static void requestParamRead(uint8_t param)
+        {
+            usfsWriteByte(ParamRequest, param); 
+        }
+
         static void set_integer_param (uint8_t param, uint32_t param_val) 
         {
             uint8_t bytes[4] = {};
@@ -392,7 +398,7 @@ class Usfs {
 
             loadParamBytes(bytes);
 
-            usfsRequestParamRead(param);
+            requestParamRead(param);
 
             // Request parameter transfer procedure
             usfsWriteByte(AlgorithmControl, 0x80); 
@@ -411,7 +417,7 @@ class Usfs {
             usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
         }
 
- 
+
         static void loadParamBytes(uint8_t byte[4])
         {
             usfsWriteByte(LoadParamByte0, byte[0]);

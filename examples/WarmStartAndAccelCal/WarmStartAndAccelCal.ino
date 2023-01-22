@@ -78,17 +78,19 @@ static void set_WS_params()
     uint8_t param = 1;
     uint8_t stat;
 
-    // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
+    // Parameter is the decimal value with the MSB set high to indicate a
+    // paramter write processs
     param = param | 0x80;
 
     Usfs::loadParamBytes(WS_params.Sen_param[0]);
 
-    usfsRequestParamRead(param);
+    Usfs::requestParamRead(param);
 
     // Request parameter transfer procedure
-    usfsAlgorithmControlRequestParameterTransfer();
+    Usfs::algorithmControlRequestParameterTransfer();
 
-    // Check the parameter acknowledge register and loop until the result matches parameter request byte
+    // Check the parameter acknowledge register and loop until the result
+    // matches parameter request byte
     stat = usfsGetParamAcknowledge();
     while(!(stat==param)) {
         stat = usfsGetParamAcknowledge();
@@ -96,7 +98,7 @@ static void set_WS_params()
     for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
         Usfs::loadParamBytes(WS_params.Sen_param[i]);
-        usfsRequestParamRead(param);
+        Usfs::requestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
         stat = usfsGetParamAcknowledge();
@@ -106,7 +108,7 @@ static void set_WS_params()
         }
     }
     // Parameter request = 0 to end parameter transfer process
-    usfsRequestParamRead(0x00);
+    Usfs::requestParamRead(0x00);
 }
 
 static void USFS_get_WS_params()
@@ -114,11 +116,11 @@ static void USFS_get_WS_params()
     uint8_t param = 1;
     uint8_t stat;
 
-    usfsRequestParamRead(param);
+    Usfs::requestParamRead(param);
     delay(10);
 
     // Request parameter transfer procedure
-    usfsAlgorithmControlRequestParameterTransfer();
+    Usfs::algorithmControlRequestParameterTransfer();
     delay(10);
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
@@ -135,7 +137,7 @@ static void USFS_get_WS_params()
     for(uint8_t i=1; i<35; i++)
     {
         param = (i+1);
-        usfsRequestParamRead(param);
+        Usfs::requestParamRead(param);
         delay(10);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
@@ -147,7 +149,7 @@ static void USFS_get_WS_params()
         Usfs::readSavedParamBytes(WS_params.Sen_param[0]);
     }
     // Parameter request = 0 to end parameter transfer process
-    usfsRequestParamRead(0x00);
+    Usfs::requestParamRead(0x00);
 
     // Re-start algorithm
     usfsAlgorithmControlReset();
@@ -368,8 +370,8 @@ void M24512DFMwriteByte(uint8_t device_address, uint8_t data_address1, uint8_t d
 
 static void readParams(uint8_t paramId, uint8_t param[4])
 {
-    usfsRequestParamRead(paramId); // Request to read parameter 74
-    usfsAlgorithmControlRequestParameterTransfer(); // Request parameter transfer process
+    Usfs::requestParamRead(paramId); // Request to read parameter 74
+    Usfs::algorithmControlRequestParameterTransfer(); // Request parameter transfer process
     while (true) {
         if (usfsGetParamAcknowledge() == paramId) break;
     }
@@ -537,7 +539,7 @@ void setup(void)
     Serial.print("Gyroscope Default Full Scale Range: +/-");
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
-    usfsRequestParamRead(0x00);//End parameter transfer
+    Usfs::requestParamRead(0x00);//End parameter transfer
     usfsAlgorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
@@ -558,7 +560,7 @@ void setup(void)
     Serial.print("Gyroscope New Full Scale Range: +/-");
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
-    usfsRequestParamRead(0x00);//End parameter transfer
+    Usfs::requestParamRead(0x00);//End parameter transfer
     usfsAlgorithmControlReset(); // re-enable algorithm
 
     // Read USFS status
