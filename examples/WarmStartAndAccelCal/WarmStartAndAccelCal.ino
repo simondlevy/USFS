@@ -91,9 +91,9 @@ static void set_WS_params()
 
     // Check the parameter acknowledge register and loop until the result
     // matches parameter request byte
-    stat = usfsGetParamAcknowledge();
+    stat = Usfs::getParamAcknowledge();
     while(!(stat==param)) {
-        stat = usfsGetParamAcknowledge();
+        stat = Usfs::getParamAcknowledge();
     }
     for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
@@ -101,10 +101,10 @@ static void set_WS_params()
         Usfs::requestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = usfsGetParamAcknowledge();
+        stat = Usfs::getParamAcknowledge();
         while(!(stat==param))
         {
-            stat = usfsGetParamAcknowledge();
+            stat = Usfs::getParamAcknowledge();
         }
     }
     // Parameter request = 0 to end parameter transfer process
@@ -124,10 +124,10 @@ static void USFS_get_WS_params()
     delay(10);
 
     // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    stat = usfsGetParamAcknowledge();
+    stat = Usfs::getParamAcknowledge();
     while(!(stat==param))
     {
-        stat = usfsGetParamAcknowledge();
+        stat = Usfs::getParamAcknowledge();
     }
 
     // Parameter is the decimal value with the MSB set low (default) to
@@ -141,10 +141,10 @@ static void USFS_get_WS_params()
         delay(10);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
-        stat = usfsGetParamAcknowledge();
+        stat = Usfs::getParamAcknowledge();
         while(!(stat==param))
         {
-            stat = usfsGetParamAcknowledge();
+            stat = Usfs::getParamAcknowledge();
         }
         Usfs::readSavedParamBytes(WS_params.Sen_param[0]);
     }
@@ -152,7 +152,7 @@ static void USFS_get_WS_params()
     Usfs::requestParamRead(0x00);
 
     // Re-start algorithm
-    usfsAlgorithmControlReset();
+    Usfs::algorithmControlReset();
 }
 
 static void USFS_acc_cal_upload()
@@ -167,43 +167,43 @@ static void USFS_acc_cal_upload()
                 global_conf.accZero_min[0])) - 1000000;
     cal_num = (int16_t)big_cal_num;
 
-    usfsWriteByte(GP36, cal_num_byte[0]);
-    usfsWriteByte(GP37, cal_num_byte[1]);
+    Usfs::writeByte(GP36, cal_num_byte[0]);
+    Usfs::writeByte(GP37, cal_num_byte[1]);
 
     big_cal_num = (4096000000/(global_conf.accZero_max[1] -
                 global_conf.accZero_min[1])) - 1000000;
     cal_num = (int16_t)big_cal_num;
 
-    usfsWriteByte(GP38, cal_num_byte[0]);
-    usfsWriteByte(GP39, cal_num_byte[1]);  
+    Usfs::writeByte(GP38, cal_num_byte[0]);
+    Usfs::writeByte(GP39, cal_num_byte[1]);  
 
     big_cal_num = (4096000000/(global_conf.accZero_max[2] -
                 global_conf.accZero_min[2])) - 1000000;
     cal_num = (int16_t)big_cal_num;
 
-    usfsWriteByte(GP40, cal_num_byte[0]);
-    usfsWriteByte(GP50, cal_num_byte[1]);
+    Usfs::writeByte(GP40, cal_num_byte[0]);
+    Usfs::writeByte(GP50, cal_num_byte[1]);
 
     big_cal_num = (((2048 - global_conf.accZero_max[0]) + (-2048 -
                     global_conf.accZero_min[0]))*100000)/4096;
     cal_num = (int16_t)big_cal_num;
 
-    usfsWriteByte(GP51, cal_num_byte[0]);
-    usfsWriteByte(GP52, cal_num_byte[1]);
+    Usfs::writeByte(GP51, cal_num_byte[0]);
+    Usfs::writeByte(GP52, cal_num_byte[1]);
 
     big_cal_num = (((2048 - global_conf.accZero_max[1]) + (-2048 -
                     global_conf.accZero_min[1]))*100000)/4096;
     cal_num = (int16_t)big_cal_num;
 
-    usfsWriteByte(GP53, cal_num_byte[0]);
-    usfsWriteByte(GP54, cal_num_byte[1]);
+    Usfs::writeByte(GP53, cal_num_byte[0]);
+    Usfs::writeByte(GP54, cal_num_byte[1]);
 
     big_cal_num = (((2048 - global_conf.accZero_max[2]) + (-2048 -
                     global_conf.accZero_min[2]))*100000)/4096;
     cal_num = -(int16_t)big_cal_num;
 
-    usfsWriteByte(GP55, cal_num_byte[0]);
-    usfsWriteByte(GP56, cal_num_byte[1]);
+    Usfs::writeByte(GP55, cal_num_byte[0]);
+    Usfs::writeByte(GP56, cal_num_byte[1]);
 }
 
 static void M24512DFMreadBytes(uint8_t device_address, uint8_t data_address1, uint8_t data_address2, uint8_t count, uint8_t * dest)
@@ -325,13 +325,13 @@ static void Accel_cal_check(int16_t accelCount[3])
             delay(100);
 
             // Put the Sentral in pass-thru mode
-            usfsSetPassThroughMode();
+            Usfs::setPassThroughMode();
 
             // Store accelerometer calibration data to the M24512DFM I2C EEPROM
             writeAccCal();
 
             // Take Sentral out of pass-thru mode and re-start algorithm
-            usfsSetMasterMode();
+            Usfs::setMasterMode();
             accel_cal_saved++;
             if (accel_cal_saved > 6) accel_cal_saved = 0;
         }
@@ -373,7 +373,7 @@ static void readParams(uint8_t paramId, uint8_t param[4])
     Usfs::requestParamRead(paramId); // Request to read parameter 74
     Usfs::algorithmControlRequestParameterTransfer(); // Request parameter transfer process
     while (true) {
-        if (usfsGetParamAcknowledge() == paramId) break;
+        if (Usfs::getParamAcknowledge() == paramId) break;
     }
     Usfs::readSavedParamBytes(param);
 }
@@ -419,13 +419,13 @@ void setup(void)
         Serial.println("!!!Warm Start active!!!");
 
         // Put the Sentral in pass-thru mode
-        usfsSetPassThroughMode();
+        Usfs::setPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        usfsSetMasterMode();
+        Usfs::setMasterMode();
     } else
     {
         Serial.println("***No Warm Start***");
@@ -452,7 +452,7 @@ void setup(void)
         Serial.println("!!!Accel Cal Active!!!");
 
         // Put the Sentral in pass-thru mode
-        usfsSetPassThroughMode();
+        Usfs::setPassThroughMode();
 
         // Fetch the WarmStart data from the M24512DFM I2C EEPROM
         readAccelCal();
@@ -470,7 +470,7 @@ void setup(void)
         Serial.println(global_conf.accZero_min[2]);
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        usfsSetMasterMode();
+        Usfs::setMasterMode();
     } else
     {
         Serial.println("***No Accel Cal***");
@@ -479,7 +479,7 @@ void setup(void)
     delay(1000);
 
     // Set SENtral in initialized state to configure registers
-    usfsSetRunDisable();
+    Usfs::setRunDisable();
 
     // Load Accel Cal
     if (accel_cal)
@@ -488,7 +488,7 @@ void setup(void)
     }
 
     // Force initialize
-    usfsSetRunEnable();
+    Usfs::setRunEnable();
 
     // Load Warm Start parameters
     if (warm_start) {
@@ -496,7 +496,7 @@ void setup(void)
     }
 
     // Set SENtral in initialized state to configure registers
-    usfsSetRatesAndBandwidths(
+    Usfs::setRatesAndBandwidths(
             3,   // accel LPF bandwidth
             10,  // 1/10th accel rate
             50,  // baro rate
@@ -506,17 +506,17 @@ void setup(void)
             2);  // quat rate divisor
 
     // Configure operating mode
-    usfsAlgorithmControlReset(); // read scale sensor data
+    Usfs::algorithmControlReset(); // read scale sensor data
 
     // Enable essential interrupts
-    usfsEnableEvents(
+    Usfs::enableEvents(
             USFS_INTERRUPT_RESET_REQUIRED |
             USFS_INTERRUPT_ERROR |
             USFS_INTERRUPT_QUAT 
             );
 
     // Enable USFS run mode
-    usfsSetRunEnable();
+    Usfs::setRunEnable();
     delay(100);
 
     // USFS parameter adjustments
@@ -540,7 +540,7 @@ void setup(void)
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
     Usfs::requestParamRead(0x00);//End parameter transfer
-    usfsAlgorithmControlReset(); // re-enable algorithm
+    Usfs::algorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
     Usfs::set_integer_param (0x49, 0x00);
@@ -561,37 +561,37 @@ void setup(void)
     Serial.print(USFS_gyro_fs);
     Serial.println("dps");
     Usfs::requestParamRead(0x00);//End parameter transfer
-    usfsAlgorithmControlReset(); // re-enable algorithm
+    Usfs::algorithmControlReset(); // re-enable algorithm
 
     // Read USFS status
-    if (usfsRunStatusIsNormal(usfsGetRunStatus())) {
+    if (Usfs::runStatusIsNormal(Usfs::getRunStatus())) {
         Serial.println(" USFS run status = normal mode");
     }
 
-    uint8_t algoStatus = usfsGetAlgorithmStatus();
+    uint8_t algoStatus = Usfs::getAlgorithmStatus();
 
-    if (usfsAlgorithmStatusIsStandby(algoStatus)) {
+    if (Usfs::algorithmStatusIsStandby(algoStatus)) {
         Serial.println(" USFS standby status");
     }
-    if (usfsAlgorithmStatusIsAlgorithmSlow(algoStatus)) {
+    if (Usfs::algorithmStatusIsAlgorithmSlow(algoStatus)) {
         Serial.println(" USFS algorithm slow");
     }
-    if (usfsAlgorithmStatusIsStillnessMode(algoStatus)) {
+    if (Usfs::algorithmStatusIsStillnessMode(algoStatus)) {
         Serial.println(" USFS in stillness mode");
     }
-    if (usfsAlgorithmStatusIsCalibrationCompleted(algoStatus)) {
+    if (Usfs::algorithmStatusIsCalibrationCompleted(algoStatus)) {
         Serial.println(" USFS mag calibration completed");
     }
-    if (usfsAlgorithmStatusIsMagneticAnomaly(algoStatus)) {
+    if (Usfs::algorithmStatusIsMagneticAnomaly(algoStatus)) {
         Serial.println(" USFS magnetic anomaly detected");
     }
-    if (usfsAlgorithmStatusIsSensorUnreliable(algoStatus)) {
+    if (Usfs::algorithmStatusIsSensorUnreliable(algoStatus)) {
         Serial.println(" USFS unreliable sensor data");
     }
 
-    if (usfsIsInPassThroughMode()) Serial.print(" USFS in passthru mode!");
+    if (Usfs::isInPassThroughMode()) Serial.print(" USFS in passthru mode!");
 
-    uint8_t eventStatus = usfsGetEventStatus();
+    uint8_t eventStatus = Usfs::getEventStatus();
 
     if (Usfs::eventStatusIsReset(eventStatus)) {
         Serial.println(" USFS CPU reset");
@@ -605,7 +605,7 @@ void setup(void)
     delay(1000);
 
     // Check sensor status
-    usfsCheckSensorStatus(usfsGetSensorStatus());
+    Usfs::checkSensorStatus(Usfs::getSensorStatus());
 
     // Give some time to read the screen
     delay(1000);
@@ -633,13 +633,13 @@ void loop(void)
         USFS_get_WS_params();
 
         // Put the Sentral in pass-thru mode
-        usfsSetPassThroughMode();
+        Usfs::setPassThroughMode();
 
         // Store WarmStart data to the M24512DFM I2C EEPROM
         writeSenParams();
 
         // Take Sentral out of pass-thru mode and re-start algorithm
-        usfsSetMasterMode();
+        Usfs::setMasterMode();
         warm_start_saved = true;
     }
 
@@ -649,7 +649,7 @@ void loop(void)
 
     // Check event status register, way to check data ready by polling rather
     // than interrupt
-    uint8_t eventStatus = usfsGetEventStatus(); // reading clears the
+    uint8_t eventStatus = Usfs::getEventStatus(); // reading clears the
 
     if (Usfs::eventStatusIsError(eventStatus)) { 
 

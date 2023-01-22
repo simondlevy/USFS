@@ -1,7 +1,7 @@
 <a href="https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution/"><img src="sentral2.png" width=700></a>
 
-This repository contains Arduino and Python (MicroPython, WiringPi)
-libraries and examples for working with the incredible 
+This repository contains a header-only Arduino library and Python
+(MicroPython, WiringPi) library and examples for working with the incredible
 EM7180 Ultimate Sensor Fusion Solution boards 
 (both the [MPU9250 version](https://www.tindie.com/products/onehorse/ultimate-sensor-fusion-solution-mpu9250/)
 and the

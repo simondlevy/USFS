@@ -69,98 +69,6 @@ typedef enum {
 static const float USFS_GYRO_SCALE  = 1.53e-1;
 static const float USFS_ACCEL_SCALE = 4.88e-4;
 
-void usfsAlgorithmControlReset(void); 
-
-bool usfsAlgorithmStatusIsStandby(uint8_t status);
-bool usfsAlgorithmStatusIsAlgorithmSlow(uint8_t status);
-bool usfsAlgorithmStatusIsStillnessMode(uint8_t status);
-bool usfsAlgorithmStatusIsCalibrationCompleted(uint8_t status);
-bool usfsAlgorithmStatusIsMagneticAnomaly(uint8_t status);
-bool usfsAlgorithmStatusIsSensorUnreliable(uint8_t status);
-
-void usfsBegin(
-        uint8_t accelBandwidth,
-        uint8_t gyroBandwidth,
-        uint8_t quatDivisor,
-        uint8_t magRate,
-        uint8_t accelRateTenth,
-        uint8_t gyroRateTenth,
-        uint8_t baroRate, 
-        uint8_t interruptEnable=USFS_INTERRUPT_GYRO,
-        bool verbose=false);
-
-uint8_t usfsCheckErrors();
-
-void usfsCheckSensorStatus(uint8_t status);
-
-uint8_t usfsCheckStatus();
-
-void usfsEnableEvents(uint8_t mask);
-
-static bool eventStatusIsAccelerometer(uint8_t status);
-static bool eventStatusIsBarometer(uint8_t status);
-static bool eventStatusIsError(uint8_t status);
-static bool eventStatusIsGyrometer(uint8_t status);
-static bool eventStatusIsMagnetometer(uint8_t status);
-static bool eventStatusIsQuaternion(uint8_t status);
-static bool eventStatusIsReset(uint8_t status);
-
-uint8_t usfsGetAlgorithmStatus(void);
-uint8_t usfsGetEventStatus(void);
-uint8_t usfsGetParamAcknowledge(void);
-uint8_t usfsGetPassThruStatus(void);
-uint8_t usfsGetRunStatus(void);
-uint8_t usfsGetSensorStatus(void);
-uint8_t usfsGetSentralStatus(void);
-
-
-bool usfsIsInPassThroughMode(void);
-
-void usfsLoadFirmware(bool verbose = false);
-
-int16_t readBarometerRaw();
-
-void readAccelerometerRaw(int16_t counts[3]);
-
-void readGyrometerRaw(int16_t counts[3]);
-
-// Returns Gs
-void readAccelerometerScaled(float & x, float & y, float & z);
-
-// Returns degrees per second
-void readGyrometerScaled(float & x, float & y, float & z);
-
-void usfsreadMagnetometerScaled(float & x, float & y, float & z);
-
-void readQuaternion(float & qw, float & qx, float & qy, float & qz);
-
-int16_t readTemperatureRaw();
-
-void  usfsReportChipId();
-
-void readSavedParamBytes(uint8_t bytes[4]);
-
-void usfsReportError(uint8_t errorStatus);
-
-bool usfsRunStatusIsNormal(uint8_t status);
-
-void usfsSetMasterMode(void);
-void usfsSetPassThroughMode(void);
-
-void usfsSetRatesAndBandwidths(
-        uint8_t accelLpfBandwidth,
-        uint8_t accelRateTenth,
-        uint8_t baroRate,
-        uint8_t gyroLpfBandwidth,
-        uint8_t gyroRateTenth,
-        uint8_t magRate,
-        uint8_t quatDivisor);
-
-void usfsSetRunEnable(void);
-void usfsSetRunDisable(void);
-
-void usfsWriteByte(uint8_t subAddress, uint8_t value);
-
 class Usfs {
 
     private:
@@ -233,6 +141,11 @@ class Usfs {
         // start of two-byte MS5637 temperature data, 16-bit signed interger
         static const uint8_t Temp = 0x2E;
 
+        static const uint8_t ACC_LPF_BW = 0x5B;//Register GP36;
+        static const uint8_t GYRO_LPF_BW= 0x5C;//Register GP37
+        static const uint8_t BARO_LPF_BW= 0x5D;//Register GP38
+
+
         static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) 
         {
             Wire.beginTransmission(address);
@@ -266,18 +179,17 @@ class Usfs {
             } 
         }
 
-
-        static uint8_t readUsfsByte(uint8_t subAddress) 
+        static uint8_t readByte(uint8_t subAddress) 
         {
             return readByte(ADDRESS, subAddress);
         }
 
-        static void readUsfsBytes( uint8_t subAddress, uint8_t count, uint8_t * dest) 
+        static void readBytes( uint8_t subAddress, uint8_t count, uint8_t * dest) 
         {
             readBytes(ADDRESS, subAddress, count, dest);
         }
 
-       static void setGyroFullScale(uint16_t gyro_fs)
+        static void setGyroFullScale(uint16_t gyro_fs)
         {
             uint8_t byte0 = gyro_fs & (0xFF);
             uint8_t byte1 = (gyro_fs >> 8) & (0xFF);
@@ -324,7 +236,7 @@ class Usfs {
             uint8_t rawData[6] = {};
 
             // Read the six raw data registers into data array
-            readUsfsBytes(subAddress, 6, &rawData[0]);       
+            readBytes(subAddress, 6, &rawData[0]);       
 
             // Turn the MSB and LSB into a signed 16-bit value
             counts[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
@@ -366,7 +278,7 @@ class Usfs {
             uint8_t counts[2] = {};
 
             // Read the two raw data registers sequentially into data array
-            readUsfsBytes(subAddress, 2, &counts[0]);  
+            readBytes(subAddress, 2, &counts[0]);  
 
             // Turn the MSB and LSB into a signed 16-bit value
             return  (int16_t) (((int16_t)counts[1] << 8) | counts[0]);   
@@ -374,14 +286,176 @@ class Usfs {
 
     public:
 
+        static bool algorithmStatusIsStillnessMode(uint8_t status)
+        {
+            return (bool)(status & 0x04);
+        }
+
+        static bool algorithmStatusIsCalibrationCompleted(uint8_t status)
+        {
+            return (bool)(status & 0x08);
+        }
+
+        static bool algorithmStatusIsMagneticAnomaly(uint8_t status)
+        {
+            return (bool)(status & 0x10);
+        }
+
+        static bool algorithmStatusIsSensorUnreliable(uint8_t status)
+        {
+            return (bool)(status & 0x20);
+        }
+
+        static bool isInPassThroughMode(void)
+        {
+            return (bool)readByte(PassThruStatus);
+        }
+
+        static bool algorithmStatusIsStandby(uint8_t status)
+        {
+            return (bool)(status & 0x01);
+        }
+
+        static bool algorithmStatusIsAlgorithmSlow(uint8_t status)
+        {
+            return (bool)(status & 0x02);
+        }
+
+        static uint8_t getSensorStatus(void)
+        {
+            return readByte(SensorStatus);
+        }
+
+
+        static void checkSensorStatus(uint8_t status) 
+        {
+            if (status & 0x01) Serial.print("Magnetometer not acknowledging!");
+            if (status & 0x02) Serial.print("Accelerometer not acknowledging!");
+            if (status & 0x04) Serial.print("Gyro not acknowledging!");
+            if (status & 0x10) Serial.print("Magnetometer ID not recognized!");
+            if (status & 0x20) Serial.print("Accelerometer ID not recognized!");
+            if (status & 0x40) Serial.print("Gyro ID not recognized!");
+        }
+
+        static uint8_t getSentralStatus(void)
+        {
+            return readByte(SentralStatus); 
+        }
+
+        static uint8_t getPassThruStatus(void)
+        {
+            return readByte(PassThruStatus);
+        }
+
+        static uint8_t getRunStatus(void)
+        {
+            return readByte(RunStatus);
+        }
+
+        static void enableEvents(uint8_t mask)
+        {
+            writeByte(EnableEvents, mask);
+        }
+
+        static void setRatesAndBandwidths(
+                uint8_t accelLpfBandwidth,
+                uint8_t accelRateTenth,
+                uint8_t baroRate,
+                uint8_t gyroLpfBandwidth,
+                uint8_t gyroRateTenth,
+                uint8_t magRate,
+                uint8_t quatDivisor)
+        {
+            setRunDisable();
+
+            writeByte(ACC_LPF_BW, accelLpfBandwidth);   
+            writeByte(AccelRate, accelRateTenth); 
+            writeByte(BaroRate, 0x80 | baroRate);  
+            writeByte(GYRO_LPF_BW, gyroLpfBandwidth); 
+            writeByte(GyroRate, gyroRateTenth); 
+            writeByte(MagRate, magRate); 
+            writeByte(QRateDivisor, quatDivisor); 
+        }
+
+        static void setRunEnable(void)
+        {
+            writeByte(HostControl, 0x01); 
+        }
+
+        static void setRunDisable(void)
+        {
+            writeByte(HostControl, 0x00); 
+        }
+
+        static void setPassThroughMode()
+        {
+
+            writeByte(AlgorithmControl, 0x01);
+            delay(5);
+
+            writeByte(PassThruControl, 0x01);
+            while (true) {
+                if (readByte(PassThruStatus) & 0x01) break;
+                delay(5);
+            }
+        }
+
+        static void setMasterMode()
+        {
+
+            writeByte(PassThruControl, 0x00);
+            while (true) {
+                if (!(readByte(PassThruStatus) & 0x01)) break;
+                delay(5);
+            }
+
+
+            writeByte(AlgorithmControl, 0x00);
+            while (true) {
+                if (!(readByte(AlgorithmStatus) & 0x01)) break;
+                delay(5);
+            }
+        }
+
+        static void writeByte(uint8_t subAddress, uint8_t data) 
+        {
+            writeByte(ADDRESS, subAddress, data);
+        }
+
+
+        static uint8_t getEventStatus(void)
+        {
+            return readByte(EventStatus);
+        }
+
+        static uint8_t getAlgorithmStatus(void)
+        {
+            return readByte(AlgorithmStatus);
+        }
+
+        static bool runStatusIsNormal(uint8_t status)
+        {
+            return (bool)(status & 0x01);
+        }
+
+        static void algorithmControlReset(void)
+        {
+            writeByte(AlgorithmControl, 0x00);
+        }
+
+        static uint8_t getParamAcknowledge(void)
+        {
+            return readByte(ParamAcknowledge);
+        }
+
         static void algorithmControlRequestParameterTransfer(void)
         {
-            usfsWriteByte(AlgorithmControl, 0x80);
+            writeByte(AlgorithmControl, 0x80);
         }
 
         static void requestParamRead(uint8_t param)
         {
-            usfsWriteByte(ParamRequest, param); 
+            writeByte(ParamRequest, param); 
         }
 
         static void set_integer_param (uint8_t param, uint32_t param_val) 
@@ -401,58 +475,58 @@ class Usfs {
             requestParamRead(param);
 
             // Request parameter transfer procedure
-            usfsWriteByte(AlgorithmControl, 0x80); 
+            writeByte(AlgorithmControl, 0x80); 
 
             // Check the parameter acknowledge register and loop until the result
             // matches parameter request byte
-            uint8_t status = usfsGetParamAcknowledge(); 
+            uint8_t status = getParamAcknowledge(); 
 
             while(!(status==param)) {
-                status = usfsGetParamAcknowledge();
+                status = getParamAcknowledge();
             }
 
             // Parameter request = 0 to end parameter transfer process
-            usfsWriteByte(ParamRequest, 0x00); 
+            writeByte(ParamRequest, 0x00); 
 
-            usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
+            writeByte(AlgorithmControl, 0x00); // Re-start algorithm
         }
 
 
         static void loadParamBytes(uint8_t byte[4])
         {
-            usfsWriteByte(LoadParamByte0, byte[0]);
-            usfsWriteByte(LoadParamByte1, byte[1]);
-            usfsWriteByte(LoadParamByte2, byte[2]);
-            usfsWriteByte(LoadParamByte3, byte[3]);
+            writeByte(LoadParamByte0, byte[0]);
+            writeByte(LoadParamByte1, byte[1]);
+            writeByte(LoadParamByte2, byte[2]);
+            writeByte(LoadParamByte3, byte[3]);
         }
 
         static void readSavedParamBytes(uint8_t bytes[4])
         {
-            bytes[0] = readUsfsByte(SavedParamByte0);
-            bytes[1] = readUsfsByte(SavedParamByte1);
-            bytes[2] = readUsfsByte(SavedParamByte2);
-            bytes[3] = readUsfsByte(SavedParamByte3);
+            bytes[0] = readByte(SavedParamByte0);
+            bytes[1] = readByte(SavedParamByte1);
+            bytes[2] = readByte(SavedParamByte2);
+            bytes[3] = readByte(SavedParamByte3);
         }
 
         void reportChipId(void)
         {
             // Read SENtral device information
-            uint16_t ROM1 = readUsfsByte(ROMVersion1);
-            uint16_t ROM2 = readUsfsByte(ROMVersion2);
+            uint16_t ROM1 = readByte(ROMVersion1);
+            uint16_t ROM2 = readByte(ROMVersion2);
             Serial.print("EM7180 ROM Version: 0x");
             Serial.print(ROM1, HEX);
             Serial.println(ROM2, HEX);
             Serial.println("Should be: 0xE609");
-            uint16_t RAM1 = readUsfsByte(RAMVersion1);
-            uint16_t RAM2 = readUsfsByte(RAMVersion2);
+            uint16_t RAM1 = readByte(RAMVersion1);
+            uint16_t RAM2 = readByte(RAMVersion2);
             Serial.print("EM7180 RAM Version: 0x");
             Serial.print(RAM1);
             Serial.println(RAM2);
-            uint8_t PID = readUsfsByte(ProductID);
+            uint8_t PID = readByte(ProductID);
             Serial.print("EM7180 ProductID: 0x");
             Serial.print(PID, HEX);
             Serial.println(" Should be: 0x80");
-            uint8_t RID = readUsfsByte(RevisionID);
+            uint8_t RID = readByte(RevisionID);
             Serial.print("EM7180 RevisionID: 0x");
             Serial.print(RID, HEX);
             Serial.println(" Should be: 0x02");
@@ -461,7 +535,7 @@ class Usfs {
         void loadFirmware(bool verbose)
         {
             // Check which sensors can be detected by the EM7180
-            uint8_t featureflag = readUsfsByte(FeatureFlags);
+            uint8_t featureflag = readByte(FeatureFlags);
 
             if (verbose) {
                 if (featureflag & 0x01)  {
@@ -490,11 +564,11 @@ class Usfs {
 
             for (uint8_t k=0; k<10; ++k) {
 
-                usfsWriteByte(ResetRequest, 0x01);
+                writeByte(ResetRequest, 0x01);
 
                 delay(100);  
 
-                uint8_t status = usfsGetSentralStatus();
+                uint8_t status = getSentralStatus();
 
                 if (verbose) {
                     if (status & 0x01)  {
@@ -525,7 +599,7 @@ class Usfs {
             }
 
             if (okay) {
-                if (!(usfsGetSentralStatus() & 0x04)) {
+                if (!(getSentralStatus() & 0x04)) {
                     if (verbose) {
                         Serial.println("EEPROM upload successful!");
                     }
@@ -557,14 +631,14 @@ class Usfs {
             uint8_t param[4];      
 
             // Enter EM7180 initialized state
-            usfsSetRunDisable();
+            setRunDisable();
 
             // Make sure pass through mode is off
-            usfsWriteByte(PassThruControl, 0x00); 
-            usfsSetRunEnable();
+            writeByte(PassThruControl, 0x00); 
+            setRunEnable();
 
             // Set sensor rates and bandwidths
-            usfsSetRatesAndBandwidths(
+            setRatesAndBandwidths(
                     accelBandwidth,
                     accelRateTenth,
                     baroRate,
@@ -574,13 +648,13 @@ class Usfs {
                     quatDivisor);
 
             // Configure operating mode
-            usfsWriteByte(AlgorithmControl, 0x00); // read scale sensor data
+            writeByte(AlgorithmControl, 0x00); // read scale sensor data
 
             // Enable interrupt to host upon certain events
-            usfsEnableEvents(interruptEnable);
+            enableEvents(interruptEnable);
 
             // Enable EM7180 run mode
-            usfsSetRunEnable();
+            setRunEnable();
             delay(100);
 
             if (verbose) {
@@ -588,13 +662,13 @@ class Usfs {
             }
 
             // Read sensor default FS values from parameter space
-            usfsWriteByte(ParamRequest, 0x4A); // Request to read parameter 74
+            writeByte(ParamRequest, 0x4A); // Request to read parameter 74
 
             // Request parameter transfer process
-            usfsWriteByte(AlgorithmControl, 0x80); 
-            byte param_xfer = usfsGetParamAcknowledge();
+            writeByte(AlgorithmControl, 0x80); 
+            byte param_xfer = getParamAcknowledge();
             while(!(param_xfer==0x4A)) {
-                param_xfer = usfsGetParamAcknowledge();
+                param_xfer = getParamAcknowledge();
             }
 
             readSavedParamBytes(param);
@@ -612,11 +686,11 @@ class Usfs {
             }
 
             // Request to read  parameter 75
-            usfsWriteByte(ParamRequest, 0x4B); 
+            writeByte(ParamRequest, 0x4B); 
 
-            param_xfer = usfsGetParamAcknowledge();
+            param_xfer = getParamAcknowledge();
             while(!(param_xfer==0x4B)) {
-                param_xfer = usfsGetParamAcknowledge();
+                param_xfer = getParamAcknowledge();
             }
             readSavedParamBytes(param);
 
@@ -628,8 +702,8 @@ class Usfs {
                 Serial.println("dps");
             }
 
-            usfsWriteByte(ParamRequest, 0x00); //End parameter transfer
-            usfsWriteByte(AlgorithmControl, 0x00); // re-enable algorithm
+            writeByte(ParamRequest, 0x00); //End parameter transfer
+            writeByte(AlgorithmControl, 0x00); // re-enable algorithm
 
             // Disable stillness mode for balancing robot application
             set_integer_param (0x49, 0x00);
@@ -639,13 +713,13 @@ class Usfs {
             setGyroFullScale(2000);       // 2000 dps
 
             // Read sensor new FS values from parameter space
-            usfsWriteByte(ParamRequest, 0x4A); // Request to read  parameter 74
+            writeByte(ParamRequest, 0x4A); // Request to read  parameter 74
 
             // Request parameter transfer process
-            usfsWriteByte(AlgorithmControl, 0x80); 
-            param_xfer = usfsGetParamAcknowledge();
+            writeByte(AlgorithmControl, 0x80); 
+            param_xfer = getParamAcknowledge();
             while(!(param_xfer==0x4A)) {
-                param_xfer = usfsGetParamAcknowledge();
+                param_xfer = getParamAcknowledge();
             }
             readSavedParamBytes(param);
             magFs = ((int16_t)(param[1]<<8) | param[0]);
@@ -660,10 +734,10 @@ class Usfs {
                 Serial.println("g");
             }
 
-            usfsWriteByte(ParamRequest, 0x4B); // Request to read  parameter 75
-            param_xfer = usfsGetParamAcknowledge();
+            writeByte(ParamRequest, 0x4B); // Request to read  parameter 75
+            param_xfer = getParamAcknowledge();
             while(!(param_xfer==0x4B)) {
-                param_xfer = usfsGetParamAcknowledge();
+                param_xfer = getParamAcknowledge();
             }
             readSavedParamBytes(param);
             gyroFs = ((int16_t)(param[1]<<8) | param[0]);
@@ -674,18 +748,18 @@ class Usfs {
                 Serial.println("dps");
             }
 
-            usfsWriteByte(ParamRequest, 0x00); //End parameter transfer
-            usfsWriteByte(AlgorithmControl, 0x00); // re-enable algorithm
+            writeByte(ParamRequest, 0x00); //End parameter transfer
+            writeByte(AlgorithmControl, 0x00); // re-enable algorithm
 
             // Read EM7180 status
-            uint8_t runStatus = readUsfsByte(RunStatus);
+            uint8_t runStatus = readByte(RunStatus);
             if (runStatus & 0x01) {
                 if (verbose) {
                     Serial.println("EM7180 run status = normal mode");
                 }
             }
 
-            uint8_t algoStatus = readUsfsByte(AlgorithmStatus);
+            uint8_t algoStatus = readByte(AlgorithmStatus);
 
             if (verbose) {
                 if (algoStatus & 0x01) Serial.println("EM7180 standby status");
@@ -696,11 +770,11 @@ class Usfs {
                 if (algoStatus & 0x20) Serial.println("EM7180 unreliable sensor data");
             }
 
-            uint8_t passthruStatus = readUsfsByte(PassThruStatus);
+            uint8_t passthruStatus = readByte(PassThruStatus);
 
             if (passthruStatus & 0x01) Serial.print("EM7180 in passthru mode!");
 
-            uint8_t eventStatus = readUsfsByte(EventStatus);
+            uint8_t eventStatus = readByte(EventStatus);
 
             if (eventStatus & 0x02) Serial.println("EM7180 Error");
 
@@ -713,9 +787,8 @@ class Usfs {
                 delay(1000); // give some time to read the screen
             }
 
-
             // Check sensor status
-            uint8_t sensorStatus = readUsfsByte(SensorStatus);
+            uint8_t sensorStatus = readByte(SensorStatus);
 
             if (verbose) {
 
@@ -723,21 +796,21 @@ class Usfs {
                 Serial.println(sensorStatus);
             }
 
-            usfsCheckSensorStatus(sensorStatus);
+            checkSensorStatus(sensorStatus);
 
             if (verbose) {
 
                 Serial.print("Actual MagRate = ");
-                Serial.print(readUsfsByte(ActualMagRate));
+                Serial.print(readByte(ActualMagRate));
                 Serial.println(" Hz"); 
                 Serial.print("Actual AccelRate = ");
-                Serial.print(10*readUsfsByte(ActualAccelRate));
+                Serial.print(10*readByte(ActualAccelRate));
                 Serial.println(" Hz"); 
                 Serial.print("Actual GyroRate = ");
-                Serial.print(10*readUsfsByte(ActualGyroRate));
+                Serial.print(10*readByte(ActualGyroRate));
                 Serial.println(" Hz"); 
                 Serial.print("Actual BaroRate = ");
-                Serial.print(readUsfsByte(ActualBaroRate));
+                Serial.print(readByte(ActualBaroRate));
                 Serial.println(" Hz"); 
             }
         }
@@ -746,7 +819,7 @@ class Usfs {
         {
             // Check event status register, way to check data ready by polling rather
             // than interrupt.  Reading clears the register and interrupt.
-            return readUsfsByte(EventStatus); 
+            return readByte(EventStatus); 
         }
 
         static bool eventStatusIsError(uint8_t status)
@@ -899,26 +972,13 @@ class Usfs {
             uint8_t counts[16];  // x/y/z quaternion register data stored here
 
             // Read the sixteen raw data registers into data array
-            readUsfsBytes(QX, 16, &counts[0]); 
+            readBytes(QX, 16, &counts[0]); 
 
             // SENtral stores quats as qx, qy, qz, qw!
             qx = uint32_reg_to_float (&counts[0]);
             qy = uint32_reg_to_float (&counts[4]);
             qz =  uint32_reg_to_float (&counts[8]);
             qw = uint32_reg_to_float (&counts[12]);   
-        }
-
-        static void setPassThroughMode()
-        {
-
-            usfsWriteByte(AlgorithmControl, 0x01);
-            delay(5);
-
-            usfsWriteByte(PassThruControl, 0x01);
-            while (true) {
-                if (readUsfsByte(PassThruStatus) & 0x01) break;
-                delay(5);
-            }
         }
 
 }; // class Usfs
