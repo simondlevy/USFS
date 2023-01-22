@@ -54,6 +54,8 @@ static void interruptHandler()
     _gotNewData = true;
 }
 
+Usfs usfs;
+
 void setup()
 {
     Serial.begin(115200);

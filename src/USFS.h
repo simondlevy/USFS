@@ -26,6 +26,10 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdint.h>
 
+class Usfs {
+
+}; // class Usfs
+
 enum {
 
     USFS_INTERRUPT_RESET_REQUIRED = 0x01,
