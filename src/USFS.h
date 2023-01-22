@@ -122,27 +122,27 @@ void usfsLoadFirmware(bool verbose = false);
 
 void usfsLoadParamBytes(uint8_t byte[4]);
 
-int16_t usfsReadBarometerRaw();
+int16_t readBarometerRaw();
 
-void usfsReadAccelerometerRaw(int16_t counts[3]);
+void readAccelerometerRaw(int16_t counts[3]);
 
-void usfsReadGyrometerRaw(int16_t counts[3]);
+void readGyrometerRaw(int16_t counts[3]);
 
 // Returns Gs
-void usfsReadAccelerometerScaled(float & x, float & y, float & z);
+void readAccelerometerScaled(float & x, float & y, float & z);
 
 // Returns degrees per second
-void usfsReadGyrometerScaled(float & x, float & y, float & z);
+void readGyrometerScaled(float & x, float & y, float & z);
 
 void usfsreadMagnetometerScaled(float & x, float & y, float & z);
 
-void usfsReadQuaternion(float & qw, float & qx, float & qy, float & qz);
+void readQuaternion(float & qw, float & qx, float & qy, float & qz);
 
-int16_t usfsReadTemperatureRaw();
+int16_t readTemperatureRaw();
 
 void  usfsReportChipId();
 
-void usfsReadSavedParamBytes(uint8_t bytes[4]);
+void readSavedParamBytes(uint8_t bytes[4]);
 
 void usfsReportError(uint8_t errorStatus);
 
@@ -172,6 +172,9 @@ class Usfs {
     private:
 
         static const uint8_t ADDRESS= 0x28;
+
+        // this is a 32-bit normalized floating point number read from registers = 0x00-03
+        static const uint8_t QX = 0x00;
 
         static const uint8_t QRateDivisor = 0x32;
         static const uint8_t EnableEvents = 0x33;
@@ -216,6 +219,25 @@ class Usfs {
         static const uint8_t ResetRequest = 0x9B ;
         static const uint8_t PassThruStatus = 0x9E ;
         static const uint8_t PassThruControl= 0xA0;
+
+        static const uint8_t MX = 0x12;// int16_t from registers = 0x12-13
+        static const uint8_t MY = 0x14;// int16_t from registers = 0x14-15
+        static const uint8_t MZ = 0x16;// int16_t from registers = 0x16-17
+        static const uint8_t MTIME = 0x18;// uint16_t from registers = 0x18-19
+        static const uint8_t AX = 0x1A;// int16_t from registers = 0x1A-1B
+        static const uint8_t AY = 0x1C;// int16_t from registers = 0x1C-1D
+        static const uint8_t AZ = 0x1E;// int16_t from registers = 0x1E-1F
+        static const uint8_t ATIME= 0x20;// uint16_t from registers = 0x20-21
+        static const uint8_t GX = 0x22;// int16_t from registers = 0x22-23
+        static const uint8_t GY = 0x24;// int16_t from registers = 0x24-25
+        static const uint8_t GZ = 0x26;// int16_t from registers = 0x26-27
+        static const uint8_t GTIME= 0x28;// uint16_t from registers = 0x28-29
+
+        // start of two-byte MS5637 pressure data, 16-bit signed interger
+        static const uint8_t Baro = 0x2A;
+
+        // start of two-byte MS5637 temperature data, 16-bit signed interger
+        static const uint8_t Temp = 0x2E;
 
         static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) 
         {
@@ -347,6 +369,54 @@ class Usfs {
             counts[0] = (int16_t) (((int16_t)rawData[1] << 8) | rawData[0]);  
             counts[1] = (int16_t) (((int16_t)rawData[3] << 8) | rawData[2]);  
             counts[2] = (int16_t) (((int16_t)rawData[5] << 8) | rawData[4]); 
+        }
+
+        static void readThreeAxisScaled(uint8_t subAddress, float scale,
+                float & x, float & y, float & z)
+        {
+            int16_t counts[3] = {};
+
+            // Read the six raw data registers into data array
+            readThreeAxisRaw(subAddress, counts);       
+
+            // Turn the MSB and LSB into a signed 16-bit value
+            x = scale * counts[0];
+            y = scale * counts[1];
+            z = scale * counts[2];
+        }
+
+
+        static float uint32_reg_to_float (uint8_t *buf)
+        {
+            union {
+                uint32_t ui32;
+                float f;
+            } u;
+
+            u.ui32 =     (((uint32_t)buf[0]) +
+                    (((uint32_t)buf[1]) <<  8) +
+                    (((uint32_t)buf[2]) << 16) +
+                    (((uint32_t)buf[3]) << 24));
+            return u.f;
+        }
+
+        static int16_t read16BitValue(uint8_t subAddress)
+        {
+            uint8_t counts[2] = {};
+
+            // Read the two raw data registers sequentially into data array
+            readUsfsBytes(subAddress, 2, &counts[0]);  
+
+            // Turn the MSB and LSB into a signed 16-bit value
+            return  (int16_t) (((int16_t)counts[1] << 8) | counts[0]);   
+        }
+
+        void readSavedParamBytes(uint8_t bytes[4])
+        {
+            bytes[0] = readUsfsByte(SavedParamByte0);
+            bytes[1] = readUsfsByte(SavedParamByte1);
+            bytes[2] = readUsfsByte(SavedParamByte2);
+            bytes[3] = readUsfsByte(SavedParamByte3);
         }
 
     public:
@@ -514,7 +584,7 @@ class Usfs {
                 param_xfer = usfsGetParamAcknowledge();
             }
 
-            usfsReadSavedParamBytes(param);
+            readSavedParamBytes(param);
 
             magFs = ((int16_t)(param[1]<<8) | param[0]);
             accelFs = ((int16_t)(param[3]<<8) | param[2]);
@@ -535,7 +605,7 @@ class Usfs {
             while(!(param_xfer==0x4B)) {
                 param_xfer = usfsGetParamAcknowledge();
             }
-            usfsReadSavedParamBytes(param);
+            readSavedParamBytes(param);
 
             gyroFs = ((int16_t)(param[1]<<8) | param[0]);
 
@@ -564,7 +634,7 @@ class Usfs {
             while(!(param_xfer==0x4A)) {
                 param_xfer = usfsGetParamAcknowledge();
             }
-            usfsReadSavedParamBytes(param);
+            readSavedParamBytes(param);
             magFs = ((int16_t)(param[1]<<8) | param[0]);
             accelFs = ((int16_t)(param[3]<<8) | param[2]);
 
@@ -582,7 +652,7 @@ class Usfs {
             while(!(param_xfer==0x4B)) {
                 param_xfer = usfsGetParamAcknowledge();
             }
-            usfsReadSavedParamBytes(param);
+            readSavedParamBytes(param);
             gyroFs = ((int16_t)(param[1]<<8) | param[0]);
 
             if (verbose) {
@@ -771,6 +841,48 @@ class Usfs {
         static bool eventStatusIsBarometer(uint8_t status)
         {
             return status & 0x40;
+        }
+
+        // Returns scaled values (G)
+        void readAccelerometerScaled(float & x, float & y, float & z)
+        {
+            readThreeAxisScaled(AX, USFS_ACCEL_SCALE, x, y, z);
+        }
+
+        // Returns scaled values (degrees per second)
+        void readGyrometerScaled(float & x, float & y, float & z)
+        {
+            readThreeAxisScaled(GX, USFS_GYRO_SCALE, x, y, z);
+        }
+
+        // Returns scaled values (mGauss)
+        void readMagnetometerScaled(float & x, float & y, float & z)
+        {
+            readThreeAxisScaled(MX, 0.305176f, x, y, z);
+        }
+
+        int16_t readBarometerRaw()
+        {
+            return read16BitValue(Baro);
+        }
+
+        int16_t readTemperatureRaw()
+        {
+            return read16BitValue(Temp);
+        }
+
+        void readQuaternion(float & qw, float & qx, float & qy, float & qz)
+        {
+            uint8_t counts[16];  // x/y/z quaternion register data stored here
+
+            // Read the sixteen raw data registers into data array
+            readUsfsBytes(QX, 16, &counts[0]); 
+
+            // SENtral stores quats as qx, qy, qz, qw!
+            qx = uint32_reg_to_float (&counts[0]);
+            qy = uint32_reg_to_float (&counts[4]);
+            qz =  uint32_reg_to_float (&counts[8]);
+            qw = uint32_reg_to_float (&counts[12]);   
         }
 
 }; // class Usfs
