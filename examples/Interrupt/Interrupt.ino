@@ -86,7 +86,7 @@ void setup()
     }
 
     // Clear interrupts
-    usfs.checkStatus();
+    Usfs::checkStatus();
 
     Serial.println("Enter '1' to proceed...");
     while (true) {
@@ -116,7 +116,7 @@ void loop()
             _interruptCount++;
         }
 
-        uint8_t eventStatus = usfs.checkStatus(); 
+        uint8_t eventStatus = Usfs::checkStatus(); 
 
         if (Usfs::eventStatusIsError(eventStatus)) { 
 

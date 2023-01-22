@@ -818,7 +818,7 @@ class Usfs {
             }
         }
 
-        uint8_t checkStatus()
+        static uint8_t checkStatus()
         {
             // Check event status register, way to check data ready by polling rather
             // than interrupt.  Reading clears the register and interrupt.
