@@ -69,7 +69,7 @@ void setup()
 
     usfs.loadFirmware(VERBOSE); 
 
-    usfsBegin(
+    usfs.begin(
             ACCEL_BANDWIDTH,
             GYRO_BANDWIDTH,
             QUAT_DIVISOR,
