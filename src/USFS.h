@@ -960,6 +960,11 @@ class Usfs {
             readThreeAxisRaw(AX, counts);
         }
 
+        static void readGyrometerRaw(int16_t counts[3])
+        {
+            readThreeAxisRaw(AX, counts);
+        }
+
         int16_t readBarometerRaw()
         {
             return read16BitValue(Baro);
