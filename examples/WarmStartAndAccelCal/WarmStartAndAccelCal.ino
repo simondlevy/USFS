@@ -73,34 +73,6 @@ static Sentral_WS_params  WS_params;
 //====== Sentral parameter management functions
 //===================================================================================================================
 
-static void set_integer_param (uint8_t param, uint32_t param_val)
-{
-    uint8_t bytes[4];
-    bytes[0] = param_val & (0xFF);
-    bytes[1] = (param_val >> 8) & (0xFF);
-    bytes[2] = (param_val >> 16) & (0xFF);
-    bytes[3] = (param_val >> 24) & (0xFF);
-
-    // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
-    param = param | 0x80;
-
-    usfsLoadParamBytes(bytes);
-
-    usfsRequestParamRead(param);
-
-    // Request parameter transfer procedure
-    usfsAlgorithmControlRequestParameterTransfer();
-
-    // Check the parameter acknowledge register and loop until the result matches parameter request byte
-    while (true) {
-        if (usfsGetParamAcknowledge() == param) break;
-    }
-
-    // Parameter request = 0 to end parameter transfer process
-    usfsRequestParamRead(0x00);
-    usfsAlgorithmControlReset(); // Re-start algorithm
-}
-
 static void set_WS_params()
 {
     uint8_t param = 1;
@@ -109,7 +81,7 @@ static void set_WS_params()
     // Parameter is the decimal value with the MSB set high to indicate a paramter write processs
     param = param | 0x80;
 
-    usfsLoadParamBytes(WS_params.Sen_param[0]);
+    Usfs::loadParamBytes(WS_params.Sen_param[0]);
 
     usfsRequestParamRead(param);
 
@@ -123,7 +95,7 @@ static void set_WS_params()
     }
     for(uint8_t i=1; i<35; i++) {
         param = (i+1) | 0x80;
-        usfsLoadParamBytes(WS_params.Sen_param[i]);
+        Usfs::loadParamBytes(WS_params.Sen_param[i]);
         usfsRequestParamRead(param);
 
         // Check the parameter acknowledge register and loop until the result matches parameter request byte
@@ -569,7 +541,7 @@ void setup(void)
     usfsAlgorithmControlReset(); // re-enable algorithm
 
     // Disable stillness mode
-    set_integer_param (0x49, 0x00);
+    Usfs::set_integer_param (0x49, 0x00);
 
     // Read sensor new FS values from parameter space
     readParams(0x4A, param);// Request to read  parameter 74
@@ -679,7 +651,7 @@ void loop(void)
 
     if (Usfs::eventStatusIsError(eventStatus)) { 
 
-        usfsReportError(eventStatus);
+        Usfs::reportError(eventStatus);
     }
 
     // if no errors, see if new data is ready

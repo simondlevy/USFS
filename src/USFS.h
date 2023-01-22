@@ -120,8 +120,6 @@ bool usfsIsInPassThroughMode(void);
 
 void usfsLoadFirmware(bool verbose = false);
 
-void usfsLoadParamBytes(uint8_t byte[4]);
-
 int16_t readBarometerRaw();
 
 void readAccelerometerRaw(int16_t counts[3]);
@@ -283,40 +281,7 @@ class Usfs {
             readBytes(ADDRESS, subAddress, count, dest);
         }
 
-        static void set_integer_param (uint8_t param, uint32_t param_val) 
-        {
-            uint8_t bytes[4] = {};
-            bytes[0] = param_val & (0xFF);
-            bytes[1] = (param_val >> 8) & (0xFF);
-            bytes[2] = (param_val >> 16) & (0xFF);
-            bytes[3] = (param_val >> 24) & (0xFF);
-
-            // Parameter is the decimal value with the MSB set high to indicate a
-            // paramter write processs
-            param = param | 0x80; 
-
-            usfsLoadParamBytes(bytes);
-
-            usfsRequestParamRead(param);
-
-            // Request parameter transfer procedure
-            usfsWriteByte(AlgorithmControl, 0x80); 
-
-            // Check the parameter acknowledge register and loop until the result
-            // matches parameter request byte
-            uint8_t status = usfsGetParamAcknowledge(); 
-
-            while(!(status==param)) {
-                status = usfsGetParamAcknowledge();
-            }
-
-            // Parameter request = 0 to end parameter transfer process
-            usfsWriteByte(ParamRequest, 0x00); 
-
-            usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
-        }
-
-        static void setGyroFullScale(uint16_t gyro_fs)
+       static void setGyroFullScale(uint16_t gyro_fs)
         {
             uint8_t byte0 = gyro_fs & (0xFF);
             uint8_t byte1 = (gyro_fs >> 8) & (0xFF);
@@ -412,6 +377,48 @@ class Usfs {
         }
 
     public:
+
+        static void set_integer_param (uint8_t param, uint32_t param_val) 
+        {
+            uint8_t bytes[4] = {};
+            bytes[0] = param_val & (0xFF);
+            bytes[1] = (param_val >> 8) & (0xFF);
+            bytes[2] = (param_val >> 16) & (0xFF);
+            bytes[3] = (param_val >> 24) & (0xFF);
+
+            // Parameter is the decimal value with the MSB set high to indicate a
+            // paramter write processs
+            param = param | 0x80; 
+
+            loadParamBytes(bytes);
+
+            usfsRequestParamRead(param);
+
+            // Request parameter transfer procedure
+            usfsWriteByte(AlgorithmControl, 0x80); 
+
+            // Check the parameter acknowledge register and loop until the result
+            // matches parameter request byte
+            uint8_t status = usfsGetParamAcknowledge(); 
+
+            while(!(status==param)) {
+                status = usfsGetParamAcknowledge();
+            }
+
+            // Parameter request = 0 to end parameter transfer process
+            usfsWriteByte(ParamRequest, 0x00); 
+
+            usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
+        }
+
+ 
+        static void loadParamBytes(uint8_t byte[4])
+        {
+            usfsWriteByte(LoadParamByte0, byte[0]);
+            usfsWriteByte(LoadParamByte1, byte[1]);
+            usfsWriteByte(LoadParamByte2, byte[2]);
+            usfsWriteByte(LoadParamByte3, byte[3]);
+        }
 
         static void readSavedParamBytes(uint8_t bytes[4])
         {

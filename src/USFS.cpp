@@ -177,35 +177,8 @@ static void readUsfsBytes( uint8_t subAddress, uint8_t count, uint8_t * dest)
 
 static void set_integer_param (uint8_t param, uint32_t param_val) 
 {
-    uint8_t bytes[4] = {};
-    bytes[0] = param_val & (0xFF);
-    bytes[1] = (param_val >> 8) & (0xFF);
-    bytes[2] = (param_val >> 16) & (0xFF);
-    bytes[3] = (param_val >> 24) & (0xFF);
-
-    // Parameter is the decimal value with the MSB set high to indicate a
-    // paramter write processs
-    param = param | 0x80; 
-
-    usfsLoadParamBytes(bytes);
-
-    usfsRequestParamRead(param);
-
-    // Request parameter transfer procedure
-    usfsWriteByte(AlgorithmControl, 0x80); 
-
-    // Check the parameter acknowledge register and loop until the result
-    // matches parameter request byte
-    uint8_t status = usfsGetParamAcknowledge(); 
-
-    while(!(status==param)) {
-        status = usfsGetParamAcknowledge();
-    }
-
-    // Parameter request = 0 to end parameter transfer process
-    usfsWriteByte(ParamRequest, 0x00); 
-
-    usfsWriteByte(AlgorithmControl, 0x00); // Re-start algorithm
+    (void)param;
+    (void)param_val;
 }
 
 static void readThreeAxisRaw(uint8_t subAddress, int16_t counts[3])
@@ -481,13 +454,14 @@ void usfsCheckSensorStatus(uint8_t status)
     if (status & 0x40) Serial.print("Gyro ID not recognized!");
 }
 
+/*
 void usfsLoadParamBytes(uint8_t byte[4])
 {
     usfsWriteByte(LoadParamByte0, byte[0]);
     usfsWriteByte(LoadParamByte1, byte[1]);
     usfsWriteByte(LoadParamByte2, byte[2]);
     usfsWriteByte(LoadParamByte3, byte[3]);
-}
+}*/
 
 void usfsWriteByte(uint8_t subAddress, uint8_t data) 
 {
