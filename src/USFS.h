@@ -625,7 +625,7 @@ class Usfs {
                 uint8_t gyroRateTenth,
                 uint8_t baroRate,
                 uint8_t interruptEnable,
-                bool verbose)
+                bool verbose=false)
         {
             uint16_t magFs,
             accelFs,
