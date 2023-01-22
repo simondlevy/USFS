@@ -5,7 +5,7 @@
 
    Adapted from
 
-https://github.com/kriswiner/USFS_SENtral_sensor_hub/tree/master/WarmStartandAccelCal
+https://github.com/kriswiner/SENtral_sensor_hub/tree/master/WarmStartandAccelCal
 
 This file is part of USFS.
 
@@ -29,49 +29,52 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <Arduino.h>
 #include <Wire.h>
 
-enum {
-
-    USFS_INTERRUPT_RESET_REQUIRED = 0x01,
-    USFS_INTERRUPT_ERROR = 0x02,
-    USFS_INTERRUPT_QUAT = 0x04,
-    USFS_INTERRUPT_MAG = 0x08,
-    USFS_INTERRUPT_ACCEL = 0x10,
-    USFS_INTERRUPT_GYRO = 0x20,
-    USFS_INTERRUPT_ANY = 0x40
-};
-
-typedef enum {
-
-    AFS_2G,
-    AFS_4G,
-    AFS_8G,
-    AFS_16G
-
-} ascale_t;
-
-typedef enum {
-
-    GFS_250DPS,
-    GFS_500DPS,
-    GFS_1000DPS,
-    GFS_2000DPS
-
-} gscale_t;
-
-typedef enum {
-
-    MFS_14BITS, // 0.6 mG per LSB
-    MFS_16BITS  // 0.15 mG per LSB
-
-} mscale_t;
-
-// Full-scale ranges are fixed in master mode
-static const float USFS_GYRO_SCALE  = 1.53e-1;
-static const float USFS_ACCEL_SCALE = 4.88e-4;
-
 class Usfs {
 
+    public:
+
+        enum {
+
+            INTERRUPT_RESET_REQUIRED = 0x01,
+            INTERRUPT_ERROR = 0x02,
+            INTERRUPT_QUAT = 0x04,
+            INTERRUPT_MAG = 0x08,
+            INTERRUPT_ACCEL = 0x10,
+            INTERRUPT_GYRO = 0x20,
+            INTERRUPT_ANY = 0x40
+        };
+
+        static constexpr float ACCEL_SCALE = 4.88e-4;
+
     private:
+
+        typedef enum {
+
+            AFS_2G,
+            AFS_4G,
+            AFS_8G,
+            AFS_16G
+
+        } ascale_t;
+
+        typedef enum {
+
+            GFS_250DPS,
+            GFS_500DPS,
+            GFS_1000DPS,
+            GFS_2000DPS
+
+        } gscale_t;
+
+        typedef enum {
+
+            MFS_14BITS, // 0.6 mG per LSB
+            MFS_16BITS  // 0.15 mG per LSB
+
+        } mscale_t;
+
+        // Full-scale ranges are fixed in master mode
+        static constexpr float GYRO_SCALE  = 1.53e-1;
 
         static const uint8_t ADDRESS= 0x28;
 
@@ -937,13 +940,13 @@ class Usfs {
         // Returns scaled values (G)
         void readAccelerometerScaled(float & x, float & y, float & z)
         {
-            readThreeAxisScaled(AX, USFS_ACCEL_SCALE, x, y, z);
+            readThreeAxisScaled(AX, ACCEL_SCALE, x, y, z);
         }
 
         // Returns scaled values (degrees per second)
         void readGyrometerScaled(float & x, float & y, float & z)
         {
-            readThreeAxisScaled(GX, USFS_GYRO_SCALE, x, y, z);
+            readThreeAxisScaled(GX, GYRO_SCALE, x, y, z);
         }
 
         // Returns scaled values (mGauss)

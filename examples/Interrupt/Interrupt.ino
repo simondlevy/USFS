@@ -39,9 +39,9 @@ static const uint8_t ACCEL_RATE      = 20; // Multiply by 10 to get actual rate
 static const uint8_t GYRO_RATE       = 100; // Multiply by 10 to get actual rate
 static const uint8_t BARO_RATE       = 50;
 
-static const uint8_t INTERRUPT_ENABLE = USFS_INTERRUPT_RESET_REQUIRED |
-                                        USFS_INTERRUPT_ERROR |
-                                        USFS_INTERRUPT_QUAT;
+static const uint8_t INTERRUPT_ENABLE = Usfs::INTERRUPT_RESET_REQUIRED |
+                                        Usfs::INTERRUPT_ERROR |
+                                        Usfs::INTERRUPT_QUAT;
 
 static const bool VERBOSE = true;
 

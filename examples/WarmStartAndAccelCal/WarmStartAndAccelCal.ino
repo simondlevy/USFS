@@ -510,9 +510,9 @@ void setup(void)
 
     // Enable essential interrupts
     Usfs::enableEvents(
-            USFS_INTERRUPT_RESET_REQUIRED |
-            USFS_INTERRUPT_ERROR |
-            USFS_INTERRUPT_QUAT 
+            Usfs::INTERRUPT_RESET_REQUIRED |
+            Usfs::INTERRUPT_ERROR |
+            Usfs::INTERRUPT_QUAT 
             );
 
     // Enable USFS run mode
@@ -664,9 +664,9 @@ void loop(void)
         Usfs::readAccelerometerRaw(accelCount);
 
         // Now we'll calculate the accleration value into actual g's
-        ax = (float)accelCount[0]*USFS_ACCEL_SCALE;
-        ay = (float)accelCount[1]*USFS_ACCEL_SCALE;
-        az = (float)accelCount[2]*USFS_ACCEL_SCALE;
+        ax = (float)accelCount[0]*Usfs::ACCEL_SCALE;
+        ay = (float)accelCount[1]*Usfs::ACCEL_SCALE;
+        az = (float)accelCount[2]*Usfs::ACCEL_SCALE;
 
         // Manages accelerometer calibration; is active when calibratingA > 0
         Accel_cal_check(accelCount);
