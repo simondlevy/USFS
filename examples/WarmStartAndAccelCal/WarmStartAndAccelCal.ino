@@ -23,7 +23,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#include "USFS.h"
+#include "usfs.hpp"
 
 // Calibration registers
 static const uint8_t GP36 = 0x5B;
