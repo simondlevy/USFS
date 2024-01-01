@@ -329,7 +329,6 @@ class Usfs {
             return readByte(SensorStatus);
         }
 
-
         static void checkSensorStatus(uint8_t status) 
         {
             if (status & 0x01) Serial.print("Magnetometer not acknowledging!");
