@@ -25,9 +25,7 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <stdint.h>
-
-#include <Arduino.h>
-#include <Wire.h>
+#include <stdarg.h>
 
 class Usfs {
 
@@ -147,40 +145,6 @@ class Usfs {
         static const uint8_t ACC_LPF_BW = 0x5B;//Register GP36;
         static const uint8_t GYRO_LPF_BW= 0x5C;//Register GP37
         static const uint8_t BARO_LPF_BW= 0x5D;//Register GP38
-
-
-        static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) 
-        {
-            Wire.beginTransmission(address);
-            Wire.write(subAddress);
-            Wire.write(data);
-            Wire.endTransmission();
-        }
-
-        static uint8_t readByte(uint8_t address, uint8_t subAddress) 
-        {
-            Wire.beginTransmission(address);
-            Wire.write(subAddress);
-            Wire.endTransmission();
-            Wire.requestFrom((int)address, (int)1);
-            return Wire.read();
-        }
-
-        static void readBytes(
-                uint8_t address,
-                uint8_t subAddress,
-                uint8_t count,
-                uint8_t * dst)
-        {  
-            Wire.beginTransmission(address);   
-            Wire.write(subAddress);
-            Wire.endTransmission(false);      
-            uint32_t i = 0;
-            Wire.requestFrom((int)address, (int)count);
-            while (Wire.available()) {
-                dst[i++] = Wire.read(); 
-            } 
-        }
 
         static uint8_t readByte(uint8_t subAddress) 
         {
@@ -331,12 +295,12 @@ class Usfs {
 
         static void checkSensorStatus(uint8_t status) 
         {
-            if (status & 0x01) Serial.print("Magnetometer not acknowledging!");
-            if (status & 0x02) Serial.print("Accelerometer not acknowledging!");
-            if (status & 0x04) Serial.print("Gyro not acknowledging!");
-            if (status & 0x10) Serial.print("Magnetometer ID not recognized!");
-            if (status & 0x20) Serial.print("Accelerometer ID not recognized!");
-            if (status & 0x40) Serial.print("Gyro ID not recognized!");
+            if (status & 0x01) dbgprintf("Magnetometer not acknowledging!\n");
+            if (status & 0x02) dbgprintf("Accelerometer not acknowledging!\n");
+            if (status & 0x04) dbgprintf("Gyro not acknowledging!\n");
+            if (status & 0x10) dbgprintf("Magnetometer ID not recognized!\n");
+            if (status & 0x20) dbgprintf("Accelerometer ID not recognized!\n");
+            if (status & 0x40) dbgprintf("Gyro ID not recognized!\n");
         }
 
         static uint8_t getSentralStatus(void)
@@ -515,23 +479,17 @@ class Usfs {
             // Read SENtral device information
             uint16_t ROM1 = readByte(ROMVersion1);
             uint16_t ROM2 = readByte(ROMVersion2);
-            Serial.print("EM7180 ROM Version: 0x");
-            Serial.print(ROM1, HEX);
-            Serial.println(ROM2, HEX);
-            Serial.println("Should be: 0xE609");
+            dbgprintf("EM7180 ROM Version: 0x%02X%02X\n", ROM1, ROM2);
+            dbgprintf("Should be: 0xE609\n");
             uint16_t RAM1 = readByte(RAMVersion1);
             uint16_t RAM2 = readByte(RAMVersion2);
-            Serial.print("EM7180 RAM Version: 0x");
-            Serial.print(RAM1);
-            Serial.println(RAM2);
+            dbgprintf("EM7180 RAM Version: 0x%02X%02X\n", RAM1, RAM2);
             uint8_t PID = readByte(ProductID);
-            Serial.print("EM7180 ProductID: 0x");
-            Serial.print(PID, HEX);
-            Serial.println(" Should be: 0x80");
+            dbgprintf("EM7180 ProductID: 0x%02X\n", PID);
+            dbgprintf(" Should be: 0x80");
             uint8_t RID = readByte(RevisionID);
-            Serial.print("EM7180 RevisionID: 0x");
-            Serial.print(RID, HEX);
-            Serial.println(" Should be: 0x02");
+            dbgprintf("EM7180 RevisionID: 0x%02X\n", RID);
+            dbgprintf(" Should be: 0x02\n");
         }    
 
         void loadFirmware(bool verbose=false)
@@ -541,22 +499,22 @@ class Usfs {
 
             if (verbose) {
                 if (featureflag & 0x01)  {
-                    Serial.println("A barometer is installed");
+                    dbgprintf("A barometer is installed\n");
                 }
                 if (featureflag & 0x02)  {
-                    Serial.println("A humidity sensor is installed");
+                    dbgprintf("A humidity sensor is installed\n");
                 }
                 if (featureflag & 0x04)  {
-                    Serial.println("A temperature sensor is installed");
+                    dbgprintf("A temperature sensor is installed\n");
                 }
                 if (featureflag & 0x08)  {
-                    Serial.println("A custom sensor is installed");
+                    dbgprintf("A custom sensor is installed\n");
                 }
                 if (featureflag & 0x10)  {
-                    Serial.println("A second custom sensor is installed");
+                    dbgprintf("A second custom sensor is installed\n");
                 }
                 if (featureflag & 0x20)  {
-                    Serial.println("A third custom sensor is installed");
+                    dbgprintf("A third custom sensor is installed\n");
                 }
                 delay(1000); // give some time to read the screen
             }
@@ -574,24 +532,24 @@ class Usfs {
 
                 if (verbose) {
                     if (status & 0x01)  {
-                        Serial.println("EEPROM detected on the sensor bus!");
+                        dbgprintf("EEPROM detected on the sensor bus!\n");
                     }
                     if (status & 0x02)  {
-                        Serial.println("EEPROM uploaded config file!");
+                        dbgprintf("EEPROM uploaded config file!\n");
                     }
 
                     if (status & 0x04)  {
-                        Serial.println("EEPROM CRC incorrect!");
+                        dbgprintf("EEPROM CRC incorrect!\n");
                         okay = false;
                     }
 
                     if (status & 0x08)  {
-                        Serial.println("EM7180 in initialized state!");
+                        dbgprintf("EM7180 in initialized state!\n");
                     }
                 }
 
                 if (status & 0x10)  {
-                    Serial.println("No EEPROM detected!");
+                    dbgprintf("No EEPROM detected!\n");
                     okay = false;
                 }
 
@@ -603,13 +561,13 @@ class Usfs {
             if (okay) {
                 if (!(getSentralStatus() & 0x04)) {
                     if (verbose) {
-                        Serial.println("EEPROM upload successful!");
+                        dbgprintf("EEPROM upload successful!\n");
                     }
                 }
             }
             else {
                 while (true) {
-                    Serial.println("Failed to load firmware");
+                    dbgprintf("Failed to load firmware\n");
                     delay(500);
                 }
             }
@@ -660,7 +618,7 @@ class Usfs {
             delay(100);
 
             if (verbose) {
-                Serial.println("Beginning Parameter Adjustments");
+                dbgprintf("Beginning Parameter Adjustments\n");
             }
 
             // Read sensor default FS values from parameter space
@@ -679,12 +637,8 @@ class Usfs {
             accelFs = ((int16_t)(param[3]<<8) | param[2]);
 
             if (verbose) {
-                Serial.print("Magnetometer Default Full Scale Range: +/-");
-                Serial.print(magFs);
-                Serial.println("uT");
-                Serial.print("Accelerometer Default Full Scale Range: +/-");
-                Serial.print(accelFs);
-                Serial.println("g");
+                dbgprintf("Magnetometer Default Full Scale Range: +/-%d uT\n", magFs);
+                dbgprintf("Accelerometer Default Full Scale Range: +/-%d g\n", accelFs);
             }
 
             // Request to read  parameter 75
@@ -699,9 +653,7 @@ class Usfs {
             gyroFs = ((int16_t)(param[1]<<8) | param[0]);
 
             if (verbose) {
-                Serial.print("Gyroscope Default Full Scale Range: +/-");
-                Serial.print(gyroFs);
-                Serial.println("dps");
+                dbgprintf("Gyroscope Default Full Scale Range: +/-%d dps\n", gyroFs);
             }
 
             writeByte(ParamRequest, 0x00); //End parameter transfer
@@ -728,12 +680,8 @@ class Usfs {
             accelFs = ((int16_t)(param[3]<<8) | param[2]);
 
             if (verbose) {
-                Serial.print("Magnetometer New Full Scale Range: +/-");
-                Serial.print(magFs);
-                Serial.println("uT");
-                Serial.print("Accelerometer New Full Scale Range: +/-");
-                Serial.print(accelFs);
-                Serial.println("g");
+                dbgprintf("Magnetometer New Full Scale Range: +/-%d uT\n", magFs);
+                dbgprintf("Accelerometer New Full Scale Range: +/-%d g\n", accelFs);
             }
 
             writeByte(ParamRequest, 0x4B); // Request to read  parameter 75
@@ -745,9 +693,7 @@ class Usfs {
             gyroFs = ((int16_t)(param[1]<<8) | param[0]);
 
             if (verbose) {
-                Serial.print("Gyroscope New Full Scale Range: +/-");
-                Serial.print(gyroFs);
-                Serial.println("dps");
+                dbgprintf("Gyroscope New Full Scale Range: +/-%d dps\n", gyroFs);
             }
 
             writeByte(ParamRequest, 0x00); //End parameter transfer
@@ -757,35 +703,35 @@ class Usfs {
             uint8_t runStatus = readByte(RunStatus);
             if (runStatus & 0x01) {
                 if (verbose) {
-                    Serial.println("EM7180 run status = normal mode");
+                    dbgprintf("EM7180 run status = normal mode\n");
                 }
             }
 
             uint8_t algoStatus = readByte(AlgorithmStatus);
 
             if (verbose) {
-                if (algoStatus & 0x01) Serial.println("EM7180 standby status");
-                if (algoStatus & 0x02) Serial.println("EM7180 algorithm slow");
-                if (algoStatus & 0x04) Serial.println("EM7180 in stillness mode");
-                if (algoStatus & 0x08) Serial.println("EM7180 mag calibration completed");
-                if (algoStatus & 0x10) Serial.println("EM7180 magnetic anomaly detected");
-                if (algoStatus & 0x20) Serial.println("EM7180 unreliable sensor data");
+                if (algoStatus & 0x01) dbgprintf("EM7180 standby status\n");
+                if (algoStatus & 0x02) dbgprintf("EM7180 algorithm slow\n");
+                if (algoStatus & 0x04) dbgprintf("EM7180 in stillness mode\n");
+                if (algoStatus & 0x08) dbgprintf("EM7180 mag calibration completed\n");
+                if (algoStatus & 0x10) dbgprintf("EM7180 magnetic anomaly detected\n");
+                if (algoStatus & 0x20) dbgprintf("EM7180 unreliable sensor data\n");
             }
 
             uint8_t passthruStatus = readByte(PassThruStatus);
 
-            if (passthruStatus & 0x01) Serial.print("EM7180 in passthru mode!");
+            if (passthruStatus & 0x01) dbgprintf("EM7180 in passthru mode!\n");
 
             uint8_t eventStatus = readByte(EventStatus);
 
-            if (eventStatus & 0x02) Serial.println("EM7180 Error");
+            if (eventStatus & 0x02) dbgprintf("EM7180 Error\n");
 
             if (verbose) {
-                if (eventStatus & 0x01) Serial.println("EM7180 CPU reset");
-                if (eventStatus & 0x04) Serial.println("EM7180 new quaternion result");
-                if (eventStatus & 0x08) Serial.println("EM7180 new mag result");
-                if (eventStatus & 0x10) Serial.println("EM7180 new accel result");
-                if (eventStatus & 0x20) Serial.println("EM7180 new gyro result"); 
+                if (eventStatus & 0x01) dbgprintf("EM7180 CPU reset\n");
+                if (eventStatus & 0x04) dbgprintf("EM7180 new quaternion result\n");
+                if (eventStatus & 0x08) dbgprintf("EM7180 new mag result\n");
+                if (eventStatus & 0x10) dbgprintf("EM7180 new accel result\n");
+                if (eventStatus & 0x20) dbgprintf("EM7180 new gyro result\n"); 
                 delay(1000); // give some time to read the screen
             }
 
@@ -794,26 +740,17 @@ class Usfs {
 
             if (verbose) {
 
-                Serial.print("EM7180 sensor status = ");
-                Serial.println(sensorStatus);
+                dbgprintf("EM7180 sensor status = %d\n", sensorStatus);
             }
 
             checkSensorStatus(sensorStatus);
 
             if (verbose) {
 
-                Serial.print("Actual MagRate = ");
-                Serial.print(readByte(ActualMagRate));
-                Serial.println(" Hz"); 
-                Serial.print("Actual AccelRate = ");
-                Serial.print(10*readByte(ActualAccelRate));
-                Serial.println(" Hz"); 
-                Serial.print("Actual GyroRate = ");
-                Serial.print(10*readByte(ActualGyroRate));
-                Serial.println(" Hz"); 
-                Serial.print("Actual BaroRate = ");
-                Serial.print(readByte(ActualBaroRate));
-                Serial.println(" Hz"); 
+                dbgprintf("Actual MagRate = %d Hz\n", readByte(ActualMagRate));
+                dbgprintf("Actual AccelRate = %d Hz\n", 10*readByte(ActualAccelRate));
+                dbgprintf("Actual GyroRate = %d Hz\n", 10*readByte(ActualGyroRate));
+                dbgprintf("Actual BaroRate = %d Hz\n", readByte(ActualBaroRate));
             }
         }
 
@@ -840,35 +777,35 @@ class Usfs {
             switch (errorStatus) {
 
                 case 0x11:
-                    Serial.println("Magnetometer failure!");
+                    dbgprintf("Magnetometer failure!\n");
                     break;
 
                 case 0x12:
-                    Serial.println("Accelerometer failure!");
+                    dbgprintf("Accelerometer failure!\n");
                     break;
 
                 case 0x14:
-                    Serial.println("Gyro failure!");
+                    dbgprintf("Gyro failure!\n");
                     break;
 
                 case 0x21:
-                    Serial.println("Magnetometer initialization failure!");
+                    dbgprintf("Magnetometer initialization failure!\n");
                     break;
 
                 case 0x22:
-                    Serial.println("Accelerometer initialization failure!");
+                    dbgprintf("Accelerometer initialization failure!\n");
                     break;
 
                 case 0x24:
-                    Serial.println("Gyro initialization failure!");
+                    dbgprintf("Gyro initialization failure!\n");
                     break;
 
                 case 0x30:
-                    Serial.println("Math error!");
+                    dbgprintf("Math error!\n");
                     break;
 
                 case 0x80:
-                    Serial.println("Invalid sample rate!");
+                    dbgprintf("Invalid sample rate!\n");
                     break;
             }
         }
@@ -878,35 +815,35 @@ class Usfs {
             switch (errorStatus) {
 
                 case 0x11:
-                    Serial.println("Magnetometer failure!");
+                    dbgprintf("Magnetometer failure!\n");
                     break;
 
                 case 0x12:
-                    Serial.println("Accelerometer failure!");
+                    dbgprintf("Accelerometer failure!\n");
                     break;
 
                 case 0x14:
-                    Serial.println("Gyro failure!");
+                    dbgprintf("Gyro failure!\n");
                     break;
 
                 case 0x21:
-                    Serial.println("Magnetometer initialization failure!");
+                    dbgprintf("Magnetometer initialization failure!\n");
                     break;
 
                 case 0x22:
-                    Serial.println("Accelerometer initialization failure!");
+                    dbgprintf("Accelerometer initialization failure!\n");
                     break;
 
                 case 0x24:
-                    Serial.println("Gyro initialization failure!");
+                    dbgprintf("Gyro initialization failure!\n");
                     break;
 
                 case 0x30:
-                    Serial.println("Math error!");
+                    dbgprintf("Math error!\n");
                     break;
 
                 case 0x80:
-                    Serial.println("Invalid sample rate!");
+                    dbgprintf("Invalid sample rate!\n");
                     break;
             }
         }
@@ -987,6 +924,34 @@ class Usfs {
             qz =  uint32_reg_to_float (&counts[8]);
             qw = uint32_reg_to_float (&counts[12]);   
         }
+
+        static void dbgprintf(const char * fmt, ...)
+        {
+            char buf[256] = {};
+
+            va_list ap = {};
+
+            va_start(ap, fmt);
+            vsprintf(buf, fmt, ap);
+            va_end(ap);
+
+            dbgputs(buf);
+        }
+
+
+        // Platform-dependent  ------------------------------------------------
+
+        static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
+
+        static uint8_t readByte(uint8_t address, uint8_t subAddress) ;
+
+        static void readBytes(
+                uint8_t address,
+                uint8_t subAddress,
+                uint8_t count,
+                uint8_t * dst);
+
+        static void dbgputs(char * msg);
 
 }; // class Usfs
 
