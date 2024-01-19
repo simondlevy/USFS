@@ -45,5 +45,8 @@ An asynchronous [version](https://github.com/bmegli/EM7180.git) of this library 
 
 ## Working with non-Arduino microcontrollers
 
-The Arduino-dependent code has been isolated in a [file](src/usfs_arduino.cpp) supporting the essential
-I/O functionality (I<sup>2</sup>C, millisecond delay, serial debugging).
+The Arduino-dependent code has been isolated in a source
+[file](src/usfs_arduino.cpp) supporting the essential I/O functionality
+(I<sup>2</sup>C, millisecond delay, serial debugging). To work with a
+microcontroller that doesn't use the Arduino API, you can copy/paste this file 
+and modify it appropriately.
