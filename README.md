@@ -43,3 +43,7 @@ directories, do <tt>sudo python3 setup.py install</tt>.
 
 An asynchronous [version](https://github.com/bmegli/EM7180.git) of this library is also available for Teensy 3.5.
 
+## Working with non-Arduino microcontrollers
+
+The Arduino-dependent code has been isolated in a [file](src/usfs_arduino.cpp) supporting the essential
+I/O functionality (I<sup>2</sup>C, millisecond delay, serial debugging).
