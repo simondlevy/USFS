@@ -358,12 +358,12 @@ class Usfs {
         {
 
             writeByte(AlgorithmControl, 0x01);
-            delay(5);
+            delayMsec(5);
 
             writeByte(PassThruControl, 0x01);
             while (true) {
                 if (readByte(PassThruStatus) & 0x01) break;
-                delay(5);
+                delayMsec(5);
             }
         }
 
@@ -373,14 +373,14 @@ class Usfs {
             writeByte(PassThruControl, 0x00);
             while (true) {
                 if (!(readByte(PassThruStatus) & 0x01)) break;
-                delay(5);
+                delayMsec(5);
             }
 
 
             writeByte(AlgorithmControl, 0x00);
             while (true) {
                 if (!(readByte(AlgorithmStatus) & 0x01)) break;
-                delay(5);
+                delayMsec(5);
             }
         }
 
@@ -517,7 +517,7 @@ class Usfs {
                 if (featureflag & 0x20)  {
                     dbgprintf("A third custom sensor is installed\n");
                 }
-                delay(1000); // give some time to read the screen
+                delayMsec(1000); // give some time to read the screen
             }
 
 
@@ -527,7 +527,7 @@ class Usfs {
 
                 writeByte(ResetRequest, 0x01);
 
-                delay(100);  
+                delayMsec(100);  
 
                 uint8_t status = getSentralStatus();
 
@@ -569,7 +569,7 @@ class Usfs {
             else {
                 while (true) {
                     dbgprintf("Failed to load firmware\n");
-                    delay(500);
+                    delayMsec(500);
                 }
             }
         }
@@ -616,7 +616,7 @@ class Usfs {
 
             // Enable EM7180 run mode
             setRunEnable();
-            delay(100);
+            delayMsec(100);
 
             if (verbose) {
                 dbgprintf("Beginning Parameter Adjustments\n");
@@ -733,7 +733,7 @@ class Usfs {
                 if (eventStatus & 0x08) dbgprintf("EM7180 new mag result\n");
                 if (eventStatus & 0x10) dbgprintf("EM7180 new accel result\n");
                 if (eventStatus & 0x20) dbgprintf("EM7180 new gyro result\n"); 
-                delay(1000); // give some time to read the screen
+                delayMsec(1000); // give some time to read the screen
             }
 
             // Check sensor status
@@ -941,6 +941,8 @@ class Usfs {
 
 
         // Platform-dependent  ------------------------------------------------
+
+        static void delayMsec(const uint32_t msec);
 
         static void writeByte(uint8_t address, uint8_t subAddress, uint8_t data);
 

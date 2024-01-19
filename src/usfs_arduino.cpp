@@ -58,6 +58,10 @@ void Usfs::readBytes(
     } 
 }
 
+void Usfs::delayMsec(const uint32_t msec)
+{
+    delay(msec);
+}
 
 void Usfs::dbgputs(char * msg)
 {
