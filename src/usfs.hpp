@@ -478,16 +478,16 @@ class Usfs {
             // Read SENtral device information
             uint16_t ROM1 = readByte(ROMVersion1);
             uint16_t ROM2 = readByte(ROMVersion2);
-            dbgprintf("EM7180 ROM Version: 0x%02X%02X\n", ROM1, ROM2);
+            dbgprintf("EM7180: ROM Version: 0x%02X%02X\n", ROM1, ROM2);
             dbgprintf("Should be: 0xE609\n");
             uint16_t RAM1 = readByte(RAMVersion1);
             uint16_t RAM2 = readByte(RAMVersion2);
-            dbgprintf("EM7180 RAM Version: 0x%02X%02X\n", RAM1, RAM2);
+            dbgprintf("EM7180: RAM Version: 0x%02X%02X\n", RAM1, RAM2);
             uint8_t PID = readByte(ProductID);
-            dbgprintf("EM7180 ProductID: 0x%02X\n", PID);
+            dbgprintf("EM7180: ProductID: 0x%02X\n", PID);
             dbgprintf(" Should be: 0x80");
             uint8_t RID = readByte(RevisionID);
-            dbgprintf("EM7180 RevisionID: 0x%02X\n", RID);
+            dbgprintf("EM7180: RevisionID: 0x%02X\n", RID);
             dbgprintf(" Should be: 0x02\n");
         }    
 
@@ -498,22 +498,22 @@ class Usfs {
 
             if (verbose) {
                 if (featureflag & 0x01)  {
-                    dbgprintf("A barometer is installed\n");
+                    dbgprintf("EM7180: A barometer is installed\n");
                 }
                 if (featureflag & 0x02)  {
-                    dbgprintf("A humidity sensor is installed\n");
+                    dbgprintf("EM7180: A humidity sensor is installed\n");
                 }
                 if (featureflag & 0x04)  {
-                    dbgprintf("A temperature sensor is installed\n");
+                    dbgprintf("EM7180: A temperature sensor is installed\n");
                 }
                 if (featureflag & 0x08)  {
-                    dbgprintf("A custom sensor is installed\n");
+                    dbgprintf("EM7180: A custom sensor is installed\n");
                 }
                 if (featureflag & 0x10)  {
-                    dbgprintf("A second custom sensor is installed\n");
+                    dbgprintf("EM7180: A second custom sensor is installed\n");
                 }
                 if (featureflag & 0x20)  {
-                    dbgprintf("A third custom sensor is installed\n");
+                    dbgprintf("EM7180: A third custom sensor is installed\n");
                 }
                 delayMsec(1000); // give some time to read the screen
             }
