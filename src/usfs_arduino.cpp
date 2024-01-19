@@ -23,6 +23,9 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <Arduino.h>
 #include <Wire.h>
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "usfs.hpp"
 
 void Usfs::writeByte(uint8_t address, uint8_t subAddress, uint8_t data) 
@@ -63,7 +66,17 @@ void Usfs::delayMsec(const uint32_t msec)
     delay(msec);
 }
 
-void Usfs::dbgputs(char * msg)
+void Usfs::dbgprintf(const char * fmt, ...)
 {
-    Serial.print(msg);
+    char buf[256] = {};
+
+    va_list ap = {};
+
+    va_start(ap, fmt);
+    vsprintf(buf, fmt, ap);
+    va_end(ap);
+
+    Serial.print(buf);
 }
+
+

@@ -24,9 +24,7 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <stdio.h>
 #include <stdint.h>
-#include <stdarg.h>
 
 class Usfs {
 
@@ -926,20 +924,6 @@ class Usfs {
             qw = uint32_reg_to_float (&counts[12]);   
         }
 
-        static void dbgprintf(const char * fmt, ...)
-        {
-            char buf[256] = {};
-
-            va_list ap = {};
-
-            va_start(ap, fmt);
-            vsprintf(buf, fmt, ap);
-            va_end(ap);
-
-            dbgputs(buf);
-        }
-
-
         // Platform-dependent  ------------------------------------------------
 
         static void delayMsec(const uint32_t msec);
@@ -954,7 +938,7 @@ class Usfs {
                 uint8_t count,
                 uint8_t * dst);
 
-        static void dbgputs(char * msg);
+        static void dbgprintf(const char * fmt, ...);
 
 }; // class Usfs
 
