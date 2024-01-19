@@ -24,6 +24,7 @@ along with USFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
 
@@ -626,7 +627,7 @@ class Usfs {
 
             // Request parameter transfer process
             writeByte(AlgorithmControl, 0x80); 
-            byte param_xfer = getParamAcknowledge();
+            auto param_xfer = getParamAcknowledge();
             while(!(param_xfer==0x4A)) {
                 param_xfer = getParamAcknowledge();
             }
