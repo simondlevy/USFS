@@ -29,7 +29,7 @@
 #include "usfs.hpp"
 
 // Set to 0 for polling version
-static const uint8_t INTERRUPT_PIN = 12; 
+static const uint8_t INTERRUPT_PIN = 0; 
 
 static const uint8_t ACCEL_BANDWIDTH = 3;
 static const uint8_t GYRO_BANDWIDTH  = 3;
@@ -58,6 +58,12 @@ static Usfs usfs;
 
 void setup()
 {
+    pinMode(21, OUTPUT);
+    digitalWrite(21, HIGH);
+
+    pinMode(22, OUTPUT);
+    digitalWrite(22, LOW);
+
     Serial.begin(115200);
     delay(4000);
 
@@ -87,14 +93,6 @@ void setup()
 
     // Clear interrupts
     Usfs::checkStatus();
-
-    Serial.println("Enter '1' to proceed...");
-    while (true) {
-        if (Serial.read() == '1') {
-            break;
-        }
-        delay(10);
-    }
 
 } // setup
 
